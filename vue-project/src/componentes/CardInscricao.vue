@@ -16,11 +16,19 @@ defineProps({
     </div>
     <div class="cardbody">
       <ul class="timeline">
-        <li v-for="(item, i) in datas" key="i" :class="{ start: i === 0, end: i === 1 }">
-          <span class="data">{{ item.data }} às {{ item.hora }}</span>
-          <span class="descricao">{{ item.descricao }}</span>
+        <li>
+          <p>{{ datas[0].data }} <br> {{ datas[0].hora }}</p>
+          <p>{{ datas[0].descricao }}</p>
+        </li>
+        <li>
+          <p>{{ datas[datas.length -1].data }} <br> {{ datas[datas.length -1].hora }}</p>
+          <p>{{ datas[datas.length-1].descricao }} </p>
         </li>
       </ul>
+    </div>
+    <div class="cardfooter">
+      <p>{{categoria}}</p>
+      <img src=""></img>
     </div>
   </div>
 </template>
@@ -30,10 +38,13 @@ defineProps({
   background-size: cover;
   background-position: center;
   max-width: 400px;
-  width: 32%;
+  width: 100%;
   border-radius: 16px;
-  padding: 20px;
+  padding: 28px 28px 18px 28px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 .timeline {
   border-left: 2px solid #222;
@@ -42,26 +53,26 @@ defineProps({
   list-style-type: disc;
 }
 li {
-  padding: 1rem 0;
+  padding: 0.5rem 0;
   position: relative;
   display: flex;
   gap: 1rem;
   align-items: center;
 }
-li.start::before {
+li:first-child::before {
   content: '•';
   font-size: 2.5rem;
   position: absolute;
-  left: -23px;
-  top: -3px;
+  left: -24px;
+  top: -2px;
   color: #009218;
 }
-li.end::before {
+li:last-child:before {
   content: '•';
   font-size: 2.5rem;
   position: absolute;
-  left: -23px;
-  top: -3px;
+  left: -24px;
+  top: 0;
   color: #c62828;
 }
 .descricao {
@@ -70,5 +81,15 @@ li.end::before {
 .data {
   font-size: 0.8rem;
   font-weight: lighter;
+}
+.cardfooter{
+  justify-content: right;
+  color: white;
+  font-weight: 600;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+}
+.cardfooter p{
 }
 </style>

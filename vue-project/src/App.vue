@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import Button from './componentes/Button.vue'
-import CardInscricoes from './componentes/CardInscricoes.vue'
+import CardInscricoes from './componentes/CardInscricao.vue'
+import CardDestaque from './componentes/CardDestaque.vue'
 const eventos = [
   {
     titulo: 'Evento alusivo ao dia do professor de geografia',
     local: 'Miniauditório Central',
     categoria: 'Palestras',
     datas: [
-      { data: '20/06', hora: '14h', descricao: 'Abertura das inscrições' },
+      { data: '20/06', hora: '14:00', descricao: 'Abertura das inscrições' },
+      { data: '20/07', hora: '12:00', descricao: 'Inicio do evento' },
       { data: '24/06', hora: '23:59', descricao: 'Período final das inscrições' },
     ],
   },
@@ -21,15 +23,14 @@ const eventos = [
     documentation
   </p>
   <Button></Button>
-  <CardInscricoes
+  <CardDestaque
     v-for="(evento, index) in eventos"
     :key="index"
     :titulo="evento.titulo"
     :local="evento.local"
-    :categoria="evento.categoria"
     :datas="evento.datas"
   >
-  </CardInscricoes>
+  </CardDestaque>
 </template>
 
 <style>
