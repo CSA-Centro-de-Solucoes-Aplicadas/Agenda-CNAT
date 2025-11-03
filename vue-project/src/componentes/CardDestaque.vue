@@ -5,15 +5,19 @@ defineProps({
   datas: Array,
   imagem: String,
 })
+import localImg from '@/assets/images/icons/local.svg'
+import calendario_horaImg from'@/assets/images/icons/calendario_hora.svg'
+import '@/assets/images/illustrations/fundodestaque.png'
 </script>
 <template>
   <div class="carddestaque">
     <h3>{{ titulo }}</h3>
     <div class="local">
-      <!-- <img>{}</img> -->
+      <img :src="localImg"></img>
       <p>{{ local }}</p>
     </div>
     <div class="data">
+      <img :src="calendario_horaImg"></img>
       <!-- <img></img> -->
       <p>{{ datas[1].data }}</p>
     </div>
@@ -21,7 +25,7 @@ defineProps({
 </template>
 <style scoped>
 .carddestaque {
-  background-image: url(imagens/fundodestaque.png);
+  background-image:url(@/assets/images/illustrations/fundodestaque.png);
   background-size: cover;
   background-position: center;
   border-radius: 20px 20px 20px 20px;
