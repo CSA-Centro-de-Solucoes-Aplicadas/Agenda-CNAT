@@ -22,7 +22,7 @@ import youtubeImg from '@/assets/youtube.png'
     <main class="main-content">
       <section class="destaques default-section">
         <div class="content-container">
-          <h3>Programação do CNAT</h3>
+          <h3>Eventos do CNAT</h3>
         </div>
       </section>
 
@@ -38,7 +38,6 @@ import youtubeImg from '@/assets/youtube.png'
           <div class="adicionarEvento-texto">
             <h3>Quer adicionar algum evento ao nosso calendário?</h3>
             <p>Acesse nosso tutorial para cadastrar seu evento no SUAP</p>
-            
           </div>
         </div>
       </section>
@@ -59,9 +58,9 @@ import youtubeImg from '@/assets/youtube.png'
 
         <div class="footer-right">
           <div class="social">
-            <img :src="instagramImg" alt="Logotipo do Instagram" />
-            <img :src="XImg" alt="Logotipo do X" />
-            <img :src="youtubeImg" alt="Logotipo do YouTube" />
+            <img :src="instagramImg" alt="Logotipo do Instagram"/>
+            <img :src="XImg" alt="Logotipo do X"/>
+            <img :src="youtubeImg" alt="Logotipo do YouTube"/>
           </div>
           <p>cnat@ifrn.com</p>
           <p>Av. Sen. Salgado Filho, 1559 – Tirol, Natal – RN <br><strong>CEP:</strong> 59015-000</p>
@@ -99,11 +98,11 @@ h3 {
 }
 
 .main-header {
-   width: 100%;
+  width: 100%;
   position: relative;
   overflow: hidden;       
   min-height: 200px;   
-  max-height: 400px; 
+  max-height: 300px; 
 }
 
 
@@ -183,18 +182,23 @@ h3 {
 
 
 .inscricoes {
+  max-width: 1440px;
   width: 100%;
-  padding: 0;
-  margin: 0;
+  margin: 0 auto;
   overflow-x: hidden;
   border-top-left-radius: 6rem;
   border-bottom-right-radius: 6rem;
-  background-color: #31BF81;
-  min-height: 600px; 
-  position: relative;
-  display: flex; 
+  min-height: 600px;
+  display: flex;
   flex-direction: column;
+  
+  background-image: url("@/assets/inscricoesSection.svg");
+  background-size: cover;       
+  background-position: center;   
+  background-repeat: no-repeat;  
+
 }
+
 
 .inscricoes-content {
   max-width: 1440px;
