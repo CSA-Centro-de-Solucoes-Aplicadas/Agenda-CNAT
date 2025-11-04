@@ -58,4 +58,8 @@ p {
 h3 {
   color: white;
 }
+.local, .data{
+  display: flex;
+  gap: 1rem;
+}
 </style>

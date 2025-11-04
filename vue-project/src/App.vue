@@ -2,6 +2,8 @@
 import Button from './componentes/Button.vue'
 import CardInscricoes from './componentes/CardInscricao.vue'
 import CardDestaque from './componentes/CardDestaque.vue'
+import CarrosselDestaque from './componentes/CarrosselDestaque.vue'
+import CarrosselDestaque from './componentes/CarrosselDestaque.vue'
 const eventos = [
   {
     titulo: 'Evento alusivo ao dia do professor de geografia',
@@ -17,20 +19,7 @@ const eventos = [
 </script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
-  <Button></Button>
-  <CardDestaque
-    v-for="(evento, index) in eventos"
-    :key="index"
-    :titulo="evento.titulo"
-    :local="evento.local"
-    :datas="evento.datas"
-  >
-  </CardDestaque>
+  <CarrosselDestaque></CarrosselDestaque>
 </template>
 
 <style>
