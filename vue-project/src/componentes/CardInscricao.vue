@@ -1,9 +1,6 @@
 <script setup>
 defineProps({
-  titulo: String,
-  local: String,
-  categoria: String,
-  datas: Array,
+  item: Object
 })
 </script>
 <template>

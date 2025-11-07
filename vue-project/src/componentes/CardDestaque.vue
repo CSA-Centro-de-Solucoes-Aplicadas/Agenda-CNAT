@@ -1,9 +1,6 @@
 <script setup>
-defineProps({
-  titulo: String,
-  local: String,
-  datas: Array,
-  imagem: String,
+const props = defineProps({
+  item: Object
 })
 import localImg from '@/assets/images/icons/local.svg'
 import calendario_horaImg from'@/assets/images/icons/calendario_hora.svg'
@@ -11,15 +8,15 @@ import '@/assets/images/illustrations/fundodestaque.png'
 </script>
 <template>
   <div class="carddestaque">
-    <h3>{{ titulo }}</h3>
+    <h3>{{ item.titulo }}</h3>
     <div class="local">
       <img :src="localImg"></img>
-      <p>{{ local }}</p>
+      <p>{{ item.local }}</p>
     </div>
     <div class="data">
       <img :src="calendario_horaImg"></img>
       <!-- <img></img> -->
-      <p>{{ datas[1].data }}</p>
+      <p>{{ item.datas[1].data }}</p>
     </div>
   </div>
 </template>

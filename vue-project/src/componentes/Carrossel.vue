@@ -1,24 +1,15 @@
-<script>
-defineProps({
-  itens: Array,
-})
-import CardDestaque from './CardDestaque.vue'
+<script setup>
 import CardDestaque from './CardDestaque.vue'
 const props = defineProps({
-  items: Array,
-  component: [Object],
+  itens: Array,
+  component: Object,
 })
 </script>
 <template>
   <div class="carrossel">
-    <CardDestaque
-      v-for="(item, i) in itens"
-      :key="i"
-      :titulo="item.titulo"
-      :local="item.local"
-      :datas="item.datas"
-      :imagem="item.imagem"
-    ></CardDestaque>
+    <div class="itens" ref="container">
+      <component v-for="(item, i) in itens" :key="i" :is="component" :item="item" />
+    </div>
   </div>
 </template>
 <style scoped>
