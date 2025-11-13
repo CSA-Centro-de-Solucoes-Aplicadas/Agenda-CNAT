@@ -1,5 +1,5 @@
 <script setup>
-defineProps({
+const props = defineProps({
   item: Object
 })
 </script>
@@ -7,19 +7,19 @@ defineProps({
   <div class="cardevento">
     <div class="cardheader">
       <h3>
-        {{ titulo }}
+        {{ item.titulo }}
       </h3>
-      <p>{{ local }}</p>
+      <p>{{ item.local }}</p>
     </div>
     <div class="cardbody">
       <ul class="timeline">
         <li>
-          <p>{{ datas[0].data }} <br> {{ datas[0].hora }}</p>
-          <p>{{ datas[0].descricao }}</p>
+          <p>{{ item.datas[0].data }} <br> {{ item.datas[0].hora }}</p>
+          <p>{{ item.datas[0].descricao }}</p>
         </li>
         <li>
-          <p>{{ datas[datas.length -1].data }} <br> {{ datas[datas.length -1].hora }}</p>
-          <p>{{ datas[datas.length-1].descricao }} </p>
+          <p>{{ item.datas[item.datas.length -1].data }} <br> {{ item.datas[item.datas.length -1].hora }}</p>
+          <p>{{ item.datas[item.datas.length-1].descricao }} </p>
         </li>
       </ul>
     </div>
@@ -31,7 +31,7 @@ defineProps({
 </template>
 <style scoped>
 .cardevento {
-  background-image: url(imagens/CardInscricoes_background.png);
+  background-image: url('@/assets/images/illustrations/CardInscricoes_background.png');
   background-size: cover;
   background-position: center;
   max-width: 400px;

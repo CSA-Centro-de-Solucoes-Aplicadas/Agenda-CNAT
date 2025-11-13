@@ -2,6 +2,7 @@
 import CardInscricao from './componentes/CardInscricao.vue'
 import Carrossel from './componentes/Carrossel.vue'
 import CardDestaque from './componentes/CardDestaque.vue'
+import ButtonSeta from './componentes/ButtonSeta.vue'
 const eventos = [
   {
     titulo: 'Evento alusivo ao dia do professor de geografia',
@@ -33,10 +34,31 @@ const eventos = [
       { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
     ],
   },
+  {
+    titulo: 'CineBiblio',
+    local: 'Biblioteca Central',
+    categoria: 'Cultura',
+    datas: [
+      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
+      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
+      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
+    ],
+  },
+  {
+    titulo: 'CineBiblio',
+    local: 'Biblioteca Central',
+    categoria: 'Cultura',
+    datas: [
+      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
+      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
+      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
+    ],
+  },
 ]
 </script>
 
 <template>
+  <ButtonSeta></ButtonSeta>
   <Carrossel :itens="eventos" :component="CardDestaque"></Carrossel>
   <Carrossel :itens="eventos" :component="CardInscricao"></Carrossel>
 </template>

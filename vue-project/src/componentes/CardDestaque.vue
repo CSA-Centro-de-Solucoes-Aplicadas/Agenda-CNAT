@@ -27,7 +27,7 @@ import '@/assets/images/illustrations/fundodestaque.png'
   background-position: center;
   border-radius: 20px 20px 20px 20px;
   position: relative;
-  max-width: 265px;
+  min-width: 265px;
   width: 100%;
   display: flex;
   flex-direction: column;
