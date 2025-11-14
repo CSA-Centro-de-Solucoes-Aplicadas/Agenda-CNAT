@@ -11,14 +11,16 @@ import youtubeImg from '@/assets/youtube.png'
 <template>
   <div class="page">
     <header class="main-header">
-      <div class="header-logo-container">
-        <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
+      <div class="header-container">
+        <div class="header-logo-container">
+          <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
+        </div>
+        <ul>
+          <li><a href="">Programação</a></li>
+          <li><a href="">Adicionar Evento</a></li>
+          <li><a href="">Inscrições Abertas</a></li>
+        </ul>
       </div>
-      <ul>
-        <li><a href="">Calendário</a></li>
-        <li><a href="">Adicionar Evento</a></li>
-        <li><a href="">Inscrições Abertas</a></li>
-      </ul>
     </header>
 
     <main class="main-content">
@@ -30,7 +32,7 @@ import youtubeImg from '@/assets/youtube.png'
 
       <section class="calendarioSemanal default-section">
         <div class="content-container">
-          <h3>Programação de Eventos</h3>
+          <h3>Programação</h3>
         </div>
       </section>
 
@@ -133,15 +135,25 @@ h3 {
   cursor: pointer;
 }
 
+.header-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  position: relative;
+}
+
 header ul {
   list-style: none;
   display: flex;
   gap: 2.5rem;
-  position: absolute;
-  right: 300px;
-  top: 40px;
+  padding: 1.5rem;
   z-index: 20;
+  margin-left: auto;
 }
+
 header li a {
   text-decoration: none;
   font-size: 1.2rem;

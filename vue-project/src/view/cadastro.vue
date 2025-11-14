@@ -20,7 +20,8 @@ import youtubeImg from '@/assets/youtube.png'
       </ul>
     </header>
     <main>
-      <table></table>
+      <section>]</section>
+      <section></section>
     </main>
 
     <footer>
