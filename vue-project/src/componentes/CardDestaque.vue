@@ -22,20 +22,19 @@ import '@/assets/images/illustrations/fundodestaque.png'
 </template>
 <style scoped>
 .carddestaque {
+  aspect-ratio: 265 / 560; 
+  width: 265px;            
+  max-width: 100%;        
   background-image:url(@/assets/images/illustrations/fundodestaque.png);
   background-size: cover;
   background-position: center;
-  border-radius: 20px 20px 20px 20px;
+  border-radius: 20px;
   position: relative;
-  min-width: 265px;
-  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  align-items: start;
   padding: 15px;
   box-sizing: border-box;
-  min-height: 560px;
 }
 .carddestaque::after {
   content: '';

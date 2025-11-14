@@ -42,6 +42,7 @@ const props = defineProps({
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  margin: 0.5rem;
 }
 .timeline {
   border-left: 2px solid #222;
