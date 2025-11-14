@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import headerImg from '@/assets/header.svg'
 import logoImg from '@/assets/logo.svg'
 import vetorImg from '@/assets/vetor.png'
 import logoFooter from '@/assets/logoFooter.png'
@@ -7,20 +6,23 @@ import logoIfrn from '@/assets/ifrn.png'
 import XImg from '@/assets/x.png'
 import instagramImg from '@/assets/instagram.png'
 import youtubeImg from '@/assets/youtube.png'
-
 </script>
 
 <template>
   <div class="page">
     <header class="main-header">
-      <img :src="headerImg" alt="Cabeçalho do site" class="header-bg" />
       <div class="header-logo-container">
-           <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
+        <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
       </div>
+      <ul>
+        <li><a href="">Calendário</a></li>
+        <li><a href="">Adicionar Evento</a></li>
+        <li><a href="">Inscrições Abertas</a></li>
+      </ul>
     </header>
 
     <main class="main-content">
-      <section class="destaques default-section">
+      <section class="destaques-default-section">
         <div class="content-container">
           <h3>Eventos do CNAT</h3>
         </div>
@@ -37,13 +39,13 @@ import youtubeImg from '@/assets/youtube.png'
           <img :src="vetorImg" alt="Vetor" class="adicionarEvento-vetor" />
           <div class="adicionarEvento-texto">
             <h3>Quer adicionar algum evento ao nosso calendário?</h3>
-            <p>Acesse nosso tutorial para cadastrar seu evento no SUAP</p>
+            <p>Clique no botão abaixo para cadastrar seu evento no SUAP</p>
           </div>
         </div>
       </section>
 
       <section class="inscricoes">
-        <div class="inscricoes-content"> 
+        <div class="inscricoes-content">
           <h3>Inscrições abertas</h3>
         </div>
       </section>
@@ -58,12 +60,14 @@ import youtubeImg from '@/assets/youtube.png'
 
         <div class="footer-right">
           <div class="social">
-            <img :src="instagramImg" alt="Logotipo do Instagram"/>
-            <img :src="XImg" alt="Logotipo do X"/>
-            <img :src="youtubeImg" alt="Logotipo do YouTube"/>
+            <img :src="instagramImg" alt="Logotipo do Instagram" />
+            <img :src="XImg" alt="Logotipo do X" />
+            <img :src="youtubeImg" alt="Logotipo do YouTube" />
           </div>
           <p>cnat@ifrn.com</p>
-          <p>Av. Sen. Salgado Filho, 1559 – Tirol, Natal – RN <br><strong>CEP:</strong> 59015-000</p>
+          <address>
+            Av. Sen. Salgado Filho, 1559 – Tirol, Natal – RN <br /><strong>CEP:</strong> 59015-000
+          </address>
         </div>
       </div>
       <div class="copy">
@@ -74,7 +78,6 @@ import youtubeImg from '@/assets/youtube.png'
 </template>
 
 <style scoped>
-
 @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
 
 h3 {
@@ -87,83 +90,119 @@ h3 {
   flex-direction: column;
   min-height: 100vh;
   width: 100%;
-  margin: 0;
-  padding: 0;
 }
 
 .content-container {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 20px; 
+  padding: 0 20px;
 }
 
 .main-header {
   width: 100%;
+  background-color: #8aeec3;
+  box-shadow: 2px 1px 5px #b8b8b8;
   position: relative;
-  overflow: hidden;       
-  min-height: 200px;   
-  max-height: 300px; 
+  margin-bottom: 100px;
+  overflow: hidden;
+  min-height: 120px;
+  max-height: 250px;
 }
-
 
 .main-content {
   flex: 1;
-  
-}
-
-.header-bg {
-  width: 100%;
-  height: 100%; 
-  display: block;
-   object-fit: cover;
 }
 
 .header-logo-container {
-  position: absolute;  
-  top: 20px;          
-  left: 50%;           
-  transform: translateX(-50%); 
-  max-width: 1440px;    
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 1440px;
   width: 100%;
   display: flex;
-  justify-content: flex-start; 
+  justify-content: flex-start;
   padding: 0 20px;
   z-index: 10;
 }
 
-
 .header-logo {
-  width: 15%;      
+  width: 15%;
   max-width: 180px;
   height: auto;
   cursor: pointer;
 }
 
+header ul {
+  list-style: none;
+  display: flex;
+  gap: 2.5rem;
+  position: absolute;
+  right: 300px;
+  top: 40px;
+  z-index: 20;
+}
+header li a {
+  text-decoration: none;
+  font-size: 1.2rem;
+  color: #07753e;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+header li a:hover {
+  color: #044632;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
 .adicionar-evento {
-  width: 90%;             
-  background: #fff;
-  border-top-right-radius: 10rem;
-  padding: 2rem 5rem;      
+  position: relative;
+  width: 100%;
+  padding: 2rem 0;
+  background-color: #f4f4f4;
   display: flex;
   justify-content: center;
-  margin-top: 2rem;
-  margin-left: 0;          
-  margin-right: auto;      
- 
+  z-index: 1;
+}
+.adicionar-evento::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 32px;
+  width: 50%;
+  height: 400px;
+  background: #ffffff;
+  z-index: -1;
 }
 
 .adicionarEvento-container {
   max-width: 1440px;
   width: 100%;
   display: flex;
+  position: relative;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 2rem;
   gap: 2.5rem;
+  background-color: #ffffff;
+  justify-content: left;
+  align-items: center;
+  height: 400px;
+  border-top-right-radius: 220px;
+}
+
+.adicionarEvento-container::after {
+  content: '';
+  position: absolute;
+  right: -620px;
+  top: -70px;
+  width: 800px;
+  height: 500px;
+  background-image: url('@/assets/vetorCirculos.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  z-index: -1;
 }
 
 .adicionarEvento-vetor {
-  width: 45%;
+  width: 100%;
   max-width: 32rem;
 }
 
@@ -173,13 +212,12 @@ h3 {
   color: #023826;
   display: flex;
   flex-direction: column;
-  gap: .75rem;
+  gap: 0.75rem;
 }
 .adicionarEvento-texto p {
-  font-size: .95rem;
+  font-size: 0.95rem;
   color: #4a4a4a;
 }
-
 
 .inscricoes {
   max-width: 1440px;
@@ -191,30 +229,26 @@ h3 {
   min-height: 600px;
   display: flex;
   flex-direction: column;
-  
-  background-image: url("@/assets/inscricoesSection.svg");
-  background-size: cover;       
-  background-position: center;   
-  background-repeat: no-repeat;  
-
+  background-image: url('@/assets/inscricoesSection.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
-
 
 .inscricoes-content {
   max-width: 1440px;
   margin: 0 auto;
   width: 100%;
-  padding: 30px 20px; 
+  padding: 30px 20px;
 }
 
 .inscricoes-content h3 {
-  color: white; 
+  color: white;
   font-size: 32px;
   padding: 30px;
   margin: 0;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4); 
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
 }
-
 
 footer {
   background-color: #02402e;
@@ -232,9 +266,9 @@ footer {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start; 
+  align-items: flex-start;
   flex-wrap: wrap;
-  padding: 40px 20px 30px; 
+  padding: 40px 20px 30px;
   gap: 20px;
 }
 
@@ -263,7 +297,6 @@ footer {
 .footer-right p {
   margin: 10px 4px;
   font-size: 20px;
-
 }
 
 .social {
@@ -293,22 +326,18 @@ footer {
   opacity: 0.85;
 }
 
-
 /* Space before footer */
 main section:last-child {
   margin-bottom: 6rem;
 }
 
-
-
 @media (max-width: 1024px) {
-
   .header-logo {
     top: 20px;
     left: 30px;
     max-width: 130px;
   }
-  
+
   .adicionar-evento {
     border-top-right-radius: 80px;
     align-items: center;
@@ -319,7 +348,7 @@ main section:last-child {
     width: 70%;
     max-width: 400px;
     margin: 0 auto;
-    order: 1; 
+    order: 1;
   }
 
   .adicionarEvento-container {
@@ -328,7 +357,7 @@ main section:last-child {
     padding: 0;
     justify-content: center;
     margin-top: 20px;
-    order: 2; 
+    order: 2;
   }
 
   .adicionarEvento-texto {
@@ -342,16 +371,13 @@ main section:last-child {
   }
 }
 
-
 @media (max-width: 600px) {
- 
   .header-logo {
     top: 10px;
     left: 10px;
     width: 25%;
     max-width: 40px;
   }
-  
 
   .default-section {
     padding: 25px 0;
@@ -360,23 +386,22 @@ main section:last-child {
     font-size: 24px;
   }
 
-  
-.adicionar-evento {
+  .adicionar-evento {
     border-top-right-radius: 30px;
-    padding: 15px 10px;
+    padding: 10px 10px;
   }
-.adicionar-vetor {
+  .adicionar-vetor {
     width: 50%;
   }
   .inscricoes {
-     min-height: 300px; 
+    min-height: 300px;
     border-bottom-right-radius: 30px;
     border-top-left-radius: 30px;
   }
   .inscricoes-content h3 {
-     font-size: 22px;
+    font-size: 22px;
   }
-  
+
   .footer-content {
     flex-direction: column;
     align-items: left;
