@@ -54,6 +54,66 @@ const eventos = [
       { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
     ],
   },
+  {
+    titulo: 'CineBiblio',
+    local: 'Biblioteca Central',
+    categoria: 'Cultura',
+    datas: [
+      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
+      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
+      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
+    ],
+  },
+  {
+    titulo: 'CineBiblio',
+    local: 'Biblioteca Central',
+    categoria: 'Cultura',
+    datas: [
+      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
+      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
+      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
+    ],
+  },
+  {
+    titulo: 'CineBiblio',
+    local: 'Biblioteca Central',
+    categoria: 'Cultura',
+    datas: [
+      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
+      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
+      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
+    ],
+  },
+  {
+    titulo: 'CineBiblio',
+    local: 'Biblioteca Central',
+    categoria: 'Cultura',
+    datas: [
+      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
+      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
+      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
+    ],
+  },
+  {
+    titulo: 'CineBiblio',
+    local: 'Biblioteca Central',
+    categoria: 'Cultura',
+    datas: [
+      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
+      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
+      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
+    ],
+  },
+  {
+    titulo: 'CineBiblio',
+    local: 'Biblioteca Central',
+    categoria: 'Cultura',
+    datas: [
+      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
+      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
+      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
+    ],
+  },
 ]
 </script>
 

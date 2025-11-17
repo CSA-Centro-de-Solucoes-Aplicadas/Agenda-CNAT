@@ -8,6 +8,8 @@ button {
   border: none;
   color: black;
   text-align: center;
+  height: 50px;
+  aspect-ratio: 1/1;
   text-decoration: none;
   font-size: 4rem;
   width: 4rem;

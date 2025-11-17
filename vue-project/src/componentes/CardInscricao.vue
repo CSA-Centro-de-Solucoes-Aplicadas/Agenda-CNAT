@@ -34,7 +34,7 @@ const props = defineProps({
   background-image: url('@/assets/images/illustrations/CardInscricoes_background.png');
   background-size: cover;
   background-position: center;
-  max-width: 400px;
+  max-width: 345px;
   width: 100%;
   border-radius: 16px;
   padding: 28px 28px 18px 28px;
