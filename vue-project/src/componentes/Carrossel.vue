@@ -23,17 +23,16 @@ onMounted(async () => {
 })
 const slideSize = computed(() => {
   if (props.component === CardDestaque) {
-    return slideWidth.value * 3           // anda 1 card
+    return slideWidth.value * 3 // anda 3 cards
   } else if (props.component === CardInscricao) {
-    return slideWidth.value         // anda 3 cards
+    return slideWidth.value * 1.2 // anda 1 cards
   }
   return slideWidth.value
 })
 
 function proximo() {
   if (currentIndex.value < props.itens.length - 1) {
-    currentIndex.value =
-      (currentIndex.value + 1) % props.itens.length
+    currentIndex.value = (currentIndex.value + 1) % props.itens.length
     emphasisIndex.value++
   }
 }
@@ -47,21 +46,41 @@ function anterior() {
 </script>
 <template>
   <div class="carrossel">
-    <ButtonSeta class="seta esquerda" @click="anterior" :disabled="!loop && currentIndex === 0"></ButtonSeta>
+    <ButtonSeta
+      class="seta esquerda"
+      @click="anterior"
+      :disabled="!loop && currentIndex === 0"
+    ></ButtonSeta>
     <div class="viewport" ref="viewport">
-      <div class="itens"
-        :class="{ ItensInscricao: props.component === CardInscricao, ItensDestaque: props.component === CardDestaque }, Itens"
-        ref="container" :style="{
+      <div
+        class="Itens"
+        :class="{
+          ItensInscricao: props.component === CardInscricao,
+          ItensDestaque: props.component === CardDestaque,
+        }"
+        ref="container"
+        :style="{
           transform: `translateX(-${currentIndex * slideSize}px)`,
-        }">
-        <component v-for="(item, i) in itens" :key="i" :is="component" :item="item" :class="{
-          emphasis: props.component === CardInscricao && i === emphasisIndex
-        }" />
+        }"
+      >
+        <component
+          v-for="(item, i) in itens"
+          :key="i"
+          :is="component"
+          :item="item"
+          :class="{
+            emphasis: props.component === CardInscricao && i === emphasisIndex,
+          }"
+        />
       </div>
     </div>
 
-    <ButtonSeta class="seta direita" @click="proximo" :disabled="!loop && currentIndex === itens.length - 1"
-      style="transform: scaleX(-1)"></ButtonSeta>
+    <ButtonSeta
+      class="seta direita"
+      @click="proximo"
+      :disabled="!loop && currentIndex === itens.length - 1"
+      style="transform: scaleX(-1)"
+    ></ButtonSeta>
   </div>
 </template>
 <style scoped>
@@ -70,7 +89,7 @@ function anterior() {
   align-items: center;
   position: relative;
   gap: 1rem;
-  max-width: 1200px;
+  max-width: 1340px;
   overflow: hidden;
   margin: auto;
 }
@@ -81,7 +100,7 @@ function anterior() {
   will-change: transform;
 }
 
-.itens {
+.Itens {
   display: flex;
   transition: transform 0.6s ease;
   /* suaviza a passagem */
@@ -91,26 +110,27 @@ function anterior() {
 
 .ItensInscricao {
   padding: 2rem 0rem 2rem 0rem;
-  gap: 4rem;
+  gap: 1.5rem;
 }
 
-.itens::-webkit-scrollbar {
+.Itens::-webkit-scrollbar {
   display: none;
 }
 
-.itens>* {
+.Itens > * {
   scroll-snap-align: start;
   flex: 0 0 auto;
   /* ocupa 100% da largura da viewport */
 }
 
-.itens>*:hover {
+.ItensDestaque > *:hover {
   transform: scale(1.05);
   transition: transform 0.4s ease;
 }
 
-/* .emphasis {
+.emphasis {
   transform: scale(1.2);
   transition: transform 0.6s ease;
-  /* z-index: 2; deixa na frente */
+  z-index: 2;
+}
 </style>

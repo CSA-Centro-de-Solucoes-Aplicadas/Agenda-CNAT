@@ -9,17 +9,17 @@ const props = defineProps({
       <h3>
         {{ item.titulo }}
       </h3>
-      <p>{{ item.local }}</p>
+      <p class="local">{{ item.local }}</p>
     </div>
     <div class="cardbody">
       <ul class="timeline">
         <li>
-          <p>{{ item.datas[0].data }} <br> {{ item.datas[0].hora }}</p>
-          <p>{{ item.datas[0].descricao }}</p>
+          <p class="data">{{ item.datas[0].data }} <br> {{ item.datas[0].hora }}</p>
+          <p class="descricao">{{ item.datas[0].descricao }}</p>
         </li>
         <li>
-          <p>{{ item.datas[item.datas.length -1].data }} <br> {{ item.datas[item.datas.length -1].hora }}</p>
-          <p>{{ item.datas[item.datas.length-1].descricao }} </p>
+          <p class="data">{{ item.datas[item.datas.length -1].data }} <br> {{ item.datas[item.datas.length -1].hora }}</p>
+          <p class="descricao">{{ item.datas[item.datas.length-1].descricao }} </p>
         </li>
       </ul>
     </div>
@@ -43,6 +43,10 @@ const props = defineProps({
   flex-direction: column;
   gap: 0.5rem;
   margin: 0.5rem;
+  box-sizing: border-box;
+}
+h3{
+  font-size: 1rem;
 }
 .timeline {
   border-left: 2px solid #222;
@@ -73,11 +77,15 @@ li:last-child:before {
   top: 0;
   color: #c62828;
 }
+.local{
+  font-size: 0.85rem;
+  color: #575757;
+}
 .descricao {
-  font-size: 1rem;
+  font-size: 0.75rem;
 }
 .data {
-  font-size: 0.8rem;
+  font-size: 0.68rem;
   font-weight: lighter;
 }
 .cardfooter{
