@@ -88,7 +88,7 @@ function anterior() {
   display: flex;
   align-items: center;
   position: relative;
-  gap: 1rem;
+  gap: 0.875rem;
   max-width: 1340px;
   overflow: hidden;
   margin: auto;
@@ -104,13 +104,11 @@ function anterior() {
   display: flex;
   transition: transform 0.6s ease;
   /* suaviza a passagem */
-  gap: 2rem;
   padding: 2rem 0rem;
 }
 
 .ItensInscricao {
-  padding: 2rem 0rem 2rem 0rem;
-  gap: 1.5rem;
+  /* padding: 2rem 0rem 2rem 0rem; */
 }
 
 .Itens::-webkit-scrollbar {
@@ -120,17 +118,20 @@ function anterior() {
 .Itens > * {
   scroll-snap-align: start;
   flex: 0 0 auto;
+  box-sizing: border-box;
+  margin: 0;
   /* ocupa 100% da largura da viewport */
+  margin-right: 5rem;
 }
 
 .ItensDestaque > *:hover {
   transform: scale(1.05);
   transition: transform 0.4s ease;
 }
-
 .emphasis {
   transform: scale(1.2);
   transition: transform 0.6s ease;
-  z-index: 2;
+  margin-inline: 0.75rem;
 }
+
 </style>

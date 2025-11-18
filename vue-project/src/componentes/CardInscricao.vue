@@ -30,6 +30,9 @@ const props = defineProps({
   </div>
 </template>
 <style scoped>
+*{
+  margin: 0;
+}
 .cardevento {
   background-image: url('@/assets/images/illustrations/CardInscricoes_background.png');
   background-size: cover;
