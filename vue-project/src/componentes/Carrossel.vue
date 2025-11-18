@@ -1,12 +1,14 @@
 <script setup>
-import CardDestaque from './CardDestaque.vue'
-import ButtonSeta from './ButtonSeta.vue'
 import { ref, onMounted, nextTick, computed } from 'vue'
+import CardDestaque from './CardDestaque.vue'
 import CardInscricao from './CardInscricao.vue'
+import ButtonSeta from './ButtonSeta.vue'
+
 const props = defineProps({
   itens: Array,
   component: Object,
 })
+
 const container = ref(null)
 const viewport = ref(null)
 const slides = ref([])
@@ -23,9 +25,9 @@ onMounted(async () => {
 })
 const slideSize = computed(() => {
   if (props.component === CardDestaque) {
-    return slideWidth.value * 3 // anda 3 cards
+    return slideWidth.value * 3 // anda 1 card
   } else if (props.component === CardInscricao) {
-    return slideWidth.value * 1.2 // anda 1 cards
+    return slideWidth.value // anda 3 cards
   }
   return slideWidth.value
 })
@@ -46,11 +48,8 @@ function anterior() {
 </script>
 <template>
   <div class="carrossel">
-    <ButtonSeta
-      class="seta esquerda"
-      @click="anterior"
-      :disabled="!loop && currentIndex === 0"
-    ></ButtonSeta>
+    <ButtonSeta class="seta esquerda" @click="anterior" />
+
     <div class="viewport" ref="viewport">
       <div
         class="Itens"
@@ -59,37 +58,29 @@ function anterior() {
           ItensDestaque: props.component === CardDestaque,
         }"
         ref="container"
-        :style="{
-          transform: `translateX(-${currentIndex * slideSize}px)`,
-        }"
+        :style="{ transform: `translateX(-${currentIndex.value * slideSize.value}px)` }"
       >
         <component
           v-for="(item, i) in itens"
           :key="i"
           :is="component"
           :item="item"
-          :class="{
-            emphasis: props.component === CardInscricao && i === emphasisIndex,
-          }"
+          :class="{ emphasis: i === emphasisIndex && component === CardInscricao }"
         />
       </div>
     </div>
 
-    <ButtonSeta
-      class="seta direita"
-      @click="proximo"
-      :disabled="!loop && currentIndex === itens.length - 1"
-      style="transform: scaleX(-1)"
-    ></ButtonSeta>
+    <ButtonSeta class="seta direita" @click="proximo" style="transform: scaleX(-1)" />
   </div>
 </template>
+
 <style scoped>
 .carrossel {
   display: flex;
   align-items: center;
   position: relative;
-  gap: 0.875rem;
-  max-width: 1340px;
+  gap: 1rem;
+  max-width: 1200px;
   overflow: hidden;
   margin: auto;
 }
@@ -100,38 +91,36 @@ function anterior() {
   will-change: transform;
 }
 
-.Itens {
+.itens {
   display: flex;
   transition: transform 0.6s ease;
   /* suaviza a passagem */
+  gap: 2rem;
   padding: 2rem 0rem;
 }
 
 .ItensInscricao {
-  /* padding: 2rem 0rem 2rem 0rem; */
+  padding: 2rem 0rem 2rem 0rem;
+  gap: 4rem;
 }
 
-.Itens::-webkit-scrollbar {
+.itens::-webkit-scrollbar {
   display: none;
 }
 
-.Itens > * {
+.itens > * {
   scroll-snap-align: start;
   flex: 0 0 auto;
-  box-sizing: border-box;
-  margin: 0;
   /* ocupa 100% da largura da viewport */
-  margin-right: 5rem;
 }
 
-.ItensDestaque > *:hover {
+.itens > *:hover {
   transform: scale(1.05);
   transition: transform 0.4s ease;
 }
-.emphasis {
+
+/* .emphasis {
   transform: scale(1.2);
   transition: transform 0.6s ease;
-  margin-inline: 0.75rem;
-}
-
+  /* z-index: 2; deixa na frente */
 </style>
