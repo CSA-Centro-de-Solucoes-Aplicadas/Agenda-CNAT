@@ -232,22 +232,24 @@ header li a:hover {
 /* MAIN */
 .main-content {
   max-width: 1440px;
+  width: 1440px;
   margin: 40px auto;
-  padding: 0 20px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 40px;
 }
 .form-section {
   width: 100%;
-  max-width: 1440pxs;
   background: white;
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0 2px 8px #0002;
 }
+
 .form-section h2 {
   margin-bottom: 20px;
+  color: #11392d;
 }
 .form-group {
   display: flex;
