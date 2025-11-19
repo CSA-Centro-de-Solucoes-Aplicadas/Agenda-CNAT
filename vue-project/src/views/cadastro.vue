@@ -5,6 +5,7 @@ import logoIfrn from '@/assets/ifrn.png'
 import XImg from '@/assets/x.png'
 import instagramImg from '@/assets/instagram.png'
 import youtubeImg from '@/assets/youtube.png'
+//http://localhost:5173/cadastro
 </script>
 
 <template>
@@ -37,11 +38,7 @@ import youtubeImg from '@/assets/youtube.png'
 
         <div class="form-group">
           <label>Categorias</label>
-          <div class="tags">
-            <span>Palestras</span>
-            <span>Lazer</span>
-            <span>Esportes</span>
-          </div>
+        
         </div>
 
         <div class="form-group">
@@ -149,6 +146,12 @@ import youtubeImg from '@/assets/youtube.png'
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+.content-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
 .main-header {
