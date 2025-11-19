@@ -14,104 +14,106 @@ import youtubeImg from '@/assets/youtube.png'
       <div class="header-logo-container">
         <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
       </div>
+     <div class="header-inner">
       <ul>
         <li><a href="">Calendário</a></li>
         <li><a href="">Adicionar Evento</a></li>
         <li><a href="">Inscrições Abertas</a></li>
       </ul>
+     </div>
     </header>
 
-  <main class="main-content">
-      <!-- Section 1 -->
-      <section class="form-section">
-        <h2>1. Informações do Evento</h2>
+    <main class="main-content">
+          <!-- Section 1 -->
+          <section class="form-section">
+            <h2>1. Informações do Evento</h2>
 
-        <div class="form-group">
-          <label>Nome do Evento*</label>
-          <input type="text" />
-        </div>
+            <div class="form-group">
+              <label>Nome do Evento*</label>
+              <input type="text" />
+            </div>
 
-        <div class="form-group">
-          <label>Imagem de divulgação*</label>
-          <textarea></textarea>
-        </div>
+            <div class="form-group">
+              <label>Imagem de divulgação*</label>
+              <textarea></textarea>
+            </div>
 
-        <div class="form-group">
-          <label>Categorias</label>
-        
-        </div>
+            <div class="form-group">
+              <label>Categorias</label>
+            
+            </div>
 
-        <div class="form-group">
-          <label>Descrição</label>
-          <textarea></textarea>
-        </div>
-      </section>
+            <div class="form-group">
+              <label>Descrição</label>
+              <textarea></textarea>
+            </div>
+          </section>
 
-      <!-- Section 2 -->
-      <section class="form-section">
-        <h2>2. Data e Horário</h2>
+          <!-- Section 2 -->
+          <section class="form-section">
+            <h2>2. Data e Horário do evento</h2>
 
-        <div class="date-time-grid">
-          <div class="form-group">
-            <label>Data de Início</label>
-            <input type="date" />
+            <div class="date-time-grid">
+              <div class="form-group">
+                <label>Data de Início</label>
+                <input type="date" />
+              </div>
+              <div class="form-group">
+                <label>Hora de Início</label>
+                <input type="time" />
+              </div>
+              <div class="form-group">
+                <label>Data de Término</label>
+                <input type="date" />
+              </div>
+              <div class="form-group">
+                <label>Hora de Término</label>
+                <input type="time" />
+              </div>
+            </div>
+
+            <h2>2. Data e Horário da abertura de inscrições</h2>
+            <div class="date-time-grid">
+              <div class="form-group">
+                <label>Data de Início</label>
+                <input type="date" />
+              </div>
+              <div class="form-group">
+                <label>Hora de Início</label>
+                <input type="time" />
+              </div>
+              <div class="form-group">
+                <label>Data de Término</label>
+                <input type="date" />
+              </div>
+              <div class="form-group">
+                <label>Hora de Término</label>
+                <input type="time" />
+              </div>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h2>3. Informações dos organizadores</h2>
+
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" />
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" />
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" />
+            </div>
+          </section>
+
+          <div class="submit-container">
+            <button class="submit-btn">Confirmar</button>
           </div>
-          <div class="form-group">
-            <label>Hora de Início</label>
-            <input type="time" />
-          </div>
-          <div class="form-group">
-            <label>Data de Término</label>
-            <input type="date" />
-          </div>
-          <div class="form-group">
-            <label>Hora de Término</label>
-            <input type="time" />
-          </div>
-        </div>
-
-        <h2>2. Data e Horário da abertura de inscrições</h2>
-        <div class="date-time-grid">
-          <div class="form-group">
-            <label>Data de Início</label>
-            <input type="date" />
-          </div>
-          <div class="form-group">
-            <label>Hora de Início</label>
-            <input type="time" />
-          </div>
-          <div class="form-group">
-            <label>Data de Término</label>
-            <input type="date" />
-          </div>
-          <div class="form-group">
-            <label>Hora de Término</label>
-            <input type="time" />
-          </div>
-        </div>
-      </section>
-
-      <!-- Section 3 -->
-      <section class="form-section">
-        <h2>3. Informações dos colaboradores</h2>
-
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" />
-        </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" />
-        </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" />
-        </div>
-      </section>
-
-      <div class="submit-container">
-        <button class="submit-btn">Confirmar</button>
-      </div>
+       
     </main>
 
     <footer>
@@ -148,11 +150,6 @@ import youtubeImg from '@/assets/youtube.png'
   flex-direction: column;
 }
 
-.content-container {
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
 
 .main-header {
   width: 100%;
@@ -195,8 +192,19 @@ import youtubeImg from '@/assets/youtube.png'
   width: 100%;
   display: flex;
   align-items: center;
+  
   padding: 20px;
   position: relative;
+}
+.header-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  padding: 20px;
 }
 
 header ul {
@@ -223,7 +231,7 @@ header li a:hover {
 
 /* MAIN */
 .main-content {
-  max-width: 900px;
+  max-width: 1440px;
   margin: 40px auto;
   padding: 0 20px;
   display: flex;
@@ -231,6 +239,8 @@ header li a:hover {
   gap: 40px;
 }
 .form-section {
+  width: 100%;
+  max-width: 1440pxs;
   background: white;
   padding: 25px;
   border-radius: 12px;
