@@ -1,6 +1,10 @@
-<script setup></script>
+<script setup>
+const props = defineProps({
+  disabled: { type: Boolean, default: false }
+})
+</script>
 <template>
-  <button aria-label="Scroll"><img src="@/assets/images/icons/seta.svg"></img></button>
+  <button :disabled="disabled" :aria-disabled="disabled" aria-label="Scroll"><img src="@/assets/images/icons/seta.svg"></img></button>
 </template>
 <style scoped>
 button {
@@ -18,5 +22,9 @@ button {
   justify-content: center;
   display: flex;
   border-radius: 90px;
+}
+button:disabled {
+  opacity: 0.4;
+  pointer-events: none;
 }
 </style>
