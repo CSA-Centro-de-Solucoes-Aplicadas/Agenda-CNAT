@@ -5,7 +5,83 @@ import logoIfrn from '@/assets/ifrn.png'
 import XImg from '@/assets/x.png'
 import instagramImg from '@/assets/instagram.png'
 import youtubeImg from '@/assets/youtube.png'
-//http://localhost:5173/cadastro
+
+import { ref } from 'vue'
+const todasCategorias = [
+  "Tecnologia",
+  "Educação",
+  "Saúde",
+  "Palestra",
+  "Workshop",
+  "Feira",
+  "Cultura",
+  "Extensão"
+]
+
+const categoriasAbertas = ref(false)
+const categoriasSelecionadas = ref<string[]>([])
+
+function toggleCategorias() {
+  categoriasAbertas.value = !categoriasAbertas.value
+}
+
+function selecionarCategoria(nome: string) {
+  if (!categoriasSelecionadas.value.includes(nome)) {
+    categoriasSelecionadas.value.push(nome)
+  }
+}
+
+function removerCategoria(nome: string) {
+  categoriasSelecionadas.value = categoriasSelecionadas.value.filter(
+    (cat) => cat !== nome
+  )
+}
+  // Range das datas do evento
+  const datasEvento = ref({
+    start: null,
+    end: null
+  })
+  // Range das datas das inscrições
+  const datasInscricao = ref({
+    start: null,
+    end: null
+  })
+const horarioEvento = ref({
+  inicio: "",
+  fim: ""
+})
+
+const horarioInscricao = ref({
+  inicio: "",
+  fim: ""
+})
+
+// OBJETO DO FORMULÁRIO COMPLETO
+const form = ref({
+  nome: "",
+  imagem: null,
+
+  categorias: [],
+  descricao: "",
+  link: "",
+
+  evento: {
+    inicioData: null,
+    fimData: null,
+    inicioHora: "",
+    fimHora: ""
+  },
+
+  inscricao: {
+    inicioData: null,
+    fimData: null,
+    inicioHora: "",
+    fimHora: ""
+  },
+
+  organizadores: ["", "", ""]
+})
+
 </script>
 
 <template>
@@ -24,6 +100,7 @@ import youtubeImg from '@/assets/youtube.png'
     </header>
 
     <main class="main-content">
+          <h1>Adicionar Evento</h1>
           <!-- Section 1 -->
           <section class="form-section">
             <h2>1. Informações do Evento</h2>
@@ -35,62 +112,135 @@ import youtubeImg from '@/assets/youtube.png'
 
             <div class="form-group">
               <label>Imagem de divulgação*</label>
-              <textarea></textarea>
+               <input type="file">
             </div>
 
-            <div class="form-group">
-              <label>Categorias</label>
-            
-            </div>
+           <div class="form-group">
+                 <div class="cat-header">
+                      <span class="cat-label">Categorias</span>
+
+                      <button type="button" class="cat-icon-btn" @click="toggleCategorias">
+                        <span class="arrow">⌄</span>
+                      </button>
+                  </div>
+
+
+                  <!-- LISTA DROPDOWN -->
+                  <div v-if="categoriasAbertas" class="cat-dropdown">
+                    <div
+                      class="cat-option"
+                      v-for="cat in todasCategorias"
+                      :key="cat"
+                      @click="selecionarCategoria(cat)"
+                    >
+                      {{ cat }}
+                    </div>
+                  </div>
+
+                  <!-- TAGS SELECIONADAS -->
+                  <div class="cat-tags">
+                    <span v-for="cat in categoriasSelecionadas" :key="cat" class="tag">
+                      {{ cat }}
+                      <button class="remove-tag" @click="removerCategoria(cat)">✖</button>
+                    </span>
+                  </div>
+                </div>
 
             <div class="form-group">
               <label>Descrição</label>
               <textarea></textarea>
             </div>
+            <div class="form-group">
+              <label>Link para mais informações</label>
+              <input type="url">
+            </div>
           </section>
 
           <!-- Section 2 -->
           <section class="form-section">
-            <h2>2. Data e Horário do evento</h2>
+          <h2>2. Data e Horário do Evento</h2>
 
-            <div class="date-time-grid">
-              <div class="form-group">
-                <label>Data de Início</label>
-                <input type="date" />
-              </div>
-              <div class="form-group">
-                <label>Hora de Início</label>
-                <input type="time" />
-              </div>
-              <div class="form-group">
-                <label>Data de Término</label>
-                <input type="date" />
-              </div>
-              <div class="form-group">
-                <label>Hora de Término</label>
-                <input type="time" />
+            <div class="form-group">
+              <label>Selecione o período do evento</label>
+
+              <div class="date-time-row">
+                <!-- DATE RANGE -->
+                <VDatePicker
+                  v-model="datasEvento"
+                  is-range
+                  color="green"
+                  :popover="{ placement: 'right-start' }"
+                >
+                  <template #default="{ inputValue, togglePopover }">
+                    <input
+                      class="calendar-input"
+                      :value="inputValue.start + ' até ' + inputValue.end"
+                      placeholder="Selecione o período"
+                      @click="togglePopover"
+                      readonly
+                    />
+                  </template>
+                </VDatePicker>
+
+                <!-- HORÁRIO INÍCIO -->
+                <input
+                  type="time"
+                  v-model="horarioEvento.inicio"
+                  class="time-input"
+                  placeholder="Início"
+                />
+
+                <!-- HORÁRIO FIM -->
+                <input
+                  type="time"
+                  v-model="horarioEvento.fim"
+                  class="time-input"
+                  placeholder="Fim"
+                />
               </div>
             </div>
 
-            <h2>2. Data e Horário da abertura de inscrições</h2>
-            <div class="date-time-grid">
-              <div class="form-group">
-                <label>Data de Início</label>
-                <input type="date" />
-              </div>
-              <div class="form-group">
-                <label>Hora de Início</label>
-                <input type="time" />
-              </div>
-              <div class="form-group">
-                <label>Data de Término</label>
-                <input type="date" />
-              </div>
-              <div class="form-group">
-                <label>Hora de Término</label>
-                <input type="time" />
+        <h2>2. Data e Horário da abertura de inscrições</h2>
+
+            <div class="form-group">
+              <label>Selecione o período de inscrições</label>
+
+              <div class="date-time-row">
+
+                <!-- DATE RANGE -->
+                <VDatePicker
+                  v-model="datasInscricao"
+                  is-range
+                  color="green"
+                  :popover="{ placement: 'right-start' }"
+                >
+                  <template #default="{ inputValue, togglePopover }">
+                    <input
+                      class="calendar-input"
+                      :value="inputValue.start + ' até ' + inputValue.end"
+                      placeholder="Selecione o período"
+                      @click="togglePopover"
+                      readonly
+                    />
+                  </template>
+                </VDatePicker>
+
+                <!-- HORÁRIO INÍCIO -->
+                <input
+                  type="time"
+                  v-model="horarioInscricao.inicio"
+                  class="time-input"
+                />
+
+                <!-- HORÁRIO FIM -->
+                <input
+                  type="time"
+                  v-model="horarioInscricao.fim"
+                  class="time-input"
+                />
               </div>
             </div>
+
           </section>
 
           <section class="form-section">
@@ -162,10 +312,6 @@ import youtubeImg from '@/assets/youtube.png'
   max-height: 250px;
 }
 
-.main-content {
-  flex: 1;
-}
-
 .header-logo-container {
   position: absolute;
   top: 15px;
@@ -186,16 +332,6 @@ import youtubeImg from '@/assets/youtube.png'
   cursor: pointer;
 }
 
-.header-container {
-  max-width: 1440px;
-  margin: 0 auto;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  
-  padding: 20px;
-  position: relative;
-}
 .header-inner {
   max-width: 1440px;
   margin: 0 auto;
@@ -239,6 +375,10 @@ header li a:hover {
   flex-direction: column;
   gap: 40px;
 }
+
+h1{
+  color: #0a4635;
+}
 .form-section {
   width: 100%;
   background: white;
@@ -249,32 +389,151 @@ header li a:hover {
 
 .form-section h2 {
   margin-bottom: 20px;
-  color: #11392d;
+  color: #1b473a;
 }
 .form-group {
   display: flex;
   flex-direction: column;
   margin-bottom: 18px;
 }
+
 .form-group input,
 .form-group textarea {
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #ccc;
 }
-.tags span {
-  background: #e8f6ef;
+.cat-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.cat-label {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #000;
+}
+
+.cat-icon-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #f3f3f3;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+
+  cursor: pointer;
+  transition: 0.2s;
+  box-shadow: 0 1px 2px #0001;
+}
+
+.cat-icon-btn:hover {
+  background: #e7e7e7;
+  border-color: #c9c9c9;
+  box-shadow: 0 2px 4px #0002;
+}
+
+.arrow {
+  font-size: 25px;
+  color: #444;
+  font-weight: bold;
+  transform: translateY(-7px);
+}
+
+
+.cat-dropdown {
+  margin-top: 5px;
+  background: white;
+  border: 1px solid #b6e8d2;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px #0002;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 260px;
+}
+
+.cat-option {
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.cat-option:hover {
+  background: #d8f7ea;
+}
+
+.cat-tags {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.tag {
+  background: #c8f5de;
   padding: 6px 12px;
   border-radius: 8px;
-  margin-right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.9rem;
 }
-.date-time-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  margin-bottom: 30px;
+
+.remove-tag {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #0a8f5a;
 }
+.remove-tag:hover {
+  color: red;
+}
+
+.date-time-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  width: 100%;
+}
+
+.calendar-input {
+  flex: 2;
+  padding: 12px;
+  border: 1px solid #0a8f5a;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+}
+
+.time-input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #0a8f5a;
+  border-radius: 8px;
+}
+
+
+.calendar-input:hover {
+  border-color: #077a4c;
+}
+
+.vc-container {
+  --vc-accent-100: #8aeec3;
+  --vc-accent-200: #5ed7a5;
+  --vc-accent-300: #2fbf85;
+  --vc-accent-400: #0a8f5a; /* verde principal */
+}
+
 
 /* BUTTON */
 .submit-container {
@@ -282,7 +541,7 @@ header li a:hover {
   justify-content: flex-end;
 }
 .submit-btn {
-  background: #0a8f5a;
+  background: #08472e;
   color: white;
   padding: 12px 30px;
   border-radius: 10px;
