@@ -369,7 +369,7 @@ header li a:hover {
 .main-content {
   max-width: 1440px;
   width: 1440px;
-  margin: 40px auto;
+  margin: 20px auto;
   padding: 0;
   display: flex;
   flex-direction: column;
