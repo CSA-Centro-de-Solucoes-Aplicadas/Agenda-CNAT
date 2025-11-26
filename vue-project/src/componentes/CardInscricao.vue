@@ -1,6 +1,6 @@
 <script setup>
 const props = defineProps({
-  item: Object
+  item: Object,
 })
 </script>
 <template>
@@ -14,23 +14,29 @@ const props = defineProps({
     <div class="cardbody">
       <ul class="timeline">
         <li>
-          <p class="data">{{ item.datas[0].data }} <br> {{ item.datas[0].hora }}</p>
+          <p class="data">
+            {{ item.datas[0].data }} <br />
+            {{ item.datas[0].hora }}
+          </p>
           <p class="descricao">{{ item.datas[0].descricao }}</p>
         </li>
         <li>
-          <p class="data">{{ item.datas[item.datas.length -1].data }} <br> {{ item.datas[item.datas.length -1].hora }}</p>
-          <p class="descricao">{{ item.datas[item.datas.length-1].descricao }} </p>
+          <p class="data">
+            {{ item.datas[item.datas.length - 1].data }} <br />
+            {{ item.datas[item.datas.length - 1].hora }}
+          </p>
+          <p class="descricao">{{ item.datas[item.datas.length - 1].descricao }}</p>
         </li>
       </ul>
     </div>
-    <div class="cardfooter">
+    <!-- <div class="cardfooter">
       <p>{{categoria}}</p>
       <img src=""></img>
-    </div>
+    </div> -->
   </div>
 </template>
 <style scoped>
-*{
+* {
   margin: 0;
 }
 .cardevento {
@@ -48,7 +54,7 @@ const props = defineProps({
   margin: 0.5rem;
   box-sizing: border-box;
 }
-h3{
+h3 {
   font-size: 1rem;
 }
 .timeline {
@@ -80,7 +86,7 @@ li:last-child:before {
   top: 0;
   color: #c62828;
 }
-.local{
+.local {
   font-size: 0.85rem;
   color: #575757;
 }
@@ -91,7 +97,7 @@ li:last-child:before {
   font-size: 0.68rem;
   font-weight: lighter;
 }
-.cardfooter{
+.cardfooter {
   justify-content: right;
   color: white;
   font-weight: 600;
@@ -99,6 +105,6 @@ li:last-child:before {
   align-items: flex-end;
   width: 100%;
 }
-.cardfooter p{
+.cardfooter p {
 }
 </style>
