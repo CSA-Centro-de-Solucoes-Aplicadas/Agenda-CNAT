@@ -15,14 +15,17 @@ const slides = ref([])
 const currentIndex = ref(0)
 const slideWidth = ref(0)
 const emphasisIndex = ref(1)
+const cardsPerPage = ref(1)
 
 onMounted(async () => {
   await nextTick()
   slides.value = Array.from(container.value.children)
   if (slides.value.length > 0) {
     slideWidth.value = slides.value[0].clientWidth
+    calculateCardsPerPage()
   }
 })
+
 const slideSize = computed(() => {
   if (props.component === CardDestaque) {
     return slideWidth.value * 3 // anda 1 card
@@ -32,7 +35,43 @@ const slideSize = computed(() => {
   return slideWidth.value
 })
 
+const totalPages = computed(() => {
+  if (props.component === CardDestaque) {
+    return Math.ceil(props.itens.length / 1) // 1 card por página
+  } else if (props.component === CardInscricao) {
+    return Math.ceil(props.itens.length / 3) // 3 cards por página
+  }
+  return props.itens.length
+})
+
+const currentPage = computed(() => {
+  if (props.component === CardDestaque) {
+    return Math.floor(currentIndex.value / 1) + 1
+  } else if (props.component === CardInscricao) {
+    return Math.floor(currentIndex.value / 3) + 1
+  }
+  return currentIndex.value + 1
+})
+
+function calculateCardsPerPage() {
+  if (props.component === CardDestaque) {
+    cardsPerPage.value = 1
+  } else if (props.component === CardInscricao) {
+    cardsPerPage.value = 3
+  } else {
+    cardsPerPage.value = 1
+  }
+}
+
+function goToPage(pageNumber) {
+  currentIndex.value = (pageNumber - 1) * cardsPerPage.value
+  if (props.component === CardInscricao) {
+    emphasisIndex.value = currentIndex.value + 1
+  }
+}
+
 function proximo() {
+  const maxIndex = totalPages.value - 1
   if (currentIndex.value < props.itens.length - 1) {
     currentIndex.value = (currentIndex.value + 1) % props.itens.length
     emphasisIndex.value++
@@ -47,42 +86,64 @@ function anterior() {
 }
 </script>
 <template>
-  <div class="carrossel">
-    <ButtonSeta class="seta esquerda" @click="anterior" />
+  <div class="carrossel-wrapper">
+    <div class="carrossel">
+      <ButtonSeta class="seta esquerda" @click="anterior" />
 
-    <div class="viewport" ref="viewport">
-      <div
-        class="Itens"
-        :class="{
-          ItensInscricao: props.component === CardInscricao,
-          ItensDestaque: props.component === CardDestaque,
-        }"
-        ref="container"
-        :style="{ transform: `translateX(-${currentIndex.value * slideSize.value}px)` }"
-      >
-        <component
-          v-for="(item, i) in itens"
-          :key="i"
-          :is="component"
-          :item="item"
-          :class="{ emphasis: i === emphasisIndex && component === CardInscricao }"
-        />
+      <div class="viewport" ref="viewport">
+        <div
+          class="Itens"
+          :class="{
+            ItensInscricao: props.component === CardInscricao,
+            ItensDestaque: props.component === CardDestaque,
+          }"
+          ref="container"
+          :style="{ transform: `translateX(-${currentIndex * slideSize}px)` }"
+        >
+          <component
+            v-for="(item, i) in itens"
+            :key="i"
+            :is="component"
+            :item="item"
+            :class="{ emphasis: i === emphasisIndex && component === CardInscricao }"
+          />
+        </div>
       </div>
+
+      <ButtonSeta class="seta direita" @click="proximo" style="transform: scaleX(-1)" />
     </div>
 
-    <ButtonSeta class="seta direita" @click="proximo" style="transform: scaleX(-1)" />
+    <!-- Indicador de páginas em formato de círculos -->
+    <div class="pagination-dots">
+      <button
+        v-for="page in totalPages"
+        :key="page"
+        class="dot"
+        :class="{ active: currentPage === page }"
+        @click="goToPage(page)"
+        :aria-label="`Ir para página ${page}`"
+      />
+    </div>
   </div>
 </template>
 
 <style scoped>
+.carrossel-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
 .carrossel {
   display: flex;
   align-items: center;
-  position: relative;
+  /* position: relative; */
   gap: 1rem;
   max-width: 1200px;
   overflow: hidden;
   margin: auto;
+  width: 100%;
 }
 
 .viewport {
@@ -91,7 +152,7 @@ function anterior() {
   will-change: transform;
 }
 
-.itens {
+.Itens {
   display: flex;
   transition: transform 0.6s ease;
   /* suaviza a passagem */
@@ -104,23 +165,48 @@ function anterior() {
   gap: 4rem;
 }
 
-.itens::-webkit-scrollbar {
+.Itens::-webkit-scrollbar {
   display: none;
 }
 
-.itens > * {
+.Itens > * {
   scroll-snap-align: start;
   flex: 0 0 auto;
   /* ocupa 100% da largura da viewport */
 }
 
-.itens > *:hover {
+.Itens > *:hover {
   transform: scale(1.05);
   transition: transform 0.4s ease;
 }
 
-/* .emphasis {
+/* Indicador de páginas em formato de círculos */
+.pagination-dots {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  background-color: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.dot:hover {
+  border-color: #999;
   transform: scale(1.2);
-  transition: transform 0.6s ease;
-  /* z-index: 2; deixa na frente */
+}
+
+.dot.active {
+  background-color: #333;
+  border-color: #333;
+}
 </style>
