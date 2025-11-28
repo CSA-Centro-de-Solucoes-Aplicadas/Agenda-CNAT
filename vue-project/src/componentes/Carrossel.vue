@@ -15,12 +15,36 @@ const slides = ref([])
 const currentIndex = ref(0)
 const slideWidth = ref(0)
 const translateX = ref(0)
-const emphasisIndex = ref(1)
+if (props.component === CardInscricao) {
+  currentIndex.value = 1
+}
 const cardsPerPage = ref(1)
+function updateCardsPerPage() {
+  if (props.component === CardDestaque) {
+    if (window.innerWidth >= 1024) {
+      cardsPerPage.value = 4
+    } else if (window.innerWidth >= 768) {
+      cardsPerPage.value = 3
+    } else {
+      cardsPerPage.value = 2
+    }
+  } else if (props.component === CardInscricao) {
+    if (window.innerWidth >= 1024) {
+      cardsPerPage.value = 3
+    } else if (window.innerWidth >= 768) {
+      cardsPerPage.value = 2
+    } else {
+      cardsPerPage.value = 1
+    }
+  } else {
+    cardsPerPage.value = 1
+  }
+}
 
 const moveBy = computed(() => {
   // move 3 itens por passo quando for o componente de destaque
-  return props.component === CardDestaque ? 3 : 1
+  // return props.component === CardDestaque ? 3 : 1
+  return 1
 })
 
 const visibleCount = computed(() => {
@@ -29,13 +53,14 @@ const visibleCount = computed(() => {
 })
 
 const canNext = computed(() => {
-  const maxStart = Math.max(0, props.itens.length - visibleCount.value)
+  const maxStart = Math.max(0, props.itens.length - cardsPerPage.value)
   return currentIndex.value < maxStart
 })
 
 const canPrev = computed(() => currentIndex.value > 0)
 
 onMounted(async () => {
+  updateCardsPerPage()
   await nextTick()
   slides.value = Array.from(container.value.children)
   if (slides.value.length > 0) {
@@ -52,7 +77,7 @@ function updateTranslate() {
   slides.value = Array.from(cont.children)
 
   const vpWidth = vp.clientWidth
-  const idx = emphasisIndex.value
+  const idx = currentIndex.value
   const target = slides.value[idx]
   if (!target) return
 
@@ -62,7 +87,11 @@ function updateTranslate() {
   const targetCenter = target.offsetLeft + target.offsetWidth / 2
 
   // posição desejada: card centrado
+
   let offset = targetCenter - vpWidth / 2
+  if (props.component === CardDestaque) {
+    offset = target.offsetLeft
+  }
 
   // Permitir espaços nas extremidades somente para o carrossel de inscrições.
   // Para outros componentes (ex.: CardDestaque) manter o comportamento
@@ -84,81 +113,66 @@ function updateTranslate() {
   translateX.value = offset
 }
 
-const onResize = () => updateTranslate()
+function moveToIndex(index) {
+  currentIndex.value = index
+  nextTick().then(updateTranslate)
+  console.log('prev: currentIndex', currentIndex.value, 'translate', translateX.value)
+}
+
+const onResize = () => {
+  updateCardsPerPage()
+  updateTranslate()
+}
 window.addEventListener('resize', onResize)
 onBeforeUnmount(() => window.removeEventListener('resize', onResize))
 
-watch([emphasisIndex, () => props.itens], () => {
+watch([currentIndex, () => props.itens], () => {
   // recalc when emphasis or items change
   nextTick().then(updateTranslate)
 })
-const slideSize = computed(() => {
-  if (props.component === CardDestaque) {
-    return slideWidth.value * 3 // anda 1 card
-  } else if (props.component === CardInscricao) {
-    return slideWidth.value // anda 3 cards
-  }
-  return slideWidth.value
-})
+// const slideSize = computed(() => {
+//   if (props.component === CardDestaque) {
+//     return slideWidth.value * 3 // anda 1 card
+//   } else if (props.component === CardInscricao) {
+//     return slideWidth.value // anda 3 cards
+//   }
+//   return slideWidth.value
+// })
 
 const totalPages = computed(() => {
   if (props.component === CardDestaque) {
-    return Math.ceil(props.itens.length / 1) // 1 card por página
+    return Math.ceil(props.itens.length - cardsPerPage.value) // 1 card por página
   } else if (props.component === CardInscricao) {
-    return Math.ceil(props.itens.length / 3) // 3 cards por página
+    return Math.ceil(props.itens.length - cardsPerPage.value) // 3 cards por página
   }
   return props.itens.length
-})
-
-const currentPage = computed(() => {
-  if (props.component === CardDestaque) {
-    return Math.floor(currentIndex.value / 1) + 1
-  } else if (props.component === CardInscricao) {
-    return Math.floor(currentIndex.value / 3) + 1
-  }
-  return currentIndex.value + 1
 })
 
 function calculateCardsPerPage() {
   if (props.component === CardDestaque) {
     cardsPerPage.value = 1
   } else if (props.component === CardInscricao) {
-    cardsPerPage.value = 3
+    cardsPerPage.value = 4
   } else {
     cardsPerPage.value = 1
   }
 }
 
-function goToPage(pageNumber) {
-  currentIndex.value = (pageNumber - 1) * cardsPerPage.value
-  if (props.component === CardInscricao) {
-    emphasisIndex.value = currentIndex.value + 1
-  }
-}
-
 function proximo() {
-  const maxStart = Math.max(0, props.itens.length - visibleCount.value)
+  const maxStart = Math.max(0, props.itens.length - cardsPerPage.value)
   const maxIndex = totalPages.value - 1
   if (currentIndex.value < maxStart) {
     currentIndex.value = Math.min(currentIndex.value + moveBy.value, maxStart)
-    emphasisIndex.value = Math.min(emphasisIndex.value + moveBy.value, props.itens.length - 1)
     nextTick().then(updateTranslate)
+    console.log('prev: currentIndex', currentIndex.value, 'translate', translateX.value)
   }
 }
 
 function anterior() {
   if (currentIndex.value > 0) {
     currentIndex.value = Math.max(0, currentIndex.value - moveBy.value)
-    emphasisIndex.value = Math.max(0, emphasisIndex.value - moveBy.value)
     nextTick().then(updateTranslate)
-    console.log(
-      'prev: currentIndex',
-      currentIndex.value,
-      'emphasis',
-      emphasisIndex.value,
-      'translate',
-      translateX.value,
-    )
+    console.log('prev: currentIndex', currentIndex.value, 'translate', translateX.value)
   }
 }
 </script>
@@ -168,16 +182,31 @@ function anterior() {
       <ButtonSeta class="seta esquerda" @click="anterior" :disabled="!canPrev" />
 
       <div class="viewport" ref="viewport">
-        <div class="Itens" :class="{
-          ItensInscricao: props.component === CardInscricao,
-          ItensDestaque: props.component === CardDestaque,
-        }" ref="container" :style="{ transform: `translateX(-${currentIndex * slideSize}px)` }">
-          <component v-for="(item, i) in itens" :key="i" :is="component" :item="item"
-            :class="{ emphasis: i === emphasisIndex && component === CardInscricao }" />
+        <div
+          class="Itens"
+          :class="{
+            ItensInscricao: props.component === CardInscricao,
+            ItensDestaque: props.component === CardDestaque,
+          }"
+          ref="container"
+          :style="{ transform: `translateX(${-translateX}px)` }"
+        >
+          <component
+            v-for="(item, i) in itens"
+            :key="i"
+            :is="component"
+            :item="item"
+            :class="{ emphasis: i === currentIndex && component === CardInscricao }"
+          />
         </div>
       </div>
 
-      <ButtonSeta class="seta direita" @click="proximo" :disabled="!canNext" style="transform: scaleX(-1)" />
+      <ButtonSeta
+        class="seta direita"
+        @click="proximo"
+        :disabled="!canNext"
+        style="transform: scaleX(-1); cursor: pointer"
+      />
     </div>
 
     <!-- Indicador de páginas em formato de círculos -->
@@ -186,8 +215,8 @@ function anterior() {
         v-for="page in totalPages"
         :key="page"
         class="dot"
-        :class="{ active: currentPage === page }"
-        @click="goToPage(page)"
+        :class="{ active: currentIndex === page }"
+        @click="moveToIndex(page)"
         :aria-label="`Ir para página ${page}`"
       />
     </div>
@@ -206,11 +235,10 @@ function anterior() {
   display: flex;
   align-items: center;
   position: relative;
-  gap: 1rem;
-  max-width: 1200px;
+  gap: 0.875rem;
+  max-width: 90vw;
   overflow: hidden;
   margin: auto;
-  width: 100%;
 }
 
 .CarrosselInscricao {
@@ -244,13 +272,14 @@ function anterior() {
   display: none;
 }
 
-.Itens>* {
+.Itens > * {
   scroll-snap-align: start;
   flex: 0 0 auto;
+  cursor: pointer;
   /* ocupa 100% da largura da viewport */
 }
 
-.ItensDestaque>*:hover {
+.ItensDestaque > *:hover {
   transform: scale(1.05);
   transition: transform 0.4s ease;
 }
