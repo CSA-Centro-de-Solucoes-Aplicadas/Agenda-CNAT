@@ -143,7 +143,7 @@ const totalPages = computed(() => {
   if (props.component === CardDestaque) {
     return Math.ceil(props.itens.length - cardsPerPage.value) // 1 card por página
   } else if (props.component === CardInscricao) {
-    return Math.ceil(props.itens.length - cardsPerPage.value) // 3 cards por página
+    return Math.ceil(props.itens.length) // 3 cards por página
   }
   return props.itens.length
 })
@@ -216,7 +216,7 @@ function anterior() {
         :key="page"
         class="dot"
         :class="{ active: currentIndex === page }"
-        @click="moveToIndex(page)"
+        @click="moveToIndex(page - 1)"
         :aria-label="`Ir para página ${page}`"
       />
     </div>
