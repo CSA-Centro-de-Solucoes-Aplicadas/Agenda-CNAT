@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Cadastro from '@/views/cadastro.vue'
+import Home from '@/views/home.vue'
 
-const routes = [{ path: '/cadastro', component: Cadastro }]
+const routes = [{ path: '/home', component: Home }]
 
 export const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
