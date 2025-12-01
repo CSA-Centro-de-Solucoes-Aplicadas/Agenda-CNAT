@@ -23,7 +23,7 @@ function updateCardsPerPage() {
   if (props.component === CardDestaque) {
     if (window.innerWidth >= 1024) {
       cardsPerPage.value = 4
-    } else if (window.innerWidth >= 768) {
+    } else if (window.innerWidth >= 900) {
       cardsPerPage.value = 3
     } else {
       cardsPerPage.value = 2
@@ -116,7 +116,7 @@ function updateTranslate() {
 function moveToIndex(index) {
   currentIndex.value = index
   nextTick().then(updateTranslate)
-  console.log('prev: currentIndex', currentIndex.value, 'translate', translateX.value)
+  console.log('dots: currentIndex', currentIndex.value, 'translate', translateX.value)
 }
 
 const onResize = () => {
@@ -138,7 +138,6 @@ watch([currentIndex, () => props.itens], () => {
 //   }
 //   return slideWidth.value
 // })
-
 const totalPages = computed(() => {
   if (props.component === CardDestaque) {
     return Math.ceil(props.itens.length - cardsPerPage.value) // 1 card por página
@@ -148,15 +147,15 @@ const totalPages = computed(() => {
   return props.itens.length
 })
 
-function calculateCardsPerPage() {
-  if (props.component === CardDestaque) {
-    cardsPerPage.value = 1
-  } else if (props.component === CardInscricao) {
-    cardsPerPage.value = 4
-  } else {
-    cardsPerPage.value = 1
-  }
-}
+// function calculateCardsPerPage() {
+//   if (props.component === CardDestaque) {
+//     cardsPerPage.value = 1
+//   } else if (props.component === CardInscricao) {
+//     cardsPerPage.value = 4
+//   } else {
+//     cardsPerPage.value = 1
+//   }
+// }
 
 function proximo() {
   const maxStart = Math.max(0, props.itens.length - cardsPerPage.value)
@@ -175,6 +174,7 @@ function anterior() {
     console.log('prev: currentIndex', currentIndex.value, 'translate', translateX.value)
   }
 }
+console.log('cardsPerPage', cardsPerPage.value)
 </script>
 <template>
   <div class="carrossel-wrapper">
@@ -213,11 +213,11 @@ function anterior() {
     <div class="pagination-dots">
       <button
         v-for="page in totalPages"
-        :key="page"
+        :key="page - 1"
         class="dot"
-        :class="{ active: currentIndex === page }"
+        :class="{ active: currentIndex === page - 1 }"
         @click="moveToIndex(page - 1)"
-        :aria-label="`Ir para página ${page}`"
+        :aria-label="`Ir para página ${page - 1}`"
       />
     </div>
   </div>
