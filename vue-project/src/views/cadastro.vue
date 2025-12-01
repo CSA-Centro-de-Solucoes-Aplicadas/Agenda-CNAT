@@ -9,13 +9,13 @@ import youtubeImg from '@/assets/youtube.png'
 import { ref } from 'vue'
 const todasCategorias = [
   "Tecnologia",
-  "Educação",
-  "Saúde",
-  "Palestra",
-  "Workshop",
-  "Feira",
-  "Cultura",
-  "Extensão"
+  "Ensino",
+  "Pesquisa e Extensão",
+  "Arte e Cultura",
+  "Esporte",
+  "Gestão",
+  "Recursos naturais",
+  "Palestra"
 ]
 
 const categoriasAbertas = ref(false)
