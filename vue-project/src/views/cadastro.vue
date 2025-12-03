@@ -36,12 +36,12 @@ function removerCategoria(nome: string) {
     (cat) => cat !== nome
   )
 }
-  // Range das datas do evento
+  
   const datasEvento = ref({
     start: null,
     end: null
   })
-  // Range das datas das inscrições
+
   const datasInscricao = ref({
     start: null,
     end: null
@@ -56,7 +56,7 @@ const horarioInscricao = ref({
   fim: ""
 })
 
-// OBJETO DO FORMULÁRIO COMPLETO
+
 const form = ref({
   nome: "",
   imagem: null,
@@ -137,7 +137,6 @@ const form = ref({
                     </div>
                   </div>
 
-                  <!-- TAGS SELECIONADAS -->
                   <div class="cat-tags">
                     <span v-for="cat in categoriasSelecionadas" :key="cat" class="tag">
                       {{ cat }}
@@ -182,7 +181,7 @@ const form = ref({
                   </template>
                 </VDatePicker>
 
-                <!-- HORÁRIO INÍCIO -->
+            
                 <input
                   type="time"
                   v-model="horarioEvento.inicio"
@@ -190,7 +189,7 @@ const form = ref({
                   placeholder="Início"
                 />
 
-                <!-- HORÁRIO FIM -->
+                
                 <input
                   type="time"
                   v-model="horarioEvento.fim"
@@ -225,14 +224,13 @@ const form = ref({
                   </template>
                 </VDatePicker>
 
-                <!-- HORÁRIO INÍCIO -->
                 <input
                   type="time"
                   v-model="horarioInscricao.inicio"
                   class="time-input"
                 />
 
-                <!-- HORÁRIO FIM -->
+           
                 <input
                   type="time"
                   v-model="horarioInscricao.fim"
