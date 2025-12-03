@@ -5,17 +5,19 @@ import logoIfrn from '@/assets/ifrn.png'
 import XImg from '@/assets/x.png'
 import instagramImg from '@/assets/instagram.png'
 import youtubeImg from '@/assets/youtube.png'
+import { VueDatePicker as DatePicker } from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
 
 import { ref } from 'vue'
 const todasCategorias = [
-  "Tecnologia",
-  "Ensino",
-  "Pesquisa e Extensão",
-  "Arte e Cultura",
-  "Esporte",
-  "Gestão",
-  "Recursos naturais",
-  "Palestra"
+  'Tecnologia',
+  'Ensino',
+  'Pesquisa e Extensão',
+  'Arte e Cultura',
+  'Esporte',
+  'Gestão',
+  'Recursos naturais',
+  'Palestra',
 ]
 
 const categoriasAbertas = ref(false)
@@ -32,56 +34,46 @@ function selecionarCategoria(nome: string) {
 }
 
 function removerCategoria(nome: string) {
-  categoriasSelecionadas.value = categoriasSelecionadas.value.filter(
-    (cat) => cat !== nome
-  )
+  categoriasSelecionadas.value = categoriasSelecionadas.value.filter((cat) => cat !== nome)
 }
-  
-  const datasEvento = ref({
-    start: null,
-    end: null
-  })
 
-  const datasInscricao = ref({
-    start: null,
-    end: null
-  })
+const datasEvento = ref<Date[]>([])
+const datasInscricao = ref<Date[]>([])
+
 const horarioEvento = ref({
-  inicio: "",
-  fim: ""
+  inicio: '',
+  fim: '',
 })
 
 const horarioInscricao = ref({
-  inicio: "",
-  fim: ""
+  inicio: '',
+  fim: '',
 })
 
-
 const form = ref({
-  nome: "",
+  nome: '',
   imagem: null,
 
   categorias: [],
-  descricao: "",
-  link: "",
+  descricao: '',
+  link: '',
 
   evento: {
     inicioData: null,
     fimData: null,
-    inicioHora: "",
-    fimHora: ""
+    inicioHora: '',
+    fimHora: '',
   },
 
   inscricao: {
     inicioData: null,
     fimData: null,
-    inicioHora: "",
-    fimHora: ""
+    inicioHora: '',
+    fimHora: '',
   },
 
-  organizadores: ["", "", ""]
+  organizadores: ['', '', ''],
 })
-
 </script>
 
 <template>
@@ -90,178 +82,149 @@ const form = ref({
       <div class="header-logo-container">
         <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
       </div>
-     <div class="header-inner">
-      <ul>
-        <li><a href="">Calendário</a></li>
-        <li><a href="">Adicionar Evento</a></li>
-        <li><a href="">Inscrições Abertas</a></li>
-      </ul>
-     </div>
+      <div class="header-inner">
+        <ul>
+          <li><a href="">Calendário</a></li>
+          <li><a href="">Adicionar Evento</a></li>
+          <li><a href="">Inscrições Abertas</a></li>
+        </ul>
+      </div>
     </header>
 
     <main class="main-content">
-          <h1>Adicionar Evento</h1>
-          <!-- Section 1 -->
-          <section class="form-section">
-            <h2>1. Informações do Evento</h2>
+      <h1>Adicionar Evento</h1>
+      <!-- Section 1 -->
+      <section class="form-section">
+        <h2>1. Informações do Evento</h2>
 
-            <div class="form-group">
-              <label>Nome do Evento*</label>
-              <input type="text" />
+        <div class="form-group">
+          <label>Nome do Evento*</label>
+          <input type="text" />
+        </div>
+
+        <div class="form-group">
+          <label>Imagem de divulgação*</label>
+          <input type="file" />
+        </div>
+
+        <div class="form-group">
+          <div class="cat-header">
+            <span class="cat-label">Categorias</span>
+
+            <button type="button" class="cat-icon-btn" @click="toggleCategorias">
+              <span class="arrow">⌄</span>
+            </button>
+          </div>
+
+          <!-- LISTA DROPDOWN -->
+          <div v-if="categoriasAbertas" class="cat-dropdown">
+            <div
+              class="cat-option"
+              v-for="cat in todasCategorias"
+              :key="cat"
+              @click="selecionarCategoria(cat)"
+            >
+              {{ cat }}
             </div>
+          </div>
 
-            <div class="form-group">
-              <label>Imagem de divulgação*</label>
-               <input type="file">
-            </div>
+          <div class="cat-tags">
+            <span v-for="cat in categoriasSelecionadas" :key="cat" class="tag">
+              {{ cat }}
+              <button class="remove-tag" @click="removerCategoria(cat)">✖</button>
+            </span>
+          </div>
+        </div>
 
-           <div class="form-group">
-                 <div class="cat-header">
-                      <span class="cat-label">Categorias</span>
+        <div class="form-group">
+          <label>Descrição</label>
+          <textarea></textarea>
+        </div>
+        <div class="form-group">
+          <label>Link para mais informações</label>
+          <input type="url" />
+        </div>
+      </section>
 
-                      <button type="button" class="cat-icon-btn" @click="toggleCategorias">
-                        <span class="arrow">⌄</span>
-                      </button>
-                  </div>
+      <section class="form-section">
+        <h2>2. Data e Horário do Evento</h2>
 
+        <div class="form-group">
+          <label>Selecione o período do evento</label>
 
-                  <!-- LISTA DROPDOWN -->
-                  <div v-if="categoriasAbertas" class="cat-dropdown">
-                    <div
-                      class="cat-option"
-                      v-for="cat in todasCategorias"
-                      :key="cat"
-                      @click="selecionarCategoria(cat)"
-                    >
-                      {{ cat }}
-                    </div>
-                  </div>
+          <div class="date-time-row">
+            <DatePicker
+              v-model="datasEvento"
+              multi-dates
+              :enable-time-picker="false"
+              :clearable="true"
+              placeholder="Selecione os dias do evento"
+            />
+            <ul class="lista-datas">
+              <li v-for="(d, index) in datasEvento" :key="index">
+                {{ d.toLocaleDateString('pt-BR') }}
+              </li>
+            </ul>
 
-                  <div class="cat-tags">
-                    <span v-for="cat in categoriasSelecionadas" :key="cat" class="tag">
-                      {{ cat }}
-                      <button class="remove-tag" @click="removerCategoria(cat)">✖</button>
-                    </span>
-                  </div>
-                </div>
+            <input
+              type="time"
+              v-model="horarioEvento.inicio"
+              class="time-input"
+              placeholder="Início"
+            />
 
-            <div class="form-group">
-              <label>Descrição</label>
-              <textarea></textarea>
-            </div>
-            <div class="form-group">
-              <label>Link para mais informações</label>
-              <input type="url">
-            </div>
-          </section>
+            <input type="time" v-model="horarioEvento.fim" class="time-input" placeholder="Fim" />
+          </div>
+        </div>
+      </section>
 
-          <!-- Section 2 -->
-          <section class="form-section">
-          <h2>2. Data e Horário do Evento</h2>
-
-            <div class="form-group">
-              <label>Selecione o período do evento</label>
-
-              <div class="date-time-row">
-                <!-- DATE RANGE -->
-                <VDatePicker
-                  v-model="datasEvento"
-                  is-range
-                  color="green"
-                  :popover="{ placement: 'right-start' }"
-                >
-                  <template #default="{ inputValue, togglePopover }">
-                    <input
-                      class="calendar-input"
-                      :value="inputValue.start + ' até ' + inputValue.end"
-                      placeholder="Selecione o período"
-                      @click="togglePopover"
-                      readonly
-                    />
-                  </template>
-                </VDatePicker>
-
-            
-                <input
-                  type="time"
-                  v-model="horarioEvento.inicio"
-                  class="time-input"
-                  placeholder="Início"
-                />
-
-                
-                <input
-                  type="time"
-                  v-model="horarioEvento.fim"
-                  class="time-input"
-                  placeholder="Fim"
-                />
-              </div>
-            </div>
-
+      <section class="form-section">
         <h2>2. Data e Horário da abertura de inscrições</h2>
 
-            <div class="form-group">
-              <label>Selecione o período de inscrições</label>
+        <div class="form-group">
+          <label>Selecione o período de inscrições</label>
 
-              <div class="date-time-row">
+          <div class="date-time-row">
+            <DatePicker
+              v-model="datasInscricao"
+              multi-dates
+              :enableTimePicker="false"
+              placeholder="Selecione os dias de inscrição"
+            />
 
-                <!-- DATE RANGE -->
-                <VDatePicker
-                  v-model="datasInscricao"
-                  is-range
-                  color="green"
-                  :popover="{ placement: 'right-start' }"
-                >
-                  <template #default="{ inputValue, togglePopover }">
-                    <input
-                      class="calendar-input"
-                      :value="inputValue.start + ' até ' + inputValue.end"
-                      placeholder="Selecione o período"
-                      @click="togglePopover"
-                      readonly
-                    />
-                  </template>
-                </VDatePicker>
+            <ul class="lista-datas">
+              <li v-for="(d, index) in datasInscricao" :key="index">
+                {{ d.toLocaleDateString('pt-BR') }}
+              </li>
+            </ul>
 
-                <input
-                  type="time"
-                  v-model="horarioInscricao.inicio"
-                  class="time-input"
-                />
+            <input type="time" v-model="horarioInscricao.inicio" class="time-input" />
 
-           
-                <input
-                  type="time"
-                  v-model="horarioInscricao.fim"
-                  class="time-input"
-                />
-              </div>
-            </div>
-
-          </section>
-
-          <section class="form-section">
-            <h2>3. Informações dos organizadores</h2>
-
-            <div class="form-group">
-              <label>Email</label>
-              <input type="email" />
-            </div>
-            <div class="form-group">
-              <label>Email</label>
-              <input type="email" />
-            </div>
-            <div class="form-group">
-              <label>Email</label>
-              <input type="email" />
-            </div>
-          </section>
-
-          <div class="submit-container">
-            <button class="submit-btn">Confirmar</button>
+            <input type="time" v-model="horarioInscricao.fim" class="time-input" />
           </div>
-       
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h2>3. Informações dos organizadores</h2>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" />
+        </div>
+      </section>
+
+      <div class="submit-container">
+        <button class="submit-btn">Confirmar</button>
+      </div>
     </main>
 
     <footer>
@@ -297,7 +260,6 @@ const form = ref({
   display: flex;
   flex-direction: column;
 }
-
 
 .main-header {
   width: 100%;
@@ -374,7 +336,7 @@ header li a:hover {
   gap: 40px;
 }
 
-h1{
+h1 {
   color: #0a4635;
 }
 .form-section {
@@ -443,7 +405,6 @@ h1{
   font-weight: bold;
   transform: translateY(-7px);
 }
-
 
 .cat-dropdown {
   margin-top: 5px;
@@ -520,7 +481,6 @@ h1{
   border-radius: 8px;
 }
 
-
 .calendar-input:hover {
   border-color: #077a4c;
 }
@@ -532,8 +492,6 @@ h1{
   --vc-accent-400: #0a8f5a; /* verde principal */
 }
 
-
-/* BUTTON */
 .submit-container {
   display: flex;
   justify-content: flex-end;
