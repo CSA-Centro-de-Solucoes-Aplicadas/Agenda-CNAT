@@ -4,7 +4,9 @@ from .models import Event, Categoria
 
 
 class CategoriaSerializer(serializers.ModelSerializer):
+    #  a classe CategoriaSerializer serializa o model Categoria
     class Meta:
+        # a classe Meta informa ao serializer qual model ele está serializando
         model = Categoria
         fields = ['id', 'nome', 'descricao', 'icone']
 
@@ -12,11 +14,14 @@ class CategoriaSerializer(serializers.ModelSerializer):
 class EventSerializer(serializers.ModelSerializer):
     # Representar categorias como lista de IDs (input) e permitir mostrar dados breves do objeto (output)
     categoria = serializers.PrimaryKeyRelatedField(
+        # PrimaryKeyRelatedFiel é usado para representar relações por suas chaves primárias
         many=True,
+        # many=True porque é ManyToMany, 
         queryset=Categoria.objects.all()
     )
+    # essa linha acima permite que o campo categoria aceite uma lista de IDs de Categoria ao criar/atualizar um Event
 
-    # contatos: garantimos que seja uma lista de strings (e-mails) no nível do serializer
+    # contatos: garante que seja uma lista de strings (e-mails) no nível do serializer
     contatos = serializers.ListField(
         child=serializers.EmailField(),
         allow_empty=True,
