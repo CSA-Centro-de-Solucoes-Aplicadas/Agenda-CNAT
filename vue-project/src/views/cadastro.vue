@@ -7,8 +7,8 @@ import instagramImg from '@/assets/instagram.png'
 import youtubeImg from '@/assets/youtube.png'
 import { VueDatePicker as DatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
+import { ref, watch } from "vue"
 
-import { ref } from 'vue'
 const todasCategorias = [
   'Tecnologia',
   'Ensino',
@@ -22,58 +22,118 @@ const todasCategorias = [
 
 const categoriasAbertas = ref(false)
 const categoriasSelecionadas = ref<string[]>([])
+const horariosEvento = ref<{ dia: Date; inicio: string; fim: string }[]>([])
+
+const organizadores = ref<string[]>([""])
+const novaCategoria = ref("") 
+
+const nomeEvento = ref("");
+const imagem = ref<File | null>(null);
+const descricao = ref("");
+const link = ref("");
 
 function toggleCategorias() {
   categoriasAbertas.value = !categoriasAbertas.value
 }
 
+
 function selecionarCategoria(nome: string) {
+  if (categoriasSelecionadas.value.length >= 2) return // LIMITA A 2
+
   if (!categoriasSelecionadas.value.includes(nome)) {
     categoriasSelecionadas.value.push(nome)
   }
 }
+
+function adicionarCategoriaManual() {
+  const nome = novaCategoria.value.trim()
+
+  if (!nome) return
+  if (categoriasSelecionadas.value.length >= 2) return
+  if (categoriasSelecionadas.value.includes(nome)) return
+
+  categoriasSelecionadas.value.push(nome)
+  novaCategoria.value = ""
+}
+
 
 function removerCategoria(nome: string) {
   categoriasSelecionadas.value = categoriasSelecionadas.value.filter((cat) => cat !== nome)
 }
 
 const datasEvento = ref<Date[]>([])
-const datasInscricao = ref<Date[]>([])
 
-const horarioEvento = ref({
-  inicio: '',
-  fim: '',
+// Período de inscrições 
+const dataInicioInscricao = ref<Date | null>(null)
+const dataFimInscricao = ref<Date | null>(null)
+
+
+function removerDiaEvento(dia: Date) {
+  datasEvento.value = datasEvento.value.filter(
+    d => d.getTime() !== dia.getTime()
+  )
+}
+
+function adicionarOrganizador() {
+  organizadores.value.push("")
+}
+
+function removerOrganizador(index: number) {
+  organizadores.value.splice(index, 1)
+}
+// validar inputs
+
+const erros = ref<string[]>([])
+
+function validarFormulario() {
+  erros.value = []
+
+  if (!nomeEvento.value.trim()) erros.value.push("O nome do evento é obrigatório.")
+  if (!imagem.value) erros.value.push("A imagem é obrigatória.")
+  if (categoriasSelecionadas.value.length === 0) erros.value.push("Selecione ao menos 1 categoria.")
+  if (datasEvento.value.length === 0) erros.value.push("Selecione pelo menos 1 dia de evento.")
+  if (!dataInicioInscricao.value) erros.value.push("Data de início das inscrições é obrigatória.")
+  if (!dataFimInscricao.value) erros.value.push("Data final das inscrições é obrigatória.")
+ 
+
+  return erros.value.length === 0
+}
+
+function enviarFormulario() {
+  if (!validarFormulario()) {
+    console.log("ERROS:", erros.value)
+    return
+  }
+
+  const dados = {
+    nomeEvento: nomeEvento.value,
+    imagem: imagem.value,
+    categorias: categoriasSelecionadas.value,
+    descricao: descricao.value,
+    link: link.value,
+    datasEvento: horariosEvento.value,
+    organizadores: organizadores.value.filter(o => o.trim() !== ""),
+    inscricao: {
+      dataInicio: dataInicioInscricao.value,
+      dataFim: dataFimInscricao.value,
+    
+    }
+  }
+  
+  console.log("ENVIADO COM SUCESSO:", dados)
+
+}
+
+watch(datasEvento, (novasDatas) => {
+  horariosEvento.value = novasDatas.map((d) => {
+    const existente = horariosEvento.value.find(
+      (h) => h.dia.getTime() === d.getTime()
+    )
+    return existente || { dia: d, inicio: "", fim: "" }
+  })
 })
 
-const horarioInscricao = ref({
-  inicio: '',
-  fim: '',
-})
 
-const form = ref({
-  nome: '',
-  imagem: null,
-
-  categorias: [],
-  descricao: '',
-  link: '',
-
-  evento: {
-    inicioData: null,
-    fimData: null,
-    inicioHora: '',
-    fimHora: '',
-  },
-
-  inscricao: {
-    inicioData: null,
-    fimData: null,
-    inicioHora: '',
-    fimHora: '',
-  },
-
-  organizadores: ['', '', ''],
-})
 </script>
 
 <template>
@@ -99,12 +159,12 @@ const form = ref({
 
         <div class="form-group">
           <label>Nome do Evento*</label>
-          <input type="text" />
+          <input type="text" required />
         </div>
 
         <div class="form-group">
           <label>Imagem de divulgação*</label>
-          <input type="file" />
+          <input type="file" required />
         </div>
 
         <div class="form-group">
@@ -118,11 +178,22 @@ const form = ref({
 
           <!-- LISTA DROPDOWN -->
           <div v-if="categoriasAbertas" class="cat-dropdown">
+
+             <input
+                type="text"
+                v-model="novaCategoria"
+                placeholder="Adicionar categoria..."
+                class="cat-input"
+                @keyup.enter="adicionarCategoriaManual"
+                :disabled="categoriasSelecionadas.length >= 2" required
+              />
+
             <div
               class="cat-option"
               v-for="cat in todasCategorias"
               :key="cat"
               @click="selecionarCategoria(cat)"
+              :class="{ disabled: categoriasSelecionadas.length >= 2 }"
             >
               {{ cat }}
             </div>
@@ -138,7 +209,7 @@ const form = ref({
 
         <div class="form-group">
           <label>Descrição</label>
-          <textarea></textarea>
+          <textarea></textarea required>
         </div>
         <div class="form-group">
           <label>Link para mais informações</label>
@@ -152,7 +223,7 @@ const form = ref({
         <div class="form-group">
           <label>Selecione o período do evento</label>
 
-          <div class="date-time-row">
+          <div class="form-group">
             <DatePicker
               v-model="datasEvento"
               multi-dates
@@ -160,70 +231,90 @@ const form = ref({
               :clearable="true"
               placeholder="Selecione os dias do evento"
             />
-            <ul class="lista-datas">
-              <li v-for="(d, index) in datasEvento" :key="index">
-                {{ d.toLocaleDateString('pt-BR') }}
-              </li>
-            </ul>
+            <div class="lista-dias-container">
+              <div
+                class="dia-item"
+                v-for="(item, idx) in horariosEvento"
+                :key="idx"
+              >
+               <button class="remove-day" @click="removerDiaEvento(item.dia)">✖</button>
 
-            <input
-              type="time"
-              v-model="horarioEvento.inicio"
-              class="time-input"
-              placeholder="Início"
-            />
+                <span class="dia-label">{{ item.dia.toLocaleDateString("pt-BR") }}</span>
 
-            <input type="time" v-model="horarioEvento.fim" class="time-input" placeholder="Fim" />
+                <input
+                  type="time"
+                  v-model="item.inicio"
+                  class="time-input"
+                  placeholder="Início"
+                required/>
+                <input
+                  type="time"
+                  v-model="item.fim"
+                  class="time-input"
+                  placeholder="Fim"
+                required/>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section class="form-section">
-        <h2>2. Data e Horário da abertura de inscrições</h2>
+     <section class="form-section">
+        <h2>2.1 Período de Inscrições</h2>
 
         <div class="form-group">
-          <label>Selecione o período de inscrições</label>
+          <label>Data de início *</label>
+          <DatePicker
+            v-model="dataInicioInscricao"
+            :enable-time-picker="false"
+            placeholder="Selecione o dia de início"
+          />
+        </div>
 
-          <div class="date-time-row">
-            <DatePicker
-              v-model="datasInscricao"
-              multi-dates
-              :enableTimePicker="false"
-              placeholder="Selecione os dias de inscrição"
-            />
-
-            <ul class="lista-datas">
-              <li v-for="(d, index) in datasInscricao" :key="index">
-                {{ d.toLocaleDateString('pt-BR') }}
-              </li>
-            </ul>
-
-            <input type="time" v-model="horarioInscricao.inicio" class="time-input" />
-
-            <input type="time" v-model="horarioInscricao.fim" class="time-input" />
-          </div>
+        <div class="form-group">
+          <label>Data de fim *</label>
+          <DatePicker
+            v-model="dataFimInscricao"
+            :enable-time-picker="false"
+            placeholder="Selecione o dia final"
+          />
         </div>
       </section>
+
 
       <section class="form-section">
         <h2>3. Informações dos organizadores</h2>
+          <div class="organizadores-section">
+            <div
+              v-for="(email, index) in organizadores"
+              :key="index"
+              class="organizador-field"
+            >
+              <input
+                type="email"
+                v-model="organizadores[index]"
+                placeholder="Email do organizador"
+              />
 
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" />
-        </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" />
-        </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" />
-        </div>
+              <button
+                v-if="organizadores.length > 1"
+                @click="removerOrganizador(index)"
+                class="remove-field"
+              >
+                ✖
+              </button>
+            </div>
+
+            <button @click="adicionarOrganizador" class="add-field">
+              + Adicionar organizador
+            </button>
+          </div>
       </section>
-
+         <div v-if="erros.length" class="erros-box">
+          <p v-for="err in erros" :key="err" class="erro-item">{{ err }}</p>
+        </div>
       <div class="submit-container">
-        <button class="submit-btn">Confirmar</button>
+         <button class="submit-btn" @click="enviarFormulario">Confirmar</button>
       </div>
     </main>
 
@@ -436,6 +527,18 @@ h1 {
   flex-wrap: wrap;
   margin-top: 12px;
 }
+.cat-input {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-bottom: 8px;
+}
+
+.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 
 .tag {
   background: #c8f5de;
@@ -464,33 +567,111 @@ h1 {
   align-items: center;
   width: 100%;
 }
+.lista-dias-container {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); 
+  gap: 12px 20px;
+  width: 100%;
+}
 
-.calendar-input {
-  flex: 2;
-  padding: 12px;
-  border: 1px solid #0a8f5a;
-  border-radius: 8px;
-  background: white;
+.remove-day {
+  border: none;
+  color: #900;
+  background-color: rgb(252, 232, 232);
+  font-weight: bold;
+  border-radius: 15px;
+  padding: 4px 7px;
   cursor: pointer;
+  transition: 0.2s;
+}
+
+.remove-day:hover {
+  color: #ff8080;
+}
+
+
+.dia-item {
+  background: #e6fff4;
+  border: 1px solid #ddf5e9;
+  padding: 12px 15px;
+  border-radius: 10px;
+
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  box-shadow: 0 2px 6px #0001;
+}
+
+.dia-label {
+  font-weight: 600;
+  color: #066245;
+  width: 120px;
 }
 
 .time-input {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #fff;
+  min-width: 120px;
+}
+/*organizadores */
+.organizadores-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 10px;
+  width: 100%;
+}
+.organizador-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 15px;
+  border-radius: 10px;
+}
+
+.organizador-field input {
   flex: 1;
-  padding: 12px;
-  border: 1px solid #0a8f5a;
+  padding: 10px;
   border-radius: 8px;
 }
 
-.calendar-input:hover {
-  border-color: #077a4c;
+.remove-field {
+  background: #ffe5e5;
+  border: 1px solid #ffb3b3;
+  color: #a00;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-.vc-container {
-  --vc-accent-100: #8aeec3;
-  --vc-accent-200: #5ed7a5;
-  --vc-accent-300: #2fbf85;
-  --vc-accent-400: #0a8f5a; /* verde principal */
+.remove-field:hover {
+  background: #ffd2d2;
+  color: #700;
 }
+
+.add-field {
+  align-self: flex-start;
+  background: #c8f5de;
+  border: 1px solid #9bd9b9;
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: #0b5c3e;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.add-field:hover {
+  background: #b2f0d1;
+  border-color: #89cdaa;
+}
+
 
 .submit-container {
   display: flex;
@@ -504,6 +685,17 @@ h1 {
   font-size: 1rem;
   border: none;
   cursor: pointer;
+}
+.erros-box {
+  
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.erro-item {
+  color: #b33f3f;
+  font-weight: 600;
 }
 
 footer {
