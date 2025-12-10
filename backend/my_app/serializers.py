@@ -10,7 +10,6 @@ class CategoriaSerializer(serializers.ModelSerializer):
         model = Categoria
         fields = ['id', 'nome', 'descricao', 'icone']
 
-
 class EventSerializer(serializers.ModelSerializer):
     # Representar categorias como lista de IDs (input) e permitir mostrar dados breves do objeto (output)
     categoria = serializers.PrimaryKeyRelatedField(

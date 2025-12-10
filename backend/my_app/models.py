@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 from django.db.models import JSONField
+from .managers import EventoQuerySet
 import uuid
 # Create your models here.
 
@@ -32,6 +33,7 @@ class Event(models.Model):
     categoria = models.ManyToManyField(Categoria, related_name='eventos')
     local = models.CharField(max_length=200)
     contatos = JSONField(blank=True, default=list )
+    objects = EventoQuerySet.as_manager()
 
     def __str__(self):
         return self.titulo
