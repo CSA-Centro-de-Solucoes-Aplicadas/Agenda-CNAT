@@ -83,25 +83,8 @@ function removerOrganizador(index: number) {
 }
 // validar inputs
 
-const erros = ref<string[]>([])
-
-function validarFormulario() {
-  erros.value = []
-
-  if (!nomeEvento.value.trim()) erros.value.push("O nome do evento é obrigatório.")
-  if (!imagem.value) erros.value.push("A imagem é obrigatória.")
-  if (categoriasSelecionadas.value.length === 0) erros.value.push("Selecione ao menos 1 categoria.")
-  if (datasEvento.value.length === 0) erros.value.push("Selecione pelo menos 1 dia de evento.")
-  if (!dataInicioInscricao.value) erros.value.push("Data de início das inscrições é obrigatória.")
-  if (!dataFimInscricao.value) erros.value.push("Data final das inscrições é obrigatória.")
- 
-
-  return erros.value.length === 0
-}
 
 function enviarFormulario() {
-  if (!validarFormulario()) {
-    console.log("ERROS:", erros.value)
     return
   }
 
@@ -122,7 +105,7 @@ function enviarFormulario() {
   
   console.log("ENVIADO COM SUCESSO:", dados)
 
-}
+
 
 watch(datasEvento, (novasDatas) => {
   horariosEvento.value = novasDatas.map((d) => {
@@ -310,9 +293,6 @@ watch(datasEvento, (novasDatas) => {
             </button>
           </div>
       </section>
-         <div v-if="erros.length" class="erros-box">
-          <p v-for="err in erros" :key="err" class="erro-item">{{ err }}</p>
-        </div>
       <div class="submit-container">
          <button class="submit-btn" @click="enviarFormulario">Confirmar</button>
       </div>
@@ -686,17 +666,7 @@ h1 {
   border: none;
   cursor: pointer;
 }
-.erros-box {
-  
-  padding: 12px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
 
-.erro-item {
-  color: #b33f3f;
-  font-weight: 600;
-}
 
 footer {
   background-color: #02402e;
