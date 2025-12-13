@@ -10,8 +10,6 @@ class Categoria(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nome = models.CharField(max_length=100, unique=True)
     descricao = models.TextField(blank=True, null=True)
-    icone = models.CharField(max_length=100, blank=True, null=True)
-    # O campo icone armazena somente o caminho para um arquivo de ícone localizado dentro do vue-project.
 
     def __str__(self):
         return self.nome
@@ -24,11 +22,11 @@ class Categoria(models.Model):
     
 class Event(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    titulo = models.CharField(max_length=200)
+    titulo = models.CharField(max_length=200, db_index=True)
     descricao = models.TextField()
     dataInscricao = models.DateTimeField(null=True, blank=True)
     dataInscricaoFinal = models.DateTimeField(null=True, blank=True)
-    dataEventoInicio = models.DateTimeField(default=timezone.now)
+    dataEventoInicio = models.DateTimeField(default=timezone.now, db_index=True)
     dataEventoFinal = models.DateTimeField()
     categoria = models.ManyToManyField(Categoria, related_name='eventos')
     local = models.CharField(max_length=200)
@@ -42,6 +40,8 @@ class Event(models.Model):
         # Se tiver data de inscrição início, precisa da final
         if self.dataInscricao and not self.dataInscricaoFinal:
             raise ValidationError("Se houver data de inscrição inicial, a data final deve ser definida.")
+        if self.dataInscricaoFinal and not self.dataInscricao:
+            raise ValidationError("Se houver data de inscrição final, a data inicial deve ser definida.")
 
         # Se ambas existirem, a final deve ser depois da inicial
         if self.dataInscricao and self.dataInscricaoFinal:

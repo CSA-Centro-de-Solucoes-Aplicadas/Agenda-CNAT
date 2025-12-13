@@ -67,8 +67,6 @@ class EventSerializer(serializers.ModelSerializer):
             if contatos is not None:
                 event.contatos = contatos
                 event.save()
-            # chamar full_clean() para garantir validação do model
-            event.full_clean()
         return event
 
     def update(self, instance, validated_data):
@@ -85,7 +83,5 @@ class EventSerializer(serializers.ModelSerializer):
             if contatos is not None:
                 instance.contatos = contatos
                 instance.save()
-            # valida model
-            instance.full_clean()
 
         return instance
