@@ -443,7 +443,7 @@ function proximaSemana() {
 </template>
 
 <style scoped>
-.agenda { background: #f7f7f7;
+.agenda { background: #ffffff;
   padding: 0px; 
   border-radius: 12px;
   max-width: 1300px;
@@ -510,7 +510,7 @@ select {
   gap: 35px;
   position: sticky;
   top: 0;
-  background: #f7f7f7;
+  background: #ffffff;
   z-index: 5;
   padding-bottom: 8px;
 }
