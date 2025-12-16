@@ -28,33 +28,30 @@ interface GrupoEvento {
 const eventos = ref<Evento[]>([
   {
     titulo: 'Arraiá Junino',
-    datas: ['14-12-2025', '15-12-2025', '16-12-2025'], // consecutivos
-    inicio: '07:00',
+    datas: ['15-12-2025', '16-12-2025'], // consecutivos
+    inicio: '06:00',
     fim: '11:00',
     categoria: 'Esportes',
-    local: 'Ginásio'
+    local: 'Ginásio',
   },
   {
     titulo: 'CineBiblio',
-    datas: ['14-12-2025', '18-12-2025'], // quebrados
-    inicio: '08:00',
+    datas: ['15-12-2025', '18-12-2025'], // quebrados
+    inicio: '06:00',
     fim: '11:00',
     categoria: 'Cultura',
-    local: 'Biblioteca'
-  }
+    local: 'Biblioteca',
+  },
 ])
 
-
-//  CATEGORIAS  
+//  CATEGORIAS
 const categorias = computed(() => {
-  const unicas = new Set(eventos.value.map(e => e.categoria))
+  const unicas = new Set(eventos.value.map((e) => e.categoria))
   return ['Todas', ...unicas]
 })
 // CORES POR CATEGORIA
 const coresCategorias = computed<Record<string, string>>(() => {
-  const categoriasUnicas = Array.from(
-    new Set(eventos.value.map(e => e.categoria))
-  )
+  const categoriasUnicas = Array.from(new Set(eventos.value.map((e) => e.categoria)))
 
   const baseHue = 145 // verde
   const saturation = 45
@@ -70,7 +67,7 @@ const coresCategorias = computed<Record<string, string>>(() => {
   return mapa
 })
 
-//DATAS 
+//DATAS
 const dataBaseAgenda = ref(new Date())
 
 function formatarData(date: Date): string {
@@ -79,7 +76,6 @@ function formatarData(date: Date): string {
   const d = String(date.getDate()).padStart(2, '0')
   return `${d}-${m}-${y}`
 }
-
 
 const diasSemana = computed(() => {
   const base = dataBaseAgenda.value
@@ -95,14 +91,12 @@ const diasSemana = computed(() => {
   })
 })
 
-
-
-//  MÊS / ANO 
+//  MÊS / ANO
 const mesAnoAtual = computed(() => {
   const base =
     modoVisualizacao.value === 'hoje'
       ? dataBaseAgenda.value
-      : diasSemana.value[0] ?? dataBaseAgenda.value
+      : (diasSemana.value[0] ?? dataBaseAgenda.value)
 
   const mes = base.toLocaleDateString('pt-BR', { month: 'long' })
   const ano = base.getFullYear()
@@ -114,7 +108,7 @@ function gruposDeEventosDoDia(data: Date): GrupoEvento[] {
   const d = formatarData(data)
 
   // eventos já filtrados e visuais
-  const eventosDia = eventosFiltrados.value.filter(e => e.data === d)
+  const eventosDia = eventosFiltrados.value.filter((e) => e.data === d)
 
   const mapa = new Map<string, GrupoEvento>()
 
@@ -125,7 +119,7 @@ function gruposDeEventosDoDia(data: Date): GrupoEvento[] {
       mapa.set(chave, {
         inicio: evento.inicio,
         fim: evento.fim,
-        eventos: []
+        eventos: [],
       })
     }
 
@@ -134,7 +128,6 @@ function gruposDeEventosDoDia(data: Date): GrupoEvento[] {
 
   return Array.from(mapa.values())
 }
-
 
 interface EventoVisual extends Evento {
   data: string
@@ -158,8 +151,7 @@ function criarEventosVisuais(eventos: Evento[]): EventoVisual[] {
       const d1 = new Date(anterior.split('-').reverse().join('-'))
       const d2 = new Date(atual.split('-').reverse().join('-'))
 
-      const consecutivo =
-        d2.getTime() - d1.getTime() === 86400000
+      const consecutivo = d2.getTime() - d1.getTime() === 86400000
 
       if (consecutivo) {
         span++
@@ -167,7 +159,7 @@ function criarEventosVisuais(eventos: Evento[]): EventoVisual[] {
         resultado.push({
           ...evento,
           data: inicioSpan,
-          span
+          span,
         })
 
         inicioSpan = atual
@@ -179,60 +171,53 @@ function criarEventosVisuais(eventos: Evento[]): EventoVisual[] {
     resultado.push({
       ...evento,
       data: inicioSpan,
-      span
+      span,
     })
   }
 
   return resultado
 }
 
-const estiloEventoGrupo = (evento: EventoVisual, index: number, total: number, grupo: GrupoEvento, dia: Date) => {
-  const inicio = minutos(grupo.inicio)
-  const fim = minutos(grupo.fim)
-
-  const top = ((inicio - horaInicio * 60) / totalMinutos) * totalAltura
-  const height = ((fim - inicio) / totalMinutos) * totalAltura
-
+const estiloEventoGrupo = (
+  evento: EventoVisual,
+  index: number,
+  total: number,
+  grupo: GrupoEvento,
+  dia: Date,
+) => {
   const deslocamento = 20
   const left = index * deslocamento
   const larguraMax = 160
-  const width = larguraMax - deslocamento * (total - 1) // largura ajustada
+  const width = larguraMax - deslocamento * (total - 1)
 
   return {
-    top: `${top}px`,
-    height: `${height}px`,
+    top: '0px',
+    height: '100%',
     width: `${width}px`,
     left: `${left}px`,
     zIndex: 100 - index,
-    borderRight: index === 0 ? 'none' : '2px solid rgba(255,255,255,0.5)', // só borda direita dos cards abaixo
+    borderRight: index === 0 ? 'none' : '2px solid rgba(255,255,255,0.5)',
     backgroundColor: coresCategorias.value[evento.categoria] || '#00b894',
-    color: '#fff'
+    color: '#fff',
   }
 }
 
+const eventosVisuais = computed(() => criarEventosVisuais(eventos.value))
 
-
-const eventosVisuais = computed(() =>
-  criarEventosVisuais(eventos.value)
-)
-
-//FILTRO 
+//FILTRO
 const eventosFiltrados = computed(() => {
-  return eventosVisuais.value.filter(e => {
+  return eventosVisuais.value.filter((e) => {
     const categoriaOk =
-      categoriaSelecionada.value === 'Todas' ||
-      e.categoria === categoriaSelecionada.value
+      categoriaSelecionada.value === 'Todas' || e.categoria === categoriaSelecionada.value
 
     const dataOk =
       modoVisualizacao.value === 'hoje'
         ? e.data === formatarData(dataBaseAgenda.value)
-        : diasSemana.value.some(d => formatarData(d) === e.data)
+        : diasSemana.value.some((d) => formatarData(d) === e.data)
 
     return categoriaOk && dataOk
   })
 })
-
-
 
 // POSIÇÃO EVENTO
 function minutos(hora: string): number {
@@ -250,7 +235,7 @@ function estiloGrupo(grupo: GrupoEvento) {
 
   return {
     top: `${((inicio - horaInicio * 60) / totalMinutos) * totalAltura}px`,
-    height: `${((fim - inicio) / totalMinutos) * totalAltura}px`
+    height: `${((fim - inicio) / totalMinutos) * totalAltura}px`,
   }
 }
 const grupoAberto = ref<string | null>(null)
@@ -262,36 +247,23 @@ function primeiroEvento(grupo: GrupoEvento): EventoVisual {
   return grupo.eventos[0] as EventoVisual
 }
 
-
 function spanVisivel(evento: EventoVisual, dia: Date) {
-  const indexDia = diasSemana.value.findIndex(
-    d => formatarData(d) === evento.data
-  )
+  const indexDia = diasSemana.value.findIndex((d) => formatarData(d) === evento.data)
 
   if (indexDia === -1) return 1
 
   return Math.min(evento.span, 7 - indexDia)
 }
 
-
-// navegação de semana em semana 
+// navegação de semana em semana
 
 function semanaAnterior() {
-  dataBaseAgenda.value = new Date(
-    dataBaseAgenda.value.setDate(
-      dataBaseAgenda.value.getDate() - 7
-    )
-  )
+  dataBaseAgenda.value = new Date(dataBaseAgenda.value.setDate(dataBaseAgenda.value.getDate() - 7))
 }
 
 function proximaSemana() {
-  dataBaseAgenda.value = new Date(
-    dataBaseAgenda.value.setDate(
-      dataBaseAgenda.value.getDate() + 7
-    )
-  )
+  dataBaseAgenda.value = new Date(dataBaseAgenda.value.setDate(dataBaseAgenda.value.getDate() + 7))
 }
-
 </script>
 
 <template>
@@ -344,7 +316,7 @@ function proximaSemana() {
         </select>
       </div>
     </header>
- <!-- dias -->
+    <!-- dias -->
     <div v-if="tipoVisualizacao === 'calendario'" class="barra-dias">
       <div class="espaco-horarios"></div>
 
@@ -381,22 +353,13 @@ function proximaSemana() {
       </div>
 
       <!-- CALENDÁRIO -->
-      <div
-        v-else
-        class="grade"
-        :class="{ 'modo-hoje': modoVisualizacao === 'hoje' }"
-      >
+      <div v-else class="grade" :class="{ 'modo-hoje': modoVisualizacao === 'hoje' }">
         <div class="grade-conteudo">
           <!-- HORÁRIOS -->
           <div class="horarios">
-           <div
-              v-for="h in horaFim - horaInicio + 1"
-              :key="h"
-              class="hora"
-            >
+            <div v-for="h in horaFim - horaInicio" :key="h" class="hora">
               {{ String(h + horaInicio - 1).padStart(2, '0') }}:00
             </div>
-
           </div>
 
           <!-- DIAS -->
@@ -406,45 +369,47 @@ function proximaSemana() {
               :key="dia.toDateString()"
               class="dia"
             >
-                    <div
-                      class="coluna-eventos"
-                      :style="{ height: `${(horaFim - horaInicio) * alturaHora}px` }"
-                    >
-                    <div v-for="grupo in gruposDeEventosDoDia(dia)" :key="grupo.inicio + grupo.fim" class="evento-grupo" :style="estiloGrupo(grupo)">
-                      <div
-                        v-for="(ev, i) in grupo.eventos"
-                        :key="i"
-                        class="evento"
-                        :style="estiloEventoGrupo(ev, i, grupo.eventos.length, grupo, dia)"
-                      >
-                        <div class="conteudo-evento">
-                          <strong class="titulo-evento">{{ ev.titulo }}</strong>
-                          <small class="local-evento">{{ ev.local }}</small>
-                          <span class="horario-evento">{{ grupo.inicio }} às {{ grupo.fim }}</span>
-                        </div>
-                      </div>
-
-                      <!-- Indicador de mais eventos -->
-                      <span v-if="grupo.eventos.length > 1" class="mais-eventos">
-                        ▶ {{ grupo.eventos.length - 1 }}
-                      </span>
+              <div
+                class="coluna-eventos"
+                :style="{ height: `${(horaFim - horaInicio) * alturaHora}px` }"
+              >
+                <div
+                  v-for="grupo in gruposDeEventosDoDia(dia)"
+                  :key="grupo.inicio + grupo.fim"
+                  class="evento-grupo"
+                  :style="estiloGrupo(grupo)"
+                >
+                  <div
+                    v-for="(ev, i) in grupo.eventos"
+                    :key="i"
+                    class="evento"
+                    :style="estiloEventoGrupo(ev, i, grupo.eventos.length, grupo, dia)"
+                  >
+                    <div class="conteudo-evento">
+                      <strong class="titulo-evento">{{ ev.titulo }}</strong>
+                      <small class="local-evento">{{ ev.local }}</small>
+                      <span class="horario-evento">{{ grupo.inicio }} às {{ grupo.fim }}</span>
                     </div>
                   </div>
 
-
-    
-                 </div>
+                  <!-- Indicador de mais eventos -->
+                  <span v-if="grupo.eventos.length > 1" class="mais-eventos">
+                    ▶ {{ grupo.eventos.length - 1 }}
+                  </span>
                 </div>
-
               </div>
             </div>
           </div>
+        </div>
       </div>
+    </div>
+  </div>
 </template>
 
 <style scoped>
-.agenda { background: #ffffff;
-  padding: 0px; 
+.agenda {
+  background: #ffffff;
+  padding: 0px;
   border-radius: 12px;
   max-width: 1300px;
   max-height: 700px;
@@ -452,18 +417,19 @@ function proximaSemana() {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  font-family: sans-serif; }
+  font-family: sans-serif;
+}
 
 .topo {
   background: #f0f0f0;
-  padding: 12px 16px;       
+  padding: 12px 16px;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
 
-  margin: 0;               
-  border-radius: 0;         
-  border: 2px solid #dad7d7;   
+  margin: 0;
+  border-radius: 0;
+  border: 2px solid #dad7d7;
 }
 .grade {
   border-top: none;
@@ -478,7 +444,7 @@ function proximaSemana() {
 .toggle-wrapper {
   display: flex;
   background: #e0e0e0;
-  border-radius: 10px 20px 10px 10px ;
+  border-radius: 10px 20px 10px 10px;
 }
 
 .toggle-btn {
@@ -495,14 +461,12 @@ function proximaSemana() {
   border-radius: 10px 20px 10px 10px;
 }
 
-
 select {
   justify-self: end;
   padding: 6px 10px;
   border-radius: 8px;
   border: none;
 }
-
 
 .barra-dias {
   padding-top: 15px;
@@ -546,7 +510,7 @@ select {
   color: #fff;
 }
 .conteudo {
-  padding: 0 16px 16px; 
+  padding: 0 16px 16px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -561,9 +525,8 @@ select {
 }
 .grade-conteudo {
   display: flex;
-  min-width: max-content; 
+  min-width: max-content;
 }
-
 
 .grade.modo-hoje .dias {
   background-image: repeating-linear-gradient(
@@ -576,7 +539,6 @@ select {
   background-size: 100% 100px;
   min-width: 1280px;
 }
-
 
 .horarios {
   width: 80px;
@@ -591,11 +553,10 @@ select {
 
 .dias {
   display: flex;
-  min-width: max-content; 
+  min-width: max-content;
   min-height: calc((23 - 6) * 100px);
   position: relative;
 }
-
 
 .dia {
   min-width: 160px;
@@ -618,9 +579,12 @@ select {
   border-radius: 10px;
   padding: 6px;
   font-size: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08),
-              inset 0 0 0 1px rgba(255,255,255,0.5);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -655,7 +619,6 @@ select {
   opacity: 0.7;
 }
 
-
 .evento:hover {
   transform: translateY(-2px);
   box-shadow:
@@ -663,13 +626,12 @@ select {
     inset 0 0 0 1px rgba(255, 255, 255, 0.6);
 }
 
-
 .acoes-direita {
   display: flex;
   align-items: center;
   gap: 20px;
   justify-self: end;
-  margin-left: -15px; 
+  margin-left: -15px;
 }
 
 .icon-btn {
@@ -691,11 +653,9 @@ select {
 }
 
 .icon-btn.ativo img {
-  filter: brightness(0) saturate(100%) invert(47%) sepia(96%)
-    saturate(402%) hue-rotate(104deg) brightness(92%) contrast(90%);
+  filter: brightness(0) saturate(100%) invert(47%) sepia(96%) saturate(402%) hue-rotate(104deg)
+    brightness(92%) contrast(90%);
 }
-
-
 
 .lista {
   flex: 1;
@@ -711,7 +671,7 @@ select {
   align-items: center;
   gap: 12px;
   margin-bottom: 10px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .badge {
@@ -734,7 +694,7 @@ select {
   right: 6px;
   bottom: 6px;
   font-size: 11px;
-  background: rgba(0,0,0,0.15);
+  background: rgba(0, 0, 0, 0.15);
   padding: 2px 6px;
   border-radius: 6px;
   cursor: pointer;
@@ -743,7 +703,7 @@ select {
 .lista-oculta {
   margin-top: 6px;
   font-size: 11px;
-  background: rgba(255,255,255,0.7);
+  background: rgba(255, 255, 255, 0.7);
   padding: 4px;
   border-radius: 6px;
 }
@@ -766,5 +726,4 @@ select {
 .nav-btn:hover {
   background: #c8f0e1;
 }
-
 </style>
