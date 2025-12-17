@@ -22,9 +22,9 @@ import '@/assets/images/illustrations/fundodestaque.png'
 </template>
 <style scoped>
 .carddestaque {
-  aspect-ratio: 265 / 560; 
-  width: 265px;            
-  max-width: 100%;        
+  aspect-ratio: 260 / 560; 
+  width: 100%;           
+  max-width: 260px; 
   background-image:url(@/assets/images/illustrations/fundodestaque.png);
   background-size: cover;
   background-position: center;

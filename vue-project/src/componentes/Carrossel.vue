@@ -1,202 +1,197 @@
 <script setup>
-import { ref, onMounted, nextTick, computed, watch, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import CardDestaque from './CardDestaque.vue'
 import CardInscricao from './CardInscricao.vue'
 import ButtonSeta from './ButtonSeta.vue'
 
+/* ---------- props ---------- */
 const props = defineProps({
-  itens: Array,
-  component: Object,
+  itens: { type: Array, required: true },
+  component: { type: Object, required: true },
 })
 
-const container = ref(null)
+/* ---------- device ---------- */
+const device = ref('desktop')
+
+function updateDevice() {
+  const w = window.innerWidth
+  if (w >= 1024) device.value = 'desktop'
+  else if (w >= 768) device.value = 'tablet'
+  else device.value = 'mobile'
+}
+
+onMounted(() => {
+  updateDevice()
+  window.addEventListener('resize', updateDevice)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateDevice)
+})
+
+/* ---------- variant ---------- */
+const variant = computed(() =>
+  props.component === CardDestaque ? 'destaque' : 'inscricao'
+)
+
+/* ---------- config central ---------- */
+const DEVICE_CONFIG = {
+  desktop: {
+    destaque: { cardsPerPage: 4, maxWidth: '90vw' },
+    inscricao: { cardsPerPage: 3, maxWidth: '70vw' },
+  },
+  tablet: {
+    destaque: { cardsPerPage: 3, maxWidth: '95vw' },
+    inscricao: { cardsPerPage: 2, maxWidth: '85vw' },
+  },
+  mobile: {
+    destaque: { cardsPerPage: 1, maxWidth: '100vw' },
+    inscricao: { cardsPerPage: 1, maxWidth: '100vw' },
+  },
+}
+
+/* ---------- layout derivado ---------- */
+const layoutConfig = computed(() =>
+  DEVICE_CONFIG[device.value][variant.value]
+)
+
+const cardsPerPage = computed(() => layoutConfig.value.cardsPerPage)
+
+/* ---------- navegação ---------- */
+const currentIndex = ref(props.component === CardInscricao ? 1 : 0)
 const viewport = ref(null)
-const slides = ref([])
-const currentIndex = ref(0)
-const slideWidth = ref(0)
-const translateX = ref(0)
-if (props.component === CardInscricao) {
-  currentIndex.value = 1
-}
-const cardsPerPage = ref(1)
-function updateCardsPerPage() {
-  if (props.component === CardDestaque) {
-    if (window.innerWidth >= 1024) {
-      cardsPerPage.value = 4
-    } else if (window.innerWidth >= 900) {
-      cardsPerPage.value = 3
-    } else {
-      cardsPerPage.value = 2
-    }
-  } else if (props.component === CardInscricao) {
-    if (window.innerWidth >= 1024) {
-      cardsPerPage.value = 3
-    } else if (window.innerWidth >= 768) {
-      cardsPerPage.value = 2
-    } else {
-      cardsPerPage.value = 1
-    }
-  } else {
-    cardsPerPage.value = 1
-  }
-}
 
-const moveBy = computed(() => {
-  // move 3 itens por passo quando for o componente de destaque
-  // return props.component === CardDestaque ? 3 : 1
-  return 1
-})
+// drag / swipe state
+const isDragging = ref(false)
+const startX = ref(0)
+const dragOffset = ref(0) // in px, positive => dragged to right
+const SWIPE_THRESHOLD_PCT = 0.15 // fraction of viewport width
 
-const visibleCount = computed(() => {
-  // quantos itens ficam visíveis ao mesmo tempo para cada tipo
-  return props.component === CardDestaque ? 3 : 1
-})
-
-const canNext = computed(() => {
-  const maxStart = Math.max(0, props.itens.length - cardsPerPage.value)
-  return currentIndex.value < maxStart
-})
+const maxIndex = computed(() =>
+  Math.max(0, props.itens.length - cardsPerPage.value)
+)
 
 const canPrev = computed(() => currentIndex.value > 0)
-
-onMounted(async () => {
-  updateCardsPerPage()
-  await nextTick()
-  slides.value = Array.from(container.value.children)
-  if (slides.value.length > 0) {
-    slideWidth.value = slides.value[0].clientWidth
-  }
-  // position translate according to initial emphasis
-  nextTick().then(updateTranslate)
-})
-function updateTranslate() {
-  const vp = viewport.value
-  const cont = container.value
-  if (!vp || !cont) return
-
-  slides.value = Array.from(cont.children)
-
-  const vpWidth = vp.clientWidth
-  const idx = currentIndex.value
-  const target = slides.value[idx]
-  if (!target) return
-
-  const totalWidth = cont.scrollWidth
-
-  // centro absoluto do card em relação ao container
-  const targetCenter = target.offsetLeft + target.offsetWidth / 2
-
-  // posição desejada: card centrado
-
-  let offset = targetCenter - vpWidth / 2
-  if (props.component === CardDestaque) {
-    offset = target.offsetLeft
-  }
-
-  // Permitir espaços nas extremidades somente para o carrossel de inscrições.
-  // Para outros componentes (ex.: CardDestaque) manter o comportamento
-  // original que evita mostrar áreas vazias na esquerda/direita.
-  const isInscricao = props.component === CardInscricao
-  if (isInscricao) {
-    // espaço mínimo (quando o primeiro card estiver no centro) — permite
-    // deslocar o container para a direita, mostrando espaço vazio à esquerda
-    const minOffset = -(vpWidth / 2 - target.offsetWidth / 2)
-    // espaço máximo (quando o último card estiver no centro) — permite
-    // deslocar o container para a esquerda, mostrando espaço vazio à direita
-    const maxOffset = totalWidth - target.offsetWidth / 2 - vpWidth / 2
-    offset = Math.max(minOffset, Math.min(offset, maxOffset))
-  } else {
-    // comportamento antigo: não mostrar áreas vazias
-    offset = Math.max(0, Math.min(offset, totalWidth - vpWidth))
-  }
-
-  translateX.value = offset
-}
-
-function moveToIndex(index) {
-  currentIndex.value = index
-  nextTick().then(updateTranslate)
-  console.log('dots: currentIndex', currentIndex.value, 'translate', translateX.value)
-}
-
-const onResize = () => {
-  updateCardsPerPage()
-  updateTranslate()
-}
-window.addEventListener('resize', onResize)
-onBeforeUnmount(() => window.removeEventListener('resize', onResize))
-
-watch([currentIndex, () => props.itens], () => {
-  // recalc when emphasis or items change
-  nextTick().then(updateTranslate)
-})
-// const slideSize = computed(() => {
-//   if (props.component === CardDestaque) {
-//     return slideWidth.value * 3 // anda 1 card
-//   } else if (props.component === CardInscricao) {
-//     return slideWidth.value // anda 3 cards
-//   }
-//   return slideWidth.value
-// })
-const totalPages = computed(() => {
-  if (props.component === CardDestaque) {
-    return Math.ceil(props.itens.length - cardsPerPage.value) // 1 card por página
-  } else if (props.component === CardInscricao) {
-    return Math.ceil(props.itens.length) // 3 cards por página
-  }
-  return props.itens.length
-})
-
-// function calculateCardsPerPage() {
-//   if (props.component === CardDestaque) {
-//     cardsPerPage.value = 1
-//   } else if (props.component === CardInscricao) {
-//     cardsPerPage.value = 4
-//   } else {
-//     cardsPerPage.value = 1
-//   }
-// }
-
-function proximo() {
-  const maxStart = Math.max(0, props.itens.length - cardsPerPage.value)
-  const maxIndex = totalPages.value - 1
-  if (currentIndex.value < maxStart) {
-    currentIndex.value = Math.min(currentIndex.value + moveBy.value, maxStart)
-    nextTick().then(updateTranslate)
-    console.log('prev: currentIndex', currentIndex.value, 'translate', translateX.value)
-  }
-}
+const canNext = computed(() => currentIndex.value < maxIndex.value)
 
 function anterior() {
-  if (currentIndex.value > 0) {
-    currentIndex.value = Math.max(0, currentIndex.value - moveBy.value)
-    nextTick().then(updateTranslate)
-    console.log('prev: currentIndex', currentIndex.value, 'translate', translateX.value)
-  }
+  if (canPrev.value) currentIndex.value--
 }
-console.log('cardsPerPage', cardsPerPage.value)
+
+function proximo() {
+  if (canNext.value) currentIndex.value++
+}
+
+function moveToIndex(i) {
+  currentIndex.value = i
+}
+
+/* ---------- translate ---------- */
+const translateStyle = computed(() => {
+  const basePercent = (100 / cardsPerPage.value) * currentIndex.value
+  // use CSS calc to combine percent and pixel offset
+  return {
+    transform: `translateX(calc(-${basePercent}% + ${dragOffset.value}px))`,
+    '--cards-per-page': cardsPerPage.value,
+    maxWidth: layoutConfig.value.maxWidth,
+  }
+})
+
+function clampIndex(i) {
+  currentIndex.value = Math.max(0, Math.min(i, maxIndex.value))
+}
+
+function startDrag(clientX) {
+  isDragging.value = true
+  startX.value = clientX
+  dragOffset.value = 0
+}
+
+function moveDrag(clientX) {
+  if (!isDragging.value || !viewport.value) return
+  dragOffset.value = clientX - startX.value
+}
+
+function endDrag() {
+  if (!isDragging.value || !viewport.value) {
+    dragOffset.value = 0
+    isDragging.value = false
+    return
+  }
+  const vw = viewport.value.clientWidth || window.innerWidth
+  const threshold = vw * SWIPE_THRESHOLD_PCT
+  if (dragOffset.value <= -threshold) {
+    // swiped left -> next
+    proximo()
+  } else if (dragOffset.value >= threshold) {
+    // swiped right -> prev
+    anterior()
+  }
+  // reset drag
+  dragOffset.value = 0
+  isDragging.value = false
+}
+
+// Pointer/mouse handlers (desktop)
+function onMouseDown(e) {
+  e.preventDefault()
+  startDrag(e.clientX)
+  window.addEventListener('mousemove', onMouseMove)
+  window.addEventListener('mouseup', onMouseUp)
+}
+function onMouseMove(e) {
+  moveDrag(e.clientX)
+}
+function onMouseUp() {
+  window.removeEventListener('mousemove', onMouseMove)
+  window.removeEventListener('mouseup', onMouseUp)
+  endDrag()
+}
+
+// Touch handlers (mobile/tablet)
+function onTouchStart(e) {
+  if (!e.touches || e.touches.length === 0) return
+  startDrag(e.touches[0].clientX)
+}
+function onTouchMove(e) {
+  if (!e.touches || e.touches.length === 0) return
+  // prevent vertical scroll when horizontal gesture is detected
+  const touch = e.touches[0]
+  moveDrag(touch.clientX)
+}
+function onTouchEnd() {
+  endDrag()
+}
+
+/* ---------- dots ---------- */
+const totalPages = computed(() => maxIndex.value + 1)
 </script>
+
 <template>
   <div class="carrossel-wrapper">
-    <div class="carrossel" :class="{ CarrosselInscricao: props.component === CardInscricao }">
+    <div class="carrossel" :style="{ maxWidth: `min(1318px, ${layoutConfig.maxWidth})` }">
       <ButtonSeta class="seta esquerda" @click="anterior" :disabled="!canPrev" />
 
-      <div class="viewport" ref="viewport">
+      <div class="viewport" ref="viewport"
+        @touchstart.passive="onTouchStart"
+        @touchmove.passive="onTouchMove"
+        @touchend="onTouchEnd"
+        @mousedown.prevent="onMouseDown"
+      >
         <div
           class="Itens"
           :class="{
-            ItensInscricao: props.component === CardInscricao,
-            ItensDestaque: props.component === CardDestaque,
+            ItensInscricao: variant === 'inscricao',
+            ItensDestaque: variant === 'destaque',
           }"
-          ref="container"
-          :style="{ transform: `translateX(${-translateX}px)` }"
+          :style="translateStyle"
         >
           <component
             v-for="(item, i) in itens"
             :key="i"
             :is="component"
             :item="item"
-            :class="{ emphasis: i === currentIndex && component === CardInscricao }"
+            :class="{ emphasis: i === currentIndex && variant === 'inscricao' }"
           />
         </div>
       </div>
@@ -205,23 +200,22 @@ console.log('cardsPerPage', cardsPerPage.value)
         class="seta direita"
         @click="proximo"
         :disabled="!canNext"
-        style="transform: scaleX(-1); cursor: pointer"
+        style="transform: scaleX(-1)"
       />
     </div>
 
-    <!-- Indicador de páginas em formato de círculos -->
     <div class="pagination-dots">
       <button
-        v-for="page in totalPages"
-        :key="page - 1"
+        v-for="i in totalPages"
+        :key="i"
         class="dot"
-        :class="{ active: currentIndex === page - 1 }"
-        @click="moveToIndex(page - 1)"
-        :aria-label="`Ir para página ${page - 1}`"
+        :class="{ active: currentIndex === i - 1 }"
+        @click="moveToIndex(i - 1)"
       />
     </div>
   </div>
 </template>
+
 
 <style scoped>
 .carrossel-wrapper {
@@ -236,13 +230,9 @@ console.log('cardsPerPage', cardsPerPage.value)
   align-items: center;
   position: relative;
   gap: 0.875rem;
-  max-width: 90vw;
+  max-width: 1318px;
   overflow: hidden;
   margin: auto;
-}
-
-.CarrosselInscricao {
-  max-width: 70vw;
 }
 
 .CarrosselInscricao {
