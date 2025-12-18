@@ -7,7 +7,8 @@ import instagramImg from '@/assets/instagram.png'
 import youtubeImg from '@/assets/youtube.png'
 import { VueDatePicker as DatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
-import { ref, watch } from "vue"
+import { ref } from 'vue'
+
 
 const todasCategorias = [
   'Tecnologia',
@@ -22,24 +23,14 @@ const todasCategorias = [
 
 const categoriasAbertas = ref(false)
 const categoriasSelecionadas = ref<string[]>([])
-const horariosEvento = ref<{ dia: Date; inicio: string; fim: string }[]>([])
-
-const organizadores = ref<string[]>([""])
-const novaCategoria = ref("") 
-
-const nomeEvento = ref("");
-const imagem = ref<File | null>(null);
-const descricao = ref("");
-const link = ref("");
+const novaCategoria = ref('')
 
 function toggleCategorias() {
   categoriasAbertas.value = !categoriasAbertas.value
 }
 
-
 function selecionarCategoria(nome: string) {
-  if (categoriasSelecionadas.value.length >= 2) return // LIMITA A 2
-
+  if (categoriasSelecionadas.value.length >= 2) return
   if (!categoriasSelecionadas.value.includes(nome)) {
     categoriasSelecionadas.value.push(nome)
   }
@@ -47,77 +38,71 @@ function selecionarCategoria(nome: string) {
 
 function adicionarCategoriaManual() {
   const nome = novaCategoria.value.trim()
-
   if (!nome) return
   if (categoriasSelecionadas.value.length >= 2) return
   if (categoriasSelecionadas.value.includes(nome)) return
 
   categoriasSelecionadas.value.push(nome)
-  novaCategoria.value = ""
+  novaCategoria.value = ''
 }
-
 
 function removerCategoria(nome: string) {
-  categoriasSelecionadas.value = categoriasSelecionadas.value.filter((cat) => cat !== nome)
+  categoriasSelecionadas.value =
+    categoriasSelecionadas.value.filter(c => c !== nome)
 }
 
-const datasEvento = ref<Date[]>([])
 
-// Período de inscrições 
+const nomeEvento = ref('')
+const imagem = ref<File | null>(null)
+const descricao = ref('')
+const link = ref('')
+
+
+const dataInicioEvento = ref<Date | null>(null)
+const dataFimEvento = ref<Date | null>(null)
+const horarioInicioEvento = ref('')
+const horarioFimEvento = ref('')
+
+
 const dataInicioInscricao = ref<Date | null>(null)
 const dataFimInscricao = ref<Date | null>(null)
 
 
-function removerDiaEvento(dia: Date) {
-  datasEvento.value = datasEvento.value.filter(
-    d => d.getTime() !== dia.getTime()
-  )
-}
+const organizadores = ref<string[]>([''])
 
 function adicionarOrganizador() {
-  organizadores.value.push("")
+  organizadores.value.push('')
 }
 
 function removerOrganizador(index: number) {
   organizadores.value.splice(index, 1)
 }
-// validar inputs
 
 
 function enviarFormulario() {
-    return
-  }
-
   const dados = {
     nomeEvento: nomeEvento.value,
     imagem: imagem.value,
     categorias: categoriasSelecionadas.value,
     descricao: descricao.value,
     link: link.value,
-    datasEvento: horariosEvento.value,
-    organizadores: organizadores.value.filter(o => o.trim() !== ""),
+    periodoEvento: {
+      dataInicio: dataInicioEvento.value,
+      dataFim: dataFimEvento.value,
+      horarioInicio: horarioInicioEvento.value,
+      horarioFim: horarioFimEvento.value,
+    },
     inscricao: {
       dataInicio: dataInicioInscricao.value,
       dataFim: dataFimInscricao.value,
-    
-    }
+    },
+    organizadores: organizadores.value.filter(o => o.trim() !== ''),
   }
-  
-  console.log("ENVIADO COM SUCESSO:", dados)
 
-
-
-watch(datasEvento, (novasDatas) => {
-  horariosEvento.value = novasDatas.map((d) => {
-    const existente = horariosEvento.value.find(
-      (h) => h.dia.getTime() === d.getTime()
-    )
-    return existente || { dia: d, inicio: "", fim: "" }
-  })
-})
-
-
+  console.log('ENVIADO COM SUCESSO:', dados)
+}
 </script>
+
 
 <template>
   <div class="page">
@@ -204,62 +189,43 @@ watch(datasEvento, (novasDatas) => {
         <h2>2. Data e Horário do Evento</h2>
 
         <div class="form-group">
-          <label>Selecione o período do evento</label>
-
-          <div class="form-group">
-            <DatePicker
-              v-model="datasEvento"
-              multi-dates
-              :enable-time-picker="false"
-              :clearable="true"
-              placeholder="Selecione os dias do evento"
-            />
-            <div class="lista-dias-container">
-              <div
-                class="dia-item"
-                v-for="(item, idx) in horariosEvento"
-                :key="idx"
-              >
-               <button class="remove-day" @click="removerDiaEvento(item.dia)">✖</button>
-
-                <span class="dia-label">{{ item.dia.toLocaleDateString("pt-BR") }}</span>
-
-                <input
-                  type="time"
-                  v-model="item.inicio"
-                  class="time-input"
-                  placeholder="Início"
-                required/>
-                <input
-                  type="time"
-                  v-model="item.fim"
-                  class="time-input"
-                  placeholder="Fim"
-                required/>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-     <section class="form-section">
-        <h2>2.1 Período de Inscrições</h2>
-
-        <div class="form-group">
           <label>Data de início *</label>
           <DatePicker
-            v-model="dataInicioInscricao"
-            :enable-time-picker="false"
-            placeholder="Selecione o dia de início"
+            v-model="dataInicioEvento"
+            :enable-time-picker="true"
+            placeholder="Selecione o dia e horário de início"
           />
         </div>
 
         <div class="form-group">
           <label>Data de fim *</label>
           <DatePicker
+            v-model="dataFimEvento"
+            :enable-time-picker="false"
+            placeholder="Selecione o dia e horário final"
+          />
+        </div>
+      </section>
+
+
+     <section class="form-section">
+        <h2>2.1 Período de Inscrições</h2>
+
+        <div class="form-group">
+          <label>Data de início </label>
+          <DatePicker
+            v-model="dataInicioInscricao"
+            :enable-time-picker="true"
+            placeholder="Selecione o dia e horário de início"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Data de fim </label>
+          <DatePicker
             v-model="dataFimInscricao"
             :enable-time-picker="false"
-            placeholder="Selecione o dia final"
+            placeholder="Selecione o dia e horário final"
           />
         </div>
       </section>
