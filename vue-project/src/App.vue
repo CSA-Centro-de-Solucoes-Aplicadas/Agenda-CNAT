@@ -5,12 +5,7 @@ import BarradePesquisa from '@/componentes/BarradePesquisa.vue'
 </script>
 
 <template>
-  <div>
-    <router-view />
-    <BarradePesquisa />
-    <AgendaSemana />
-    <CalendarioAnual />
-  </div>
+  <router-view />
 </template>
 
 <style scoped></style>
