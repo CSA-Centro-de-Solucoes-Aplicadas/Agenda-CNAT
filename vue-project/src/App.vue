@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import AgendaSemana from '@/components/AgendaSemana.vue'
-import CalendarioAnual from './components/CalendarioAnual.vue'
-import BarradePesquisa from '@/components/BarradePesquisa.vue'
+import AgendaSemana from '@/componentes/AgendaSemana.vue'
+import CalendarioAnual from './componentes/CalendarioAnual.vue'
+import BarradePesquisa from '@/componentes/BarradePesquisa.vue'
 </script>
 
 <template>
