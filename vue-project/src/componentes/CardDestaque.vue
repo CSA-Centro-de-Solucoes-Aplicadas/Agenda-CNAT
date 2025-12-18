@@ -1,0 +1,61 @@
+<script setup>
+const props = defineProps({
+  item: Object
+})
+import localImg from '@/assets/images/icons/local.svg'
+import calendario_horaImg from'@/assets/images/icons/calendario_hora.svg'
+import '@/assets/images/illustrations/fundodestaque.png'
+</script>
+<template>
+  <div class="carddestaque">
+    <h3>{{ item.titulo }}</h3>
+    <div class="local">
+      <img :src="localImg"></img>
+      <p>{{ item.local }}</p>
+    </div>
+    <div class="data">
+      <img :src="calendario_horaImg"></img>
+      <!-- <img></img> -->
+      <p>{{ item.datas[1].data }}</p>
+    </div>
+  </div>
+</template>
+<style scoped>
+.carddestaque {
+  aspect-ratio: 260 / 560; 
+  width: 100%;           
+  max-width: 260px; 
+  background-image:url(@/assets/images/illustrations/fundodestaque.png);
+  background-size: cover;
+  background-position: center;
+  border-radius: 20px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 15px;
+  box-sizing: border-box;
+}
+.carddestaque::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  border-radius: 20px;
+  z-index: 0;
+}
+.carddestaque > * {
+  position: relative;
+  z-index: 1;
+}
+p {
+  color: white;
+}
+h3 {
+  color: white;
+}
+.local, .data{
+  display: flex;
+  gap: 1rem;
+}
+</style>

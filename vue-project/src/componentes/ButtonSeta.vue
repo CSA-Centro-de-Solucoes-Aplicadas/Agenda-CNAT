@@ -1,0 +1,30 @@
+<script setup>
+const props = defineProps({
+  disabled: { type: Boolean, default: false }
+})
+</script>
+<template>
+  <button :disabled="disabled" :aria-disabled="disabled" aria-label="Scroll"><img src="@/assets/images/icons/seta.svg"></img></button>
+</template>
+<style scoped>
+button {
+  background-color: rgba(148, 148, 148, 0.26); /* Green */
+  border: none;
+  color: black;
+  text-align: center;
+  height: 60px;
+  aspect-ratio: 1/1;
+  text-decoration: none;
+  font-size: 4rem;
+  width: 4rem;
+  height: 4rem;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  border-radius: 90px;
+}
+button:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+</style>
