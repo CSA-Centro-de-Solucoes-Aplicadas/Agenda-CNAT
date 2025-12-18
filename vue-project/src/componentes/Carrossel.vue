@@ -17,7 +17,8 @@ function updateDevice() {
   const w = window.innerWidth
   if (w >= 1024) device.value = 'desktop'
   else if (w >= 768) device.value = 'tablet'
-  else device.value = 'mobile'
+  else device.value = 'mobile'  
+  console.log('Mounted carrossel, device:', device.value)
 }
 
 onMounted(() => {
@@ -37,11 +38,11 @@ const variant = computed(() =>
 /* ---------- config central ---------- */
 const DEVICE_CONFIG = {
   desktop: {
-    destaque: { cardsPerPage: 4, maxWidth: '90vw' },
+    destaque: { cardsPerPage: 4, maxWidth: '90vw'},
     inscricao: { cardsPerPage: 3, maxWidth: '70vw' },
   },
   tablet: {
-    destaque: { cardsPerPage: 3, maxWidth: '95vw' },
+    destaque: { cardsPerPage: 3, maxWidth: '100vw' },
     inscricao: { cardsPerPage: 2, maxWidth: '85vw' },
   },
   mobile: {
@@ -65,12 +66,11 @@ const viewport = ref(null)
 const isDragging = ref(false)
 const startX = ref(0)
 const dragOffset = ref(0) // in px, positive => dragged to right
-const SWIPE_THRESHOLD_PCT = 0.15 // fraction of viewport width
 
 const maxIndex = computed(() =>
   Math.max(0, props.itens.length - cardsPerPage.value)
 )
-
+ 
 const canPrev = computed(() => currentIndex.value > 0)
 const canNext = computed(() => currentIndex.value < maxIndex.value)
 
@@ -118,16 +118,23 @@ function endDrag() {
     isDragging.value = false
     return
   }
-  const vw = viewport.value.clientWidth || window.innerWidth
-  const threshold = vw * SWIPE_THRESHOLD_PCT
-  if (dragOffset.value <= -threshold) {
-    // swiped left -> next
-    proximo()
-  } else if (dragOffset.value >= threshold) {
-    // swiped right -> prev
-    anterior()
-  }
-  // reset drag
+
+  const viewportWidth = viewport.value.clientWidth
+  const cardWidth = viewportWidth / cardsPerPage.value
+
+  // quantos cards o usuário "andou"
+  const deltaCards = dragOffset.value / cardWidth
+
+  // índice alvo (arredonda pro mais próximo)
+  const targetIndex = Math.round(
+    currentIndex.value - deltaCards
+  )
+
+  // evitar movimentos pequenos
+
+  clampIndex(targetIndex)
+
+  // reset
   dragOffset.value = 0
   isDragging.value = false
 }
@@ -151,7 +158,10 @@ function onMouseUp() {
 // Touch handlers (mobile/tablet)
 function onTouchStart(e) {
   if (!e.touches || e.touches.length === 0) return
+  // touches é uma lista de pontos de toque
   startDrag(e.touches[0].clientX)
+  // lembrete: clienteX é a posição horizontal do toque na viewport
+  // 
 }
 function onTouchMove(e) {
   if (!e.touches || e.touches.length === 0) return
@@ -169,7 +179,8 @@ const totalPages = computed(() => maxIndex.value + 1)
 
 <template>
   <div class="carrossel-wrapper">
-    <div class="carrossel" :style="{ maxWidth: `min(1318px, ${layoutConfig.maxWidth})` }">
+    <div class="carrossel">
+      <!-- ou 90vw ou 1318px, qual for menor -->
       <ButtonSeta class="seta esquerda" @click="anterior" :disabled="!canPrev" />
 
       <div class="viewport" ref="viewport"
@@ -200,7 +211,6 @@ const totalPages = computed(() => maxIndex.value + 1)
         class="seta direita"
         @click="proximo"
         :disabled="!canNext"
-        style="transform: scaleX(-1)"
       />
     </div>
 
@@ -230,7 +240,7 @@ const totalPages = computed(() => maxIndex.value + 1)
   align-items: center;
   position: relative;
   gap: 0.875rem;
-  max-width: 1318px;
+  max-width: clamp(320px, 90vw, 1320px);
   overflow: hidden;
   margin: auto;
 }
@@ -249,8 +259,11 @@ const totalPages = computed(() => maxIndex.value + 1)
   display: flex;
   transition: transform 0.6s ease;
   /* suaviza a passagem */
-  gap: 2rem;
+  gap: clamp(1rem, 3vw, 2rem);
+  /* clamp: minimo, preferivel, maximo */
   padding: 2rem 0rem;
+  /* offset para deixar alinhado a esquerda: */
+  scroll-snap-type: x mandatory;
 }
 
 .ItensInscricao {
@@ -266,8 +279,11 @@ const totalPages = computed(() => maxIndex.value + 1)
   scroll-snap-align: start;
   flex: 0 0 auto;
   cursor: pointer;
-  /* ocupa 100% da largura da viewport */
+  flex: 0 0 calc(100% / var(--cards-per-page*2));
+  max-width: calc(100% / var(--cards-per-page*2));
+  min-width: 0;
 }
+  /* ocupa 100% da largura da viewport */
 
 .ItensDestaque > *:hover {
   transform: scale(1.05);
@@ -307,5 +323,27 @@ const totalPages = computed(() => maxIndex.value + 1)
 .emphasis {
   transform: scale(1.2);
   transition: transform 0.6s ease;
+}
+
+.direita{
+  transform: scale(-1);
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .seta{
+    opacity: 0.7;
+    transform: scale(0.8);
+  }
+  .direita{
+    transform: scale(-0.8);
+  }
+  .carrossel{
+    gap: 0.5rem;
+  }
+
+  .Itens > * {
+    flex: 0 0 calc(100% / var(--cards-per-page));
+    max-width: calc(100% / var(--cards-per-page));
+  }
 }
 </style>
