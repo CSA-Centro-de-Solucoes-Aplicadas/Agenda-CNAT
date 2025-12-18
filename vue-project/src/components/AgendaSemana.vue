@@ -3,80 +3,104 @@ import { ref, computed } from 'vue'
 import iconLista from '@/assets/iconLista.png'
 import iconCalendario from '@/assets/iconCalendario.png'
 
-const horaInicio = 6
-const horaFim = 23
-const alturaHora = 100
-
+/* ================= ESTADOS DE VISUALIZAÇÃO ================= */
 const modoVisualizacao = ref<'hoje' | 'semana'>('semana')
 const tipoVisualizacao = ref<'calendario' | 'lista'>('calendario')
 const categoriaSelecionada = ref('Todas')
 
+/* ================= INTERFACE ================= */
 interface Evento {
   titulo: string
-  datas: string[]
+  dataInicio: string // dd-mm-yyyy
+  dataFim: string    // dd-mm-yyyy
   inicio: string
   fim: string
   categoria: string
   local: string
 }
-interface GrupoEvento {
-  inicio: string
-  fim: string
-  eventos: EventoVisual[]
-}
 
+/* ================= EVENTOS ================= */
 const eventos = ref<Evento[]>([
   {
     titulo: 'Arraiá Junino',
-    datas: ['15-12-2025', '16-12-2025'], // consecutivos
-    inicio: '06:00',
+    dataInicio: '15-12-2025',
+    dataFim: '16-12-2025',
+    inicio: '07:00',
     fim: '11:00',
-    categoria: 'Esportes',
+    categoria: 'Cultura',
     local: 'Ginásio',
   },
   {
-    titulo: 'CineBiblio',
-    datas: ['15-12-2025', '18-12-2025'], // quebrados
+    titulo: 'Winfo',
+    dataInicio: '15-12-2025',
+    dataFim: '18-12-2025',
     inicio: '06:00',
     fim: '11:00',
-    categoria: 'Cultura',
+    categoria: 'Tecnologia',
+    local: 'Biblioteca',
+  },
+  {
+    titulo: 'Wtads',
+    dataInicio: '15-12-2025',
+    dataFim: '18-12-2025',
+    inicio: '06:00',
+    fim: '11:00',
+    categoria: 'Palestra',
+    local: 'Biblioteca',
+  },
+  {
+    titulo: 'Jogos internos',
+    dataInicio: '15-12-2025',
+    dataFim: '18-12-2025',
+    inicio: '06:00',
+    fim: '11:00',
+    categoria: 'Esporte',
     local: 'Biblioteca',
   },
 ])
 
-//  CATEGORIAS
-const categorias = computed(() => {
-  const unicas = new Set(eventos.value.map((e) => e.categoria))
-  return ['Todas', ...unicas]
-})
-// CORES POR CATEGORIA
-const coresCategorias = computed<Record<string, string>>(() => {
-  const categoriasUnicas = Array.from(new Set(eventos.value.map((e) => e.categoria)))
+/* ================= DATAS ================= */
 
-  const baseHue = 145 // verde
-  const saturation = 45
-  const lightnessBase = 78
+// hoje real (NUNCA MUDA)
+const hojeReal = new Date()
 
-  const mapa: Record<string, string> = {}
+// data de navegação (semana atual / próxima / anterior)
+const dataBaseAgenda = ref(new Date(hojeReal))
 
-  categoriasUnicas.forEach((cat, index) => {
-    const lightness = lightnessBase - index * 6
-    mapa[cat] = `hsl(${baseHue}, ${saturation}%, ${lightness}%)`
-  })
+function parseData(data: string): Date {
+  const partes = data.split('-')
 
-  return mapa
-})
+  if (partes.length !== 3) {
+    throw new Error(`Data inválida: ${data}`)
+  }
 
-//DATAS
-const dataBaseAgenda = ref(new Date())
+  const d = Number(partes[0])
+  const m = Number(partes[1])
+  const y = Number(partes[2])
+
+  if (isNaN(d) || isNaN(m) || isNaN(y)) {
+    throw new Error(`Data inválida: ${data}`)
+  }
+
+  return new Date(y, m - 1, d)
+}
+
+
+function estaEntreDatas(dia: Date, inicio: string, fim: string) {
+  const d = new Date(dia).setHours(0, 0, 0, 0)
+  const di = parseData(inicio).getTime()
+  const df = parseData(fim).getTime()
+  return d >= di && d <= df
+}
 
 function formatarData(date: Date): string {
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
   const d = String(date.getDate()).padStart(2, '0')
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const y = date.getFullYear()
   return `${d}-${m}-${y}`
 }
 
+/* ================= SEMANA ================= */
 const diasSemana = computed(() => {
   const base = dataBaseAgenda.value
   const inicio = new Date(base)
@@ -91,12 +115,13 @@ const diasSemana = computed(() => {
   })
 })
 
-//  MÊS / ANO
+/* ================= MÊS / ANO ================= */
 const mesAnoAtual = computed(() => {
-  const base =
-    modoVisualizacao.value === 'hoje'
-      ? dataBaseAgenda.value
-      : (diasSemana.value[0] ?? dataBaseAgenda.value)
+ const base =
+  modoVisualizacao.value === 'hoje'
+    ? hojeReal
+    : diasSemana.value[0] ?? dataBaseAgenda.value
+
 
   const mes = base.toLocaleDateString('pt-BR', { month: 'long' })
   const ano = base.getFullYear()
@@ -104,167 +129,83 @@ const mesAnoAtual = computed(() => {
   return `${mes}, ${ano}`
 })
 
-function gruposDeEventosDoDia(data: Date): GrupoEvento[] {
-  const d = formatarData(data)
+/* ================= CATEGORIAS ================= */
+const categorias = computed(() => {
+  const unicas = new Set(eventos.value.map(e => e.categoria))
+  return ['Todas', ...unicas]
+})
 
-  // eventos já filtrados e visuais
-  const eventosDia = eventosFiltrados.value.filter((e) => e.data === d)
+const coresCategorias = computed<Record<string, string>>(() => {
+  const unicas = Array.from(new Set(eventos.value.map(e => e.categoria)))
 
-  const mapa = new Map<string, GrupoEvento>()
+  const baseHue = 145
+  const saturation = 45
+  const lightnessBase = 78
 
-  for (const evento of eventosDia) {
-    const chave = `${evento.inicio}-${evento.fim}`
+  const mapa: Record<string, string> = {}
 
-    if (!mapa.has(chave)) {
-      mapa.set(chave, {
-        inicio: evento.inicio,
-        fim: evento.fim,
-        eventos: [],
-      })
-    }
+  unicas.forEach((cat, index) => {
+    mapa[cat] = `hsl(${baseHue}, ${saturation}%, ${lightnessBase - index * 6}%)`
+  })
 
-    mapa.get(chave)!.eventos.push(evento)
-  }
+  return mapa
+})
 
-  return Array.from(mapa.values())
-}
+/* ================= EVENTOS DO DIA ================= */
+function eventosDoDiaOrdenados(data: Date) {
+  return eventos.value
+    .filter(e => {
+      const categoriaOk =
+        categoriaSelecionada.value === 'Todas' ||
+        e.categoria === categoriaSelecionada.value
 
-interface EventoVisual extends Evento {
-  data: string
-  span: number // quantos dias consecutivos
-}
-function criarEventosVisuais(eventos: Evento[]): EventoVisual[] {
-  const resultado: EventoVisual[] = []
+      const dataOk = estaEntreDatas(
+        data,
+        e.dataInicio,
+        e.dataFim
+      )
 
-  for (const evento of eventos) {
-    if (!evento.datas.length) continue
-
-    const datasOrdenadas = [...evento.datas].sort()
-
-    let inicioSpan: string = datasOrdenadas[0]!
-    let span = 1
-
-    for (let i = 1; i < datasOrdenadas.length; i++) {
-      const atual = datasOrdenadas[i]!
-      const anterior = datasOrdenadas[i - 1]!
-
-      const d1 = new Date(anterior.split('-').reverse().join('-'))
-      const d2 = new Date(atual.split('-').reverse().join('-'))
-
-      const consecutivo = d2.getTime() - d1.getTime() === 86400000
-
-      if (consecutivo) {
-        span++
-      } else {
-        resultado.push({
-          ...evento,
-          data: inicioSpan,
-          span,
-        })
-
-        inicioSpan = atual
-        span = 1
-      }
-    }
-
-    // último bloco
-    resultado.push({
-      ...evento,
-      data: inicioSpan,
-      span,
+      return categoriaOk && dataOk
     })
-  }
-
-  return resultado
+    .sort((a, b) => a.inicio.localeCompare(b.inicio))
 }
 
-const estiloEventoGrupo = (
-  evento: EventoVisual,
-  index: number,
-  total: number,
-  grupo: GrupoEvento,
-  dia: Date,
-) => {
-  const deslocamento = 20
-  const left = index * deslocamento
-  const larguraMax = 160
-  const width = larguraMax - deslocamento * (total - 1)
-
-  return {
-    top: '0px',
-    height: '100%',
-    width: `${width}px`,
-    left: `${left}px`,
-    zIndex: 100 - index,
-    borderRight: index === 0 ? 'none' : '2px solid rgba(255,255,255,0.5)',
-    backgroundColor: coresCategorias.value[evento.categoria] || '#00b894',
-    color: '#fff',
-  }
-}
-
-const eventosVisuais = computed(() => criarEventosVisuais(eventos.value))
-
-//FILTRO
-const eventosFiltrados = computed(() => {
-  return eventosVisuais.value.filter((e) => {
+/* ================= LISTA ================= */
+const eventosLista = computed(() => {
+  return eventos.value.filter(e => {
     const categoriaOk =
-      categoriaSelecionada.value === 'Todas' || e.categoria === categoriaSelecionada.value
+      categoriaSelecionada.value === 'Todas' ||
+      e.categoria === categoriaSelecionada.value
 
     const dataOk =
       modoVisualizacao.value === 'hoje'
-        ? e.data === formatarData(dataBaseAgenda.value)
-        : diasSemana.value.some((d) => formatarData(d) === e.data)
+        ? estaEntreDatas(
+            hojeReal,
+            e.dataInicio,
+            e.dataFim
+          )
+        : diasSemana.value.some(d =>
+            estaEntreDatas(d, e.dataInicio, e.dataFim)
+          )
 
     return categoriaOk && dataOk
   })
 })
 
-// POSIÇÃO EVENTO
-function minutos(hora: string): number {
-  const [h, m] = hora.split(':')
-  return Number(h) * 60 + Number(m)
-}
-
-const totalMinutos = (horaFim - horaInicio) * 60
-const totalAltura = (horaFim - horaInicio) * alturaHora
-
-// Eventos grupo
-function estiloGrupo(grupo: GrupoEvento) {
-  const inicio = minutos(grupo.inicio)
-  const fim = minutos(grupo.fim)
-
-  return {
-    top: `${((inicio - horaInicio * 60) / totalMinutos) * totalAltura}px`,
-    height: `${((fim - inicio) / totalMinutos) * totalAltura}px`,
-  }
-}
-const grupoAberto = ref<string | null>(null)
-
-function toggleGrupo(id: string) {
-  grupoAberto.value = grupoAberto.value === id ? null : id
-}
-function primeiroEvento(grupo: GrupoEvento): EventoVisual {
-  return grupo.eventos[0] as EventoVisual
-}
-
-function spanVisivel(evento: EventoVisual, dia: Date) {
-  const indexDia = diasSemana.value.findIndex((d) => formatarData(d) === evento.data)
-
-  if (indexDia === -1) return 1
-
-  return Math.min(evento.span, 7 - indexDia)
-}
-
-// navegação de semana em semana
-
+/* ================= NAVEGAÇÃO ================= */
 function semanaAnterior() {
-  dataBaseAgenda.value = new Date(dataBaseAgenda.value.setDate(dataBaseAgenda.value.getDate() - 7))
+  dataBaseAgenda.value = new Date(
+    dataBaseAgenda.value.setDate(dataBaseAgenda.value.getDate() - 7)
+  )
 }
 
 function proximaSemana() {
-  dataBaseAgenda.value = new Date(dataBaseAgenda.value.setDate(dataBaseAgenda.value.getDate() + 7))
+  dataBaseAgenda.value = new Date(
+    dataBaseAgenda.value.setDate(dataBaseAgenda.value.getDate() + 7)
+  )
 }
 </script>
+
 
 <template>
   <div class="agenda">
@@ -317,15 +258,15 @@ function proximaSemana() {
       </div>
     </header>
     <!-- dias -->
-    <div v-if="tipoVisualizacao === 'calendario'" class="barra-dias">
-      <div class="espaco-horarios"></div>
+    <div class="barra-dias">
 
       <div class="chips">
         <div
-          v-for="dia in modoVisualizacao === 'hoje' ? [dataBaseAgenda] : diasSemana"
+          v-for="dia in modoVisualizacao === 'hoje' ? [hojeReal] : diasSemana"
           :key="dia.toDateString()"
           class="chip-dia"
-          :class="{ hoje: formatarData(dia) === formatarData(dataBaseAgenda) }"
+          :class="{ hoje: formatarData(dia) === formatarData(hojeReal) }"
+
         >
           <span class="numero">{{ dia.getDate() }}</span>
           <span class="semana">
@@ -339,79 +280,69 @@ function proximaSemana() {
       <!-- LISTA -->
       <div v-if="tipoVisualizacao === 'lista'" class="lista">
         <div
-          v-for="evento in eventosFiltrados"
-          :key="evento.titulo + evento.data"
+          v-for="evento in eventosLista"
+          :key="evento.titulo + evento.dataInicio + evento.dataFim"
           class="item-lista"
         >
           <div class="badge">{{ evento.titulo }}</div>
 
           <div class="info">
-            <strong>{{ evento.data }}</strong>
+            <strong>
+              {{ evento.dataInicio }} até {{ evento.dataFim }}
+            </strong>
+
             <span>{{ evento.local }}</span>
           </div>
         </div>
       </div>
 
-      <!-- CALENDÁRIO -->
-      <div v-else class="grade" :class="{ 'modo-hoje': modoVisualizacao === 'hoje' }">
-        <div class="grade-conteudo">
-          <!-- HORÁRIOS -->
-          <div class="horarios">
-            <div v-for="h in horaFim - horaInicio" :key="h" class="hora">
-              {{ String(h + horaInicio - 1).padStart(2, '0') }}:00
-            </div>
-          </div>
+          <!-- CALENDÁRIO -->
+          <div v-else class="grade" :class="{ 'modo-hoje': modoVisualizacao === 'hoje' }">
+            <div class="grade-conteudo">
 
-          <!-- DIAS -->
-          <div class="dias">
-            <div
-              v-for="dia in modoVisualizacao === 'hoje' ? [dataBaseAgenda] : diasSemana"
-              :key="dia.toDateString()"
-              class="dia"
-            >
-              <div
-                class="coluna-eventos"
-                :style="{ height: `${(horaFim - horaInicio) * alturaHora}px` }"
-              >
+
+            <div class="dias">
                 <div
-                  v-for="grupo in gruposDeEventosDoDia(dia)"
-                  :key="grupo.inicio + grupo.fim"
-                  class="evento-grupo"
-                  :style="estiloGrupo(grupo)"
+                  v-for="dia in modoVisualizacao === 'hoje'
+                    ? [hojeReal]
+                    : diasSemana"
+                  :key="dia.toDateString()"
+                  class="dia"
                 >
                   <div
-                    v-for="(ev, i) in grupo.eventos"
-                    :key="i"
-                    class="evento"
-                    :style="estiloEventoGrupo(ev, i, grupo.eventos.length, grupo, dia)"
+                    v-for="evento in eventosDoDiaOrdenados(dia)"
+                    :key="evento.titulo + evento.inicio"
+                    class="evento-simples"
+                    :style="{ background: coresCategorias[evento.categoria] }"
                   >
-                    <div class="conteudo-evento">
-                      <strong class="titulo-evento">{{ ev.titulo }}</strong>
-                      <small class="local-evento">{{ ev.local }}</small>
-                      <span class="horario-evento">{{ grupo.inicio }} às {{ grupo.fim }}</span>
-                    </div>
+                    <strong class="titulo-evento">{{ evento.titulo }}</strong>
+                    <small class="local-evento">{{ evento.local }}</small>
+                    <span class="horario-evento">
+                      {{ evento.inicio }} às {{ evento.fim }}
+                    </span>
                   </div>
 
-                  <!-- Indicador de mais eventos -->
-                  <span v-if="grupo.eventos.length > 1" class="mais-eventos">
-                    ▶ {{ grupo.eventos.length - 1 }}
-                  </span>
+                  <p
+                    v-if="!eventosDoDiaOrdenados(dia).length"
+                    class="dia-vazio"
+                  >
+                    Nenhum evento
+                  </p>
                 </div>
               </div>
-            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <style scoped>
+  
 .agenda {
   background: #ffffff;
   padding: 0px;
-  border-radius: 12px;
-  max-width: 1300px;
+  border-radius: 20px;
+  max-width: 1300px;        
   max-height: 700px;
   margin: 0 auto;
   display: flex;
@@ -471,7 +402,6 @@ select {
 .barra-dias {
   padding-top: 15px;
   display: flex;
-  gap: 35px;
   position: sticky;
   top: 0;
   background: #ffffff;
@@ -479,20 +409,16 @@ select {
   padding-bottom: 8px;
 }
 
-.espaco-horarios {
-  width: 80px;
-  flex-shrink: 0;
-}
-
 .chips {
   display: flex;
-  gap: 18px;
+  gap: 19px;
+  margin-left: 20px;
   overflow-x: auto;
   flex: 1;
 }
 
 .chip-dia {
-  min-width: 140px;
+  min-width: 160px;
   height: 36px;
   background: #ededed;
   border-radius: 10px 20px 10px 10px;
@@ -511,6 +437,7 @@ select {
 }
 .conteudo {
   padding: 0 16px 16px;
+  flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -540,55 +467,27 @@ select {
   min-width: 1280px;
 }
 
-.horarios {
-  width: 80px;
-}
-
-.hora {
-  height: 100px;
-  font-size: 13px;
-  line-height: 15px;
-  color: #666;
-}
 
 .dias {
   display: flex;
   min-width: max-content;
-  min-height: calc((23 - 6) * 100px);
+  min-height: calc((23 - 6) * 30px);
   position: relative;
 }
 
 .dia {
-  min-width: 160px;
+  min-width: 180px;        /* AQUI o card cresce */
+  padding: 8px 0;          /* sem padding lateral */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
 }
+
 
 .coluna-eventos {
   position: relative;
-}
-
-.evento-grupo {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.evento {
-  position: absolute;
-  border-radius: 10px;
-  padding: 6px;
-  font-size: 12px;
-  box-shadow:
-    0 4px 10px rgba(0, 0, 0, 0.08),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  color: #fff;
+  
 }
 
 .conteudo-evento {
@@ -619,7 +518,7 @@ select {
   opacity: 0.7;
 }
 
-.evento:hover {
+.evento-simples:hover {
   transform: translateY(-2px);
   box-shadow:
     0 6px 14px rgba(0, 0, 0, 0.12),
@@ -660,7 +559,7 @@ select {
 .lista {
   flex: 1;
   overflow-y: auto;
-  padding: 8px;
+  padding: 8px 16px;
 }
 
 .item-lista {
@@ -677,9 +576,9 @@ select {
 .badge {
   background: #00b894;
   color: #fff;
-  padding: 6px 12px;
-  border-radius: 10px;
-  min-width: 180px;
+  padding: 15px 12px;
+  border-radius: 15px;
+  min-width: 380px;
 }
 
 .info {
@@ -726,4 +625,145 @@ select {
 .nav-btn:hover {
   background: #c8f0e1;
 }
+
+.dia {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.evento-simples {
+  width: 100%;
+  box-sizing: border-box;
+  height: 80px;
+  border-radius: 10px;
+  padding: 8px 10px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.dia-vazio {
+  font-size: 12px;
+  opacity: 0.6;
+  padding: 8px 4px;
+}
+@media (max-width: 768px) {
+
+  .topo {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .nav-semana {
+    justify-content: space-between;
+  }
+
+  .titulo {
+    font-size: 16px;
+    text-align: center;
+    flex: 1;
+  }
+
+  .toggle-wrapper {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .toggle-btn {
+    flex: 1;
+  }
+
+  .acoes-direita {
+    justify-content: space-between;
+    margin-left: 0;
+    gap: 12px;
+  }
+
+  select {
+    flex: 1;
+  }
+   .chips {
+    gap: 10px;
+    margin-left: 12px;
+  }
+
+  .chip-dia {
+    min-width: 72px;
+    height: 48px;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 11px;
+    border-radius: 12px;
+  }
+
+  .chip-dia .numero {
+    font-size: 16px;
+    font-weight: bold;
+  }
+   .item-lista {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .badge {
+    min-width: unset;
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 10px;
+  }
+
+  .info {
+    width: 100%;
+    font-size: 13px;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .grade {
+    overflow-x: auto;
+  }
+
+  .dia {
+    min-width: 140px;
+    padding: 6px;
+  }
+
+  .evento-simples {
+    height: auto;
+    padding: 6px 8px;
+  }
+
+  .titulo-evento {
+    font-size: 12px;
+  }
+
+  .local-evento,
+  .horario-evento {
+    font-size: 10px;
+  }
+}
+@media (max-width: 420px) {
+  .titulo {
+    font-size: 14px;
+  }
+
+  .chip-dia {
+    min-width: 64px;
+  }
+
+  .toggle-btn {
+    font-size: 12px;
+  }
+}
+
 </style>
