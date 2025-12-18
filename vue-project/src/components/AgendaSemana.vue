@@ -24,11 +24,10 @@ interface GrupoEvento {
   fim: string
   eventos: EventoVisual[]
 }
-
 const eventos = ref<Evento[]>([
   {
     titulo: 'Arraiá Junino',
-    datas: ['15-12-2025', '16-12-2025'], // consecutivos
+    datas: ['15-12-2025', '18-12-2025'], // consecutivos
     inicio: '06:00',
     fim: '11:00',
     categoria: 'Esportes',
@@ -36,10 +35,18 @@ const eventos = ref<Evento[]>([
   },
   {
     titulo: 'CineBiblio',
-    datas: ['15-12-2025', '18-12-2025'], // quebrados
+    datas: ['15-12-2025', '17-12-2025'], // quebrados
     inicio: '06:00',
     fim: '11:00',
     categoria: 'Cultura',
+    local: 'Biblioteca',
+  },
+  {
+    titulo: 'Winfo',
+    datas: ['19-12-2025'],
+    inicio: '07:00',
+    fim: '10:00',
+    categoria: 'Tecnologia',
     local: 'Biblioteca',
   },
 ])
@@ -107,7 +114,6 @@ const mesAnoAtual = computed(() => {
 function gruposDeEventosDoDia(data: Date): GrupoEvento[] {
   const d = formatarData(data)
 
-  // eventos já filtrados e visuais
   const eventosDia = eventosFiltrados.value.filter((e) => e.data === d)
 
   const mapa = new Map<string, GrupoEvento>()
@@ -256,7 +262,6 @@ function spanVisivel(evento: EventoVisual, dia: Date) {
 }
 
 // navegação de semana em semana
-
 function semanaAnterior() {
   dataBaseAgenda.value = new Date(dataBaseAgenda.value.setDate(dataBaseAgenda.value.getDate() - 7))
 }
