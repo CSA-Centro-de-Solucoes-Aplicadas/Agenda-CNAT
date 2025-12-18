@@ -6,6 +6,133 @@ import logoIfrn from '@/assets/ifrn.png'
 import XImg from '@/assets/x.png'
 import instagramImg from '@/assets/instagram.png'
 import youtubeImg from '@/assets/youtube.png'
+import Carrossel from '@/componentes/Carrossel.vue'
+import CardDestaque from '@/componentes/CardDestaque.vue'
+import CardInscricao from '@/componentes/CardInscricao.vue'
+import BarradePesquisa from '@/componentes/BarradePesquisa.vue'
+import AgendaSemana from '@/componentes/AgendaSemana.vue'
+const eventos = [
+  {
+    titulo: 'Evento alusivo ao dia do professor de geografia',
+    local: 'Miniauditório Central',
+    categoria: 'Palestras',
+    datas: [
+      { data: '20/06', hora: '14:00', descricao: 'Abertura das inscrições' },
+      { data: '20/07', hora: '12:00', descricao: 'Inicio do evento' },
+      { data: '24/06', hora: '23:59', descricao: 'Período final das inscrições' },
+    ],
+  },
+  {
+    titulo: 'CineBiblio',
+    local: 'Biblioteca Central',
+    categoria: 'Cultura',
+    datas: [
+      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
+      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
+      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
+    ],
+  },
+  {
+    titulo: 'CineBiblio',
+    local: 'Biblioteca Central',
+    categoria: 'Cultura',
+    datas: [
+      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
+      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
+      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
+    ],
+  },
+  {
+    titulo: 'CineBiblio',
+    local: 'Biblioteca Central',
+    categoria: 'Cultura',
+    datas: [
+      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
+      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
+      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
+    ],
+  },
+  {
+    titulo: 'CineBiblio',
+    local: 'Biblioteca Central',
+    categoria: 'Cultura',
+    datas: [
+      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
+      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
+      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
+    ],
+  },
+  {
+    titulo: 'CineBiblio',
+    local: 'Biblioteca Central',
+    categoria: 'Cultura',
+    datas: [
+      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
+      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
+      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
+    ],
+  },
+  {
+    titulo: 'CineBiblio',
+    local: 'Biblioteca Central',
+    categoria: 'Cultura',
+    datas: [
+      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
+      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
+      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
+    ],
+  },
+  {
+    titulo: 'CineBiblio',
+    local: 'Biblioteca Central',
+    categoria: 'Cultura',
+    datas: [
+      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
+      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
+      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
+    ],
+  },
+  {
+    titulo: 'CineBiblio',
+    local: 'Biblioteca Central',
+    categoria: 'Cultura',
+    datas: [
+      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
+      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
+      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
+    ],
+  },
+  {
+    titulo: 'CineBiblio',
+    local: 'Biblioteca Central',
+    categoria: 'Cultura',
+    datas: [
+      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
+      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
+      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
+    ],
+  },
+  {
+    titulo: 'CineBiblio',
+    local: 'Biblioteca Central',
+    categoria: 'Cultura',
+    datas: [
+      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
+      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
+      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
+    ],
+  },
+  {
+    titulo: 'CineBiblio',
+    local: 'Biblioteca Central',
+    categoria: 'Cultura',
+    datas: [
+      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
+      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
+      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
+    ],
+  },
+]
 </script>
 
 <template>
@@ -24,15 +151,18 @@ import youtubeImg from '@/assets/youtube.png'
     </header>
 
     <main class="main-content">
+      <BarradePesquisa class="barra-pesquisa" />
       <section class="destaques-default-section">
         <div class="content-container">
           <h3>Eventos do CNAT</h3>
+          <Carrossel :itens="eventos" :component="CardDestaque" />
         </div>
       </section>
 
       <section class="calendarioSemanal default-section">
         <div class="content-container">
           <h3>Programação</h3>
+          <AgendaSemana
         </div>
       </section>
 
@@ -105,7 +235,6 @@ h3 {
   background-color: #8aeec3;
   box-shadow: 2px 1px 5px #b8b8b8;
   position: relative;
-  margin-bottom: 100px;
   overflow: hidden;
   min-height: 120px;
   max-height: 250px;
@@ -381,6 +510,14 @@ main section:last-child {
   .adicionarEvento-texto h3 {
     font-size: 22px;
   }
+}
+
+/* Centralizar barra de pesquisa */
+.barra-pesquisa {
+  display: flex;
+  margin: auto;
+  width: 100%;
+  display: block;
 }
 
 @media (max-width: 600px) {

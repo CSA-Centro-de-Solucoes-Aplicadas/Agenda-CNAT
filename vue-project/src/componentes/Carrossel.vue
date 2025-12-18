@@ -17,7 +17,7 @@ function updateDevice() {
   const w = window.innerWidth
   if (w >= 1024) device.value = 'desktop'
   else if (w >= 768) device.value = 'tablet'
-  else device.value = 'mobile'  
+  else device.value = 'mobile'
   console.log('Mounted carrossel, device:', device.value)
 }
 
@@ -31,14 +31,12 @@ onBeforeUnmount(() => {
 })
 
 /* ---------- variant ---------- */
-const variant = computed(() =>
-  props.component === CardDestaque ? 'destaque' : 'inscricao'
-)
+const variant = computed(() => (props.component === CardDestaque ? 'destaque' : 'inscricao'))
 
 /* ---------- config central ---------- */
 const DEVICE_CONFIG = {
   desktop: {
-    destaque: { cardsPerPage: 4, maxWidth: '90vw'},
+    destaque: { cardsPerPage: 4, maxWidth: '90vw' },
     inscricao: { cardsPerPage: 3, maxWidth: '70vw' },
   },
   tablet: {
@@ -52,9 +50,7 @@ const DEVICE_CONFIG = {
 }
 
 /* ---------- layout derivado ---------- */
-const layoutConfig = computed(() =>
-  DEVICE_CONFIG[device.value][variant.value]
-)
+const layoutConfig = computed(() => DEVICE_CONFIG[device.value][variant.value])
 
 const cardsPerPage = computed(() => layoutConfig.value.cardsPerPage)
 
@@ -67,10 +63,8 @@ const isDragging = ref(false)
 const startX = ref(0)
 const dragOffset = ref(0) // in px, positive => dragged to right
 
-const maxIndex = computed(() =>
-  Math.max(0, props.itens.length - cardsPerPage.value)
-)
- 
+const maxIndex = computed(() => Math.max(0, props.itens.length - cardsPerPage.value))
+
 const canPrev = computed(() => currentIndex.value > 0)
 const canNext = computed(() => currentIndex.value < maxIndex.value)
 
@@ -126,9 +120,7 @@ function endDrag() {
   const deltaCards = dragOffset.value / cardWidth
 
   // índice alvo (arredonda pro mais próximo)
-  const targetIndex = Math.round(
-    currentIndex.value - deltaCards
-  )
+  const targetIndex = Math.round(currentIndex.value - deltaCards)
 
   // evitar movimentos pequenos
 
@@ -161,7 +153,7 @@ function onTouchStart(e) {
   // touches é uma lista de pontos de toque
   startDrag(e.touches[0].clientX)
   // lembrete: clienteX é a posição horizontal do toque na viewport
-  // 
+  //
 }
 function onTouchMove(e) {
   if (!e.touches || e.touches.length === 0) return
@@ -183,7 +175,9 @@ const totalPages = computed(() => maxIndex.value + 1)
       <!-- ou 90vw ou 1318px, qual for menor -->
       <ButtonSeta class="seta esquerda" @click="anterior" :disabled="!canPrev" />
 
-      <div class="viewport" ref="viewport"
+      <div
+        class="viewport"
+        ref="viewport"
         @touchstart.passive="onTouchStart"
         @touchmove.passive="onTouchMove"
         @touchend="onTouchEnd"
@@ -207,11 +201,7 @@ const totalPages = computed(() => maxIndex.value + 1)
         </div>
       </div>
 
-      <ButtonSeta
-        class="seta direita"
-        @click="proximo"
-        :disabled="!canNext"
-      />
+      <ButtonSeta class="seta direita" @click="proximo" :disabled="!canNext" />
     </div>
 
     <div class="pagination-dots">
@@ -225,7 +215,6 @@ const totalPages = computed(() => maxIndex.value + 1)
     </div>
   </div>
 </template>
-
 
 <style scoped>
 .carrossel-wrapper {
@@ -279,11 +268,11 @@ const totalPages = computed(() => maxIndex.value + 1)
   scroll-snap-align: start;
   flex: 0 0 auto;
   cursor: pointer;
-  flex: 0 0 calc(100% / var(--cards-per-page*2));
-  max-width: calc(100% / var(--cards-per-page*2));
+  flex: 0 0 calc(100% / var(--cards-per-page * 2));
+  max-width: calc(100% / var(--cards-per-page * 2));
   min-width: 0;
 }
-  /* ocupa 100% da largura da viewport */
+/* ocupa 100% da largura da viewport */
 
 .ItensDestaque > *:hover {
   transform: scale(1.05);
@@ -316,8 +305,8 @@ const totalPages = computed(() => maxIndex.value + 1)
 }
 
 .dot.active {
-  background-color: #333;
-  border-color: #333;
+  background-color: #858585;
+  border-color: #858585;
 }
 
 .emphasis {
@@ -325,19 +314,19 @@ const totalPages = computed(() => maxIndex.value + 1)
   transition: transform 0.6s ease;
 }
 
-.direita{
+.direita {
   transform: scale(-1);
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
-  .seta{
+  .seta {
     opacity: 0.7;
     transform: scale(0.8);
   }
-  .direita{
+  .direita {
     transform: scale(-0.8);
   }
-  .carrossel{
+  .carrossel {
     gap: 0.5rem;
   }
 
