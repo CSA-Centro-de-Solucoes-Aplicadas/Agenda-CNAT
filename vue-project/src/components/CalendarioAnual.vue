@@ -4,10 +4,9 @@ import { ref, computed, onMounted } from 'vue'
 interface Evento {
   id: number
   nome: string
-  dataInicio: string 
+  dataInicio: string
   dataFim: string
 }
-
 
 const eventos = ref<Evento[]>([])
 
@@ -17,39 +16,32 @@ onMounted(() => {
       id: 1,
       nome: 'Evento alusivo ao dia do professor de geografia',
       dataInicio: '2025-12-02',
-      dataFim: '2025-12-03'
+      dataFim: '2025-12-03',
     },
     {
       id: 2,
       nome: 'Palestra de conscientização ambiental 2025.2',
       dataInicio: '2025-12-05',
-      dataFim: '2025-12-07'
+      dataFim: '2025-12-07',
     },
     {
       id: 3,
       nome: 'Palestra de tecnologia 2025.2',
       dataInicio: '2025-12-10',
-      dataFim: '2025-12-15'
-    }
+      dataFim: '2025-12-15',
+    },
   ]
 })
-
 
 const hoje = new Date()
 const dataBase = ref(new Date(hoje.getFullYear(), hoje.getMonth()))
 
 function proximo() {
-  dataBase.value = new Date(
-    dataBase.value.getFullYear(),
-    dataBase.value.getMonth() + 2
-  )
+  dataBase.value = new Date(dataBase.value.getFullYear(), dataBase.value.getMonth() + 2)
 }
 
 function anterior() {
-  dataBase.value = new Date(
-    dataBase.value.getFullYear(),
-    dataBase.value.getMonth() - 2
-  )
+  dataBase.value = new Date(dataBase.value.getFullYear(), dataBase.value.getMonth() - 2)
 }
 
 const legendaExpandida = ref<Record<number, boolean>>({})
@@ -69,13 +61,11 @@ function toggleLegenda(ano: number, mes: number) {
   legendaExpandida.value[chave] = !legendaExpandida.value[chave]
 }
 
-
 /*evita erro de fuso horário */
 function criarDataLocal(data: string) {
   const [ano, mes, dia] = data.split('-').map(Number)
   return new Date(ano, mes - 1, dia)
 }
-
 
 function gerarDiasDoMes(ano: number, mes: number) {
   const dias: (Date | null)[] = []
@@ -94,7 +84,6 @@ function gerarDiasDoMes(ano: number, mes: number) {
   return dias
 }
 
-
 function tipoDiaEvento(data: Date | null) {
   if (!data) return null
 
@@ -109,9 +98,8 @@ function tipoDiaEvento(data: Date | null) {
   return null
 }
 
-
 function eventosDoMes(ano: number, mes: number) {
-  return eventos.value.filter(ev => {
+  return eventos.value.filter((ev) => {
     const ini = criarDataLocal(ev.dataInicio)
     const fim = criarDataLocal(ev.dataFim)
 
@@ -122,7 +110,6 @@ function eventosDoMes(ano: number, mes: number) {
   })
 }
 
-
 const meses = computed(() => {
   const m1 = dataBase.value
   const m2 = new Date(m1.getFullYear(), m1.getMonth() + 1)
@@ -132,17 +119,16 @@ const meses = computed(() => {
       ano: m1.getFullYear(),
       mes: m1.getMonth(),
       nome: m1.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }),
-      dias: gerarDiasDoMes(m1.getFullYear(), m1.getMonth())
+      dias: gerarDiasDoMes(m1.getFullYear(), m1.getMonth()),
     },
     {
       ano: m2.getFullYear(),
       mes: m2.getMonth(),
       nome: m2.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }),
-      dias: gerarDiasDoMes(m2.getFullYear(), m2.getMonth())
-    }
+      dias: gerarDiasDoMes(m2.getFullYear(), m2.getMonth()),
+    },
   ]
 })
-
 
 function formatarData(data: string) {
   const [y, m, d] = data.split('-')
@@ -157,47 +143,36 @@ function legendaEvento(ev: Evento) {
 <template>
   <div class="calendario">
     <section class="mes" v-for="(mes, index) in meses" :key="index">
-    
       <div class="cabecalho">
         <button v-if="index === 0" @click="anterior">‹</button>
         <h3>{{ mes.nome }}</h3>
         <button v-if="index === 1" @click="proximo">›</button>
       </div>
 
-    
       <div class="dias-semana">
-        <span>D</span><span>S</span><span>T</span>
-        <span>Q</span><span>Q</span><span>S</span><span>S</span>
+        <span>D</span><span>S</span><span>T</span> <span>Q</span><span>Q</span><span>S</span
+        ><span>S</span>
       </div>
 
       <div class="dias">
-        <span
-          v-for="(dia, i) in mes.dias"
-          :key="i"
-          class="dia"
-          :class="tipoDiaEvento(dia)"
-        >
+        <span v-for="(dia, i) in mes.dias" :key="i" class="dia" :class="tipoDiaEvento(dia)">
           {{ dia ? dia.getDate() : '' }}
         </span>
       </div>
 
-        <div class="legenda">
-          <p
-            v-for="ev in eventosVisiveis(mes.ano, mes.mes)"
-            :key="ev.id"
-          >
-            {{ legendaEvento(ev) }}
-          </p>
+      <div class="legenda">
+        <p v-for="ev in eventosVisiveis(mes.ano, mes.mes)" :key="ev.id">
+          {{ legendaEvento(ev) }}
+        </p>
 
-          <button
-            v-if="eventosDoMes(mes.ano, mes.mes).length > 2"
-            class="ver-mais"
-            @click="toggleLegenda(mes.ano, mes.mes)"
-          >
-            {{ legendaExpandida[mes.ano * 100 + mes.mes] ? 'Ver menos' : 'Ver mais' }}
-          </button>
-        </div>
-
+        <button
+          v-if="eventosDoMes(mes.ano, mes.mes).length > 2"
+          class="ver-mais"
+          @click="toggleLegenda(mes.ano, mes.mes)"
+        >
+          {{ legendaExpandida[mes.ano * 100 + mes.mes] ? 'Ver menos' : 'Ver mais' }}
+        </button>
+      </div>
     </section>
   </div>
 </template>
@@ -212,11 +187,9 @@ function legendaEvento(ev: Evento) {
   max-width: 720px;
   margin: 24px auto;
 
-  
   flex-wrap: nowrap;
   justify-content: space-between;
 }
-
 
 .mes {
   width: 50%;
@@ -237,7 +210,6 @@ h3 {
   font-weight: 600;
 }
 
-
 button {
   background: #f1f3f4;
   border: none;
@@ -251,7 +223,6 @@ button {
   align-items: center;
   justify-content: center;
 }
-
 
 .dias-semana,
 .dias {
@@ -281,7 +252,6 @@ button {
   font-size: 13px;
   font-weight: 500;
 }
-
 
 .dia.inicio {
   background: #2ecc71;
@@ -320,7 +290,6 @@ button {
   font-weight: 600;
 }
 
-
 @media (max-width: 480px) {
   .calendario {
     padding: 14px;
@@ -335,8 +304,8 @@ button {
   }
 
   h3 {
-    font-size: 10px;      
-    font-weight: 700;    
+    font-size: 10px;
+    font-weight: 700;
     line-height: 1.2;
   }
 
@@ -358,15 +327,12 @@ button {
     font-size: 16px;
   }
 
- .legenda {
-  font-size: 9px;
+  .legenda {
+    font-size: 10px;
+  }
+
+  .ver-mais {
+    font-size: 9px;
+  }
 }
-
-.ver-mais {
-  font-size: 9px;
-}
-
-}
-
-
 </style>
