@@ -351,7 +351,6 @@ select {
   display: flex;
   gap: 19px;
   margin-left: 20px;
-  overflow-x: auto;
   flex: 1;
 }
 
@@ -405,6 +404,12 @@ select {
   min-width: 1280px;
 }
 
+.grade.modo-hoje .dia {
+  min-width: 420px; 
+  padding: 16px;
+  min-height: 600px;
+}
+
 .dias {
   display: flex;
   min-width: max-content;
@@ -413,8 +418,8 @@ select {
 }
 
 .dia {
-  min-width: 180px; /* AQUI o card cresce */
-  padding: 8px 0; /* sem padding lateral */
+  min-width: 180px; 
+  padding: 8px 0; 
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -584,6 +589,38 @@ select {
     transform 0.15s ease,
     box-shadow 0.15s ease;
 }
+.grade.modo-hoje .evento-simples {
+  height: 120px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  gap: 6px;
+}
+.grade.modo-hoje .titulo-evento {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.grade.modo-hoje .local-evento {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.grade.modo-hoje .horario-evento {
+  font-size: 13px;
+  font-weight: 600;
+}
+.grade.modo-hoje .evento-simples:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+.grade.modo-hoje .dia-vazio {
+  font-size: 14px;
+  padding: 20px;
+  opacity: 0.5;
+  text-align: center;
+}
 
 .dia-vazio {
   font-size: 12px;
@@ -631,16 +668,17 @@ select {
   }
 
   .chip-dia {
-    min-width: 72px;
-    height: 48px;
+    min-width: 140px;
+    width: 140px;
+    height: 34px;
     flex-direction: column;
     gap: 2px;
-    font-size: 11px;
+    font-size: 9px;
     border-radius: 12px;
   }
 
   .chip-dia .numero {
-    font-size: 16px;
+    font-size: 10px;
     font-weight: bold;
   }
   .item-lista {
@@ -667,10 +705,16 @@ select {
     overflow-x: auto;
   }
 
-  .dia {
-    min-width: 140px;
-    padding: 6px;
+  .chips,
+  .dias {
+    width: max-content;
   }
+
+
+ .dia {
+  min-width: 140px;
+  width: 140px;
+}
 
   .evento-simples {
     height: auto;
@@ -684,6 +728,19 @@ select {
   .local-evento,
   .horario-evento {
     font-size: 10px;
+  }
+  .barra-dias {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .grade {
+    overflow-x: auto;
+  }
+
+  
+  .grade-conteudo {
+    overflow: visible;
   }
 }
 @media (max-width: 420px) {

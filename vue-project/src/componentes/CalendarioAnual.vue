@@ -15,14 +15,14 @@ onMounted(() => {
     {
       id: 1,
       nome: 'Evento alusivo ao dia do professor de geografia',
-      dataInicio: '2025-12-02',
-      dataFim: '2025-12-03',
+      dataInicio: '2025-12-09',
+      dataFim: '2025-12-11',
     },
     {
       id: 2,
       nome: 'Palestra de conscientização ambiental 2025.2',
-      dataInicio: '2025-12-05',
-      dataFim: '2025-12-07',
+      dataInicio: '2025-12-11',
+      dataFim: '2025-12-13',
     },
     {
       id: 3,
@@ -30,6 +30,12 @@ onMounted(() => {
       dataInicio: '2025-12-10',
       dataFim: '2025-12-15',
     },
+      {
+      id: 3,
+      nome: 'FERIASSS(CADE AS FERIAS)',
+      dataInicio: '2026-01-02',
+      dataFim: '2026-01-20',
+    }
   ]
 })
 
@@ -60,6 +66,25 @@ function toggleLegenda(ano: number, mes: number) {
   const chave = ano * 100 + mes
   legendaExpandida.value[chave] = !legendaExpandida.value[chave]
 }
+function gradientePizza(tipos: string[]) {
+  if (tipos.length === 0) return '#eef6f8'
+
+  const cores: Record<string, string> = {
+    inicio: '#2ecc71',
+    meio: '#3498db',
+    fim: '#9b59b6',
+  }
+
+  const step = 360 / tipos.length
+
+  return `conic-gradient(${tipos
+    .map((t, i) => {
+      const start = i * step
+      const end = (i + 1) * step
+      return `${cores[t]} ${start}deg ${end}deg`
+    })
+    .join(', ')})`
+}
 
 /*evita erro de fuso horário */
 function criarDataLocal(data: string) {
@@ -84,19 +109,23 @@ function gerarDiasDoMes(ano: number, mes: number) {
   return dias
 }
 
-function tipoDiaEvento(data: Date | null) {
-  if (!data) return null
+function tiposDiaEvento(data: Date | null): string[] {
+  if (!data) return []
+
+  const tipos = new Set<string>()
 
   for (const ev of eventos.value) {
     const inicio = criarDataLocal(ev.dataInicio)
     const fim = criarDataLocal(ev.dataFim)
 
-    if (data.getTime() === inicio.getTime()) return 'inicio'
-    if (data.getTime() === fim.getTime()) return 'fim'
-    if (data > inicio && data < fim) return 'meio'
+    if (data.getTime() === inicio.getTime()) tipos.add('inicio')
+    else if (data.getTime() === fim.getTime()) tipos.add('fim')
+    else if (data > inicio && data < fim) tipos.add('meio')
   }
-  return null
+
+  return Array.from(tipos).slice(0, 3) // 🔒 no máximo 3 cores
 }
+
 
 function eventosDoMes(ano: number, mes: number) {
   return eventos.value.filter((ev) => {
@@ -131,13 +160,11 @@ const meses = computed(() => {
 })
 
 function formatarData(data: string) {
-  const [y, m, d] = data.split('-')
-  return `${d}/${m}/${y}`
+  const [, m, d] = data.split('-')
+  return `${d}/${m}`
 }
 
-function legendaEvento(ev: Evento) {
-  return `${formatarData(ev.dataInicio)} até ${formatarData(ev.dataFim)} – ${ev.nome}`
-}
+
 </script>
 
 <template>
@@ -155,15 +182,27 @@ function legendaEvento(ev: Evento) {
       </div>
 
       <div class="dias">
-        <span v-for="(dia, i) in mes.dias" :key="i" class="dia" :class="tipoDiaEvento(dia)">
-          {{ dia ? dia.getDate() : '' }}
+        <span v-for="(dia, i) in mes.dias" :key="i" class="dia">
+          <span
+            v-if="dia"
+            class="dia-bg"
+            :style="{ background: gradientePizza(tiposDiaEvento(dia)) }"
+          ></span>
+
+          <span class="dia-numero">{{ dia ? dia.getDate() : '' }}</span>
         </span>
+
       </div>
 
       <div class="legenda">
         <p v-for="ev in eventosVisiveis(mes.ano, mes.mes)" :key="ev.id">
-          {{ legendaEvento(ev) }}
+          <span class="data-inicio">{{ formatarData(ev.dataInicio) }}</span>
+          <span class="ate"> até </span>
+          <span class="data-fim">{{ formatarData(ev.dataFim) }}</span>
+          <span class="traco"> – </span>
+          <span class="nome-evento">{{ ev.nome }}</span>
         </p>
+
 
         <button
           v-if="eventosDoMes(mes.ano, mes.mes).length > 2"
@@ -180,20 +219,20 @@ function legendaEvento(ev: Evento) {
 <style scoped>
 .calendario {
   display: flex;
-  gap: 16px;
+  gap: 24px;
   background: #fff;
-  padding: 16px;
+  padding: 28px 102px;
   border-radius: 18px;
-  max-width: 720px;
-  margin: 24px auto;
+  max-width: 1100px;
+  margin: 34px auto;
 
   flex-wrap: nowrap;
   justify-content: space-between;
 }
 
 .mes {
-  width: 50%;
-  max-width: 340px;
+  width: 45%;
+  max-width: 400px;
 }
 
 .cabecalho {
@@ -206,18 +245,18 @@ h3 {
   flex: 1;
   text-align: center;
   text-transform: capitalize;
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 600;
 }
 
 button {
   background: #f1f3f4;
   border: none;
-  font-size: 20px;
+  font-size: 22px;
   cursor: pointer;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
 
   display: flex;
   align-items: center;
@@ -233,25 +272,38 @@ button {
 
 .dias-semana {
   font-weight: 600;
-  margin: 6px 0;
-  font-size: 12px;
+ font-size: 14px;        
+  margin: 10px 0;
   color: #555;
 }
 
 .dias {
-  gap: 6px;
+  gap: 8px;
 }
 
 .dia {
+  position: relative;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
   background: #eef6f8;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
 }
+
+.dia-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.dia-numero {
+  position: relative;
+  z-index: 2;
+  color: #fff;
+}
+
 
 .dia.inicio {
   background: #2ecc71;
@@ -269,12 +321,32 @@ button {
 }
 
 .legenda {
-  margin-top: 6px;
-  font-size: 10px;
+  margin-top: 10px;
+  font-size: 20px;
   color: #007c91;
-  line-height: 1.3;
+  line-height: 1.45;
+}
+.data-inicio {
+  color: #2b8952;
+  font-weight: 700;
 }
 
+.data-fim {
+  color: #55186d; 
+  font-weight: 700;
+}
+.ate,
+.traco {
+   color: #007c91;
+}
+
+.nome-evento {
+  color: #007c91;
+}
+
+.ver-mais {
+  font-size: 7px;
+}
 .legenda p {
   margin-bottom: 4px;
 }
@@ -284,7 +356,7 @@ button {
   border: none;
   padding: 0;
   margin-top: 4px;
-  font-size: 10px;
+  font-size: 15px;
   color: #3498db;
   cursor: pointer;
   font-weight: 600;
@@ -292,8 +364,8 @@ button {
 
 @media (max-width: 480px) {
   .calendario {
-    padding: 14px;
-    gap: 12px;
+    padding: 20px;
+    gap: 16px;
 
     margin: 16px 12px;
     max-width: calc(100% - 24px);
@@ -310,7 +382,7 @@ button {
   }
 
   .dias-semana {
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .dias {
@@ -318,7 +390,7 @@ button {
   }
 
   .dia {
-    font-size: 11px;
+    font-size: 8px;
   }
 
   button {
@@ -328,11 +400,11 @@ button {
   }
 
   .legenda {
-    font-size: 10px;
+    font-size: 7px;
   }
-
-  .ver-mais {
-    font-size: 9px;
+  .ver-mais{
+    font-size: 7px;
   }
+  
 }
 </style>
