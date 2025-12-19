@@ -1,7 +1,13 @@
 from rest_framework import serializers
 from django.db import transaction
-from .models import Event, Categoria
+from .models import Event, Categoria, Contato
 
+class ContatoSerializer(serializers.ModelSerializer):
+    # a classe ContatoSerializer serializa o model Contato
+    class Meta:
+        # a classe Meta informa ao serializer qual model ele está serializando
+        model = Contato
+        fields = ['id', 'email']
 
 class CategoriaSerializer(serializers.ModelSerializer):
     #  a classe CategoriaSerializer serializa o model Categoria
@@ -21,11 +27,12 @@ class EventSerializer(serializers.ModelSerializer):
     # essa linha acima permite que o campo categoria aceite uma lista de IDs de Categoria ao criar/atualizar um Event
 
     # contatos: garante que seja uma lista de strings (e-mails) no nível do serializer
-    contatos = serializers.ListField(
+    organizadores = serializers.ListField(
         child=serializers.EmailField(),
-        allow_empty=True,
-        required=False
+        write_only=True
     )
+
+
 
     class Meta:
         model = Event
@@ -59,29 +66,36 @@ class EventSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         categorias = validated_data.pop('categoria', [])
-        contatos = validated_data.pop('contatos', [])
+        emails = validated_data.pop('organizadores', [])
         with transaction.atomic():
             event = Event.objects.create(**validated_data)
+
             if categorias:
                 event.categoria.set(categorias)
-            if contatos is not None:
-                event.contatos = contatos
-                event.save()
+
+            for email in emails:
+                contato, _ = Contato.objects.get_or_create(email=email)
+                event.contatos.add(contato)
+
         return event
 
     def update(self, instance, validated_data):
         categorias = validated_data.pop('categoria', None)
-        contatos = validated_data.pop('contatos', None)
+        emails = validated_data.pop('organizadores', None)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
         with transaction.atomic():
             instance.save()
+
             if categorias is not None:
                 instance.categoria.set(categorias)
-            if contatos is not None:
-                instance.contatos = contatos
-                instance.save()
+
+            if emails is not None:
+                instance.contatos.clear()
+                for email in emails:
+                    contato, _ = Contato.objects.get_or_create(email=email)
+                    instance.contatos.add(contato)
 
         return instance
