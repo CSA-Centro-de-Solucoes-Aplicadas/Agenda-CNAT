@@ -7,5 +7,4 @@ import BarradePesquisa from '@/componentes/BarradePesquisa.vue'
 <template>
   <router-view />
 </template>
-
 <style scoped></style>
