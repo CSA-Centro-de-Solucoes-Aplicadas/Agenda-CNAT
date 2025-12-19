@@ -162,7 +162,7 @@ const eventos = [
       <section class="calendarioSemanal default-section">
         <div class="content-container">
           <h3>Programação</h3>
-          <AgendaSemana
+          <AgendaSemana />
         </div>
       </section>
 

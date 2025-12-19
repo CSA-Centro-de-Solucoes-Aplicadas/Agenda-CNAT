@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import api from '@/services/api.ts'
 import iconLista from '@/assets/iconLista.png'
 import iconCalendario from '@/assets/iconCalendario.png'
 
@@ -17,44 +18,24 @@ interface Evento {
   local: string
 }
 
-const eventos = ref<Evento[]>([
-  {
-    titulo: 'Arraiá Junino',
-    dataInicio: '15-12-2025',
-    dataFim: '16-12-2025',
-    inicio: '07:00',
-    fim: '11:00',
-    categoria: 'Cultura',
-    local: 'Ginásio',
-  },
-  {
-    titulo: 'Winfo',
-    dataInicio: '15-12-2025',
-    dataFim: '18-12-2025',
-    inicio: '06:00',
-    fim: '11:00',
-    categoria: 'Tecnologia',
-    local: 'Biblioteca',
-  },
-  {
-    titulo: 'Wtads',
-    dataInicio: '15-12-2025',
-    dataFim: '18-12-2025',
-    inicio: '06:00',
-    fim: '11:00',
-    categoria: 'Palestra',
-    local: 'Biblioteca',
-  },
-  {
-    titulo: 'Jogos internos',
-    dataInicio: '15-12-2025',
-    dataFim: '18-12-2025',
-    inicio: '06:00',
-    fim: '11:00',
-    categoria: 'Esporte',
-    local: 'Biblioteca',
-  },
-])
+const eventos = ref<Evento[]>([])
+
+async function carregarEventos() {
+  try {
+    const response = await api.get<Evento[]>('/eventos')
+    eventos.value = response.data.map((evento:any) => ({
+      titulo: evento.titulo,
+      dataInicio: formatarData(new Date(evento.dataInicio)),
+      dataFim: formatarData(new Date(evento.dataFim)),
+      inicio: evento.inicio,
+      fim: evento.fim,
+      categoria: evento.categoria,
+      local: evento.local,
+    }))
+  } catch (error) {
+    console.error('Erro ao buscar eventos:', error)
+  }
+}
 
 const hojeReal = new Date()
 const dataBaseAgenda = ref(new Date(hojeReal))
@@ -159,6 +140,10 @@ function semanaAnterior() {
 function proximaSemana() {
   dataBaseAgenda.value = new Date(dataBaseAgenda.value.setDate(dataBaseAgenda.value.getDate() + 7))
 }
+
+onMounted(() => {
+  carregarEventos()
+})
 </script>
 
 <template>
@@ -265,7 +250,7 @@ function proximaSemana() {
                 <small class="local-evento">{{ evento.local }}</small>
                 <span class="horario-evento"> {{ evento.inicio }} às {{ evento.fim }} </span>
               </div>
-
+              
               <p v-if="!eventosDoDiaOrdenados(dia).length" class="dia-vazio">Nenhum evento</p>
             </div>
           </div>

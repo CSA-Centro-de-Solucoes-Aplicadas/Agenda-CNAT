@@ -29,10 +29,10 @@ const props = defineProps({
         </li>
       </ul>
     </div>
-    <!-- <div class="cardfooter">
-      <p>{{categoria}}</p>
+    <div class="cardfooter">
+      <p>{{ item.categoria }}</p>
       <img src=""></img>
-    </div> -->
+    </div>
   </div>
 </template>
 <style scoped>
