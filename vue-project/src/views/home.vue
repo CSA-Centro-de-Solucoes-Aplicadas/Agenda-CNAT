@@ -11,6 +11,8 @@ import CardDestaque from '@/componentes/CardDestaque.vue'
 import CardInscricao from '@/componentes/CardInscricao.vue'
 import BarradePesquisa from '@/componentes/BarradePesquisa.vue'
 import AgendaSemana from '@/componentes/AgendaSemana.vue'
+import CalendarioAnualVue from '@/componentes/CalendarioAnual.vue'
+
 const eventos = [
   {
     titulo: 'Evento alusivo ao dia do professor de geografia',
@@ -162,7 +164,8 @@ const eventos = [
       <section class="calendarioSemanal default-section">
         <div class="content-container">
           <h3>Programação</h3>
-          <AgendaSemana
+          <AgendaSemana></AgendaSemana>
+          <CalendarioAnualVue></CalendarioAnualVue>
         </div>
       </section>
 
@@ -179,6 +182,7 @@ const eventos = [
       <section class="inscricoes">
         <div class="inscricoes-content">
           <h3>Inscrições abertas</h3>
+          <Carrossel :itens="eventos" :component="CardInscricao" />
         </div>
       </section>
     </main>
@@ -230,6 +234,9 @@ h3 {
   padding: 0 20px;
 }
 
+.content-container h3 {
+  margin-bottom: 80px;
+}
 .main-header {
   width: 100%;
   background-color: #8aeec3;

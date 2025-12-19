@@ -3,7 +3,7 @@ import Home from '@/views/home.vue'
 import Cadastro from '@/views/cadastro.vue'
 
 const routes = [
-  { path: '/home', component: Home },
+  { path: '/', component: Home },
   { path: '/cadastro', component: Cadastro },
 ]
 

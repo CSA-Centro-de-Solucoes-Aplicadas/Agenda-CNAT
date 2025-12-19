@@ -9,8 +9,8 @@ const categoriaSelecionada = ref('Todas')
 
 interface Evento {
   titulo: string
-  dataInicio: string // dd-mm-yyyy
-  dataFim: string // dd-mm-yyyy
+  dataInicio: string
+  dataFim: string
   inicio: string
   fim: string
   categoria: string
@@ -21,7 +21,7 @@ const eventos = ref<Evento[]>([
   {
     titulo: 'Arraiá Junino',
     dataInicio: '15-12-2025',
-    dataFim: '16-12-2025',
+    dataFim: '21-12-2025',
     inicio: '07:00',
     fim: '11:00',
     categoria: 'Cultura',
@@ -30,7 +30,7 @@ const eventos = ref<Evento[]>([
   {
     titulo: 'Winfo',
     dataInicio: '15-12-2025',
-    dataFim: '18-12-2025',
+    dataFim: '19-12-2025',
     inicio: '06:00',
     fim: '11:00',
     categoria: 'Tecnologia',
@@ -262,8 +262,11 @@ function proximaSemana() {
                 :style="{ background: coresCategorias[evento.categoria] }"
               >
                 <strong class="titulo-evento">{{ evento.titulo }}</strong>
-                <small class="local-evento">{{ evento.local }}</small>
-                <span class="horario-evento"> {{ evento.inicio }} às {{ evento.fim }} </span>
+
+                <div class="info-evento">
+                  <span>{{ evento.local }}</span>
+                  <span>{{ evento.inicio }} às {{ evento.fim }}</span>
+                </div>
               </div>
 
               <p v-if="!eventosDoDiaOrdenados(dia).length" class="dia-vazio">Nenhum evento</p>
@@ -280,8 +283,8 @@ function proximaSemana() {
   background: #ffffff;
   padding: 0px;
   border-radius: 20px;
-  max-width: 1300px;
-  max-height: 700px;
+  max-width: 1400px;
+  max-height: 800px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -338,7 +341,7 @@ select {
 }
 
 .barra-dias {
-  padding-top: 15px;
+  padding-top: 19px;
   display: flex;
   position: sticky;
   top: 0;
@@ -349,13 +352,13 @@ select {
 
 .chips {
   display: flex;
-  gap: 19px;
+  gap: 23px;
   margin-left: 20px;
   flex: 1;
 }
 
 .chip-dia {
-  min-width: 160px;
+  min-width: 175px;
   height: 36px;
   background: #ededed;
   border-radius: 10px 20px 10px 10px;
@@ -405,7 +408,7 @@ select {
 }
 
 .grade.modo-hoje .dia {
-  min-width: 420px; 
+  min-width: 420px;
   padding: 16px;
   min-height: 600px;
 }
@@ -413,13 +416,14 @@ select {
 .dias {
   display: flex;
   min-width: max-content;
-  min-height: calc((23 - 6) * 30px);
+  min-height: calc((23 - 6) * 40px);
   position: relative;
+  gap: 1px;
 }
 
 .dia {
-  min-width: 180px; 
-  padding: 8px 0; 
+  min-width: 195px;
+  padding: 8px 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -432,21 +436,28 @@ select {
 
 .conteudo-evento {
   display: flex;
+  max-width: 100%;
   flex-direction: column;
   gap: 2px;
 }
 
 .titulo-evento {
-  font-size: 13px;
-  font-weight: bold;
-  line-height: 1.2;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.25;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+
   overflow: hidden;
+  word-break: break-word;
 }
 
 .local-evento {
-  font-size: 11px;
+  font-size: 18px;
+  background-color: #6bb4a6;
+  border-radius: 5px;
   opacity: 0.8;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -454,8 +465,10 @@ select {
 }
 
 .horario-evento {
-  font-size: 10px;
-  opacity: 0.7;
+  font-size: 18px;
+  background-color: #6bb4a6;
+  border-radius: 5px;
+  opacity: 0.9;
 }
 
 .evento-simples:hover {
@@ -575,8 +588,12 @@ select {
 
 .evento-simples {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   box-sizing: border-box;
-  height: 80px;
+  min-height: 0;
+  height: 120px;
+  overflow: hidden;
   border-radius: 10px;
   padding: 8px 10px;
   color: #fff;
@@ -589,24 +606,39 @@ select {
     transform 0.15s ease,
     box-shadow 0.15s ease;
 }
+.info-evento {
+  background: rgba(85, 126, 79, 0.22);
+  border-radius: 8px;
+  padding: 6px 8px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  font-size: 12px;
+  line-height: 1.2;
+}
+
 .grade.modo-hoje .evento-simples {
-  height: 120px;
+  height: 180px;
   padding: 16px 18px;
   border-radius: 16px;
   gap: 6px;
+  overflow: hidden;
 }
+
 .grade.modo-hoje .titulo-evento {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
 }
 
 .grade.modo-hoje .local-evento {
-  font-size: 14px;
+  font-size: 17px;
   opacity: 0.9;
 }
 
 .grade.modo-hoje .horario-evento {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
 }
 .grade.modo-hoje .evento-simples:hover {
@@ -710,14 +742,14 @@ select {
     width: max-content;
   }
 
-
- .dia {
-  min-width: 140px;
-  width: 140px;
-}
+  .dia {
+    min-width: 140px;
+    width: 140px;
+  }
 
   .evento-simples {
-    height: auto;
+    height: 120px;
+    overflow: hidden;
     padding: 6px 8px;
   }
 
@@ -738,7 +770,6 @@ select {
     overflow-x: auto;
   }
 
-  
   .grade-conteudo {
     overflow: visible;
   }
