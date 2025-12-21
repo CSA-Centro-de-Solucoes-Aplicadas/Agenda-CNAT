@@ -81,10 +81,10 @@ function eventosDoDia(data: Date | null): Evento[] {
   })
 }
 function gradientePizza(eventosNoDia: Evento[]) {
-  if (eventosNoDia.length === 0) return '#eef6f8'
+  if (eventosNoDia.length === 0) return '#efeded'
 
   const cores = eventosNoDia
-    .slice(0, 5) // máximo 5 cores
+    .slice(0, 5) 
     .map(corDoEvento)
 
   const step = 360 / cores.length
@@ -122,22 +122,6 @@ function gerarDiasDoMes(ano: number, mes: number) {
   return dias
 }
 
-function tiposDiaEvento(data: Date | null): string[] {
-  if (!data) return []
-
-  const tipos = new Set<string>()
-
-  for (const ev of eventos.value) {
-    const inicio = criarDataLocal(ev.dataInicio)
-    const fim = criarDataLocal(ev.dataFim)
-
-    if (data.getTime() === inicio.getTime()) tipos.add('inicio')
-    else if (data.getTime() === fim.getTime()) tipos.add('fim')
-    else if (data > inicio && data < fim) tipos.add('meio')
-  }
-
-  return Array.from(tipos).slice(0, 3) // 🔒 no máximo 3 cores
-}
 
 function eventosDoMes(ano: number, mes: number) {
   return eventos.value.filter((ev) => {
@@ -155,17 +139,23 @@ const meses = computed(() => {
   const m1 = dataBase.value
   const m2 = new Date(m1.getFullYear(), m1.getMonth() + 1)
 
+  const formatarMesAno = (data: Date) => {
+    const mes = data.toLocaleDateString('pt-BR', { month: 'long' })
+    const ano = data.getFullYear()
+    return `${mes}, ${ano}`
+  }
+
   return [
     {
       ano: m1.getFullYear(),
       mes: m1.getMonth(),
-      nome: m1.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }),
+      nome: formatarMesAno(m1),
       dias: gerarDiasDoMes(m1.getFullYear(), m1.getMonth()),
     },
     {
       ano: m2.getFullYear(),
       mes: m2.getMonth(),
-      nome: m2.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }),
+      nome: formatarMesAno(m2),
       dias: gerarDiasDoMes(m2.getFullYear(), m2.getMonth()),
     },
   ]
@@ -232,7 +222,7 @@ function formatarData(data: string) {
 .calendario {
   display: flex;
   gap: 24px;
-  background: #fff;
+  background: #ffffff;
   padding: 18px 82px;
   border-radius: 18px;
   max-width: 1100px;
@@ -297,7 +287,7 @@ button {
   position: relative;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
-  background: #eef6f8;
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -313,39 +303,15 @@ button {
 .dia-numero {
   position: relative;
   z-index: 2;
-  color: #fff;
+  color: #ffffff;
 }
-
-.dia.inicio {
-  background: #bfffda;
-  color: #fff;
-}
-
-.dia.meio {
-  background: #5c95bb;
-  color: #fff;
-}
-
-.dia.fim {
-  background: #e96060;
-  color: #fff;
-}
-
 .legenda {
   margin-top: 10px;
   font-size: 15px;
   color: #007c91;
   line-height: 1.45;
 }
-/* .data-inicio {
-  color: #2b8952;
-  font-weight: 700;
-}
 
-.data-fim {
-  color: #55186d; 
-  font-weight: 700;
-} */
 .ate,
 .traco {
   color: #007c91;

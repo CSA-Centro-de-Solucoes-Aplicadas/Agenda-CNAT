@@ -2,14 +2,23 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/home.vue'
 import Cadastro from '@/views/cadastro.vue'
 
-const routes = [
-  { path: '/', component: Home },
-  { path: '/cadastro', component: Cadastro },
-]
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    { path: '/', component: Home },
+    { path: '/cadastro', component: Cadastro },
+  ],
 
-export const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes,
+  scrollBehavior(to) {
+    if (to.hash) {
+      return {
+        el: to.hash,
+        behavior: 'smooth',
+      }
+    }
+
+    return { top: 0 }
+  },
 })
 
 export default router

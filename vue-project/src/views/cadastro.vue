@@ -8,6 +8,7 @@ import youtubeImg from '@/assets/youtube.png'
 import { VueDatePicker as DatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import { ref } from 'vue'
+import { RouterLink } from 'vue-router'
 
 
 const todasCategorias = [
@@ -107,14 +108,14 @@ function enviarFormulario() {
 <template>
   <div class="page">
     <header class="main-header">
-      <div class="header-logo-container">
-        <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
-      </div>
+        <RouterLink to="/" class="header-logo-container">
+             <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
+        </RouterLink>
       <div class="header-inner">
         <ul>
-          <li><a href="">Calendário</a></li>
-          <li><a href="">Adicionar Evento</a></li>
-          <li><a href="">Inscrições Abertas</a></li>
+          <li><RouterLink to="/#programacao">Programação</RouterLink></li>
+          <li><RouterLink to="/#adicionar-evento">Adicionar Evento</RouterLink></li>
+          <li><RouterLink to="/#inscricoes">Inscrições Abertas</RouterLink></li>
         </ul>
       </div>
     </header>
@@ -267,24 +268,24 @@ function enviarFormulario() {
     <footer>
       <div class="footer-content">
         <div class="footer-left">
-          <img :src="logoFooter" alt="Eventos CNAT" class="footer-logo" />
-          <img :src="logoIfrn" alt="Logo do IFRN" class="logo-if" />
+          <a href=""><img :src="logoFooter" alt="Eventos CNAT" class="footer-logo" /></a>
+          <a href="https://portal.ifrn.edu.br/"><img :src="logoIfrn" alt="Logo do IFRN" class="logo-if" /></a>
         </div>
 
         <div class="footer-right">
           <div class="social">
-            <img :src="instagramImg" alt="Logotipo do Instagram" />
-            <img :src="XImg" alt="Logotipo do X" />
-            <img :src="youtubeImg" alt="Logotipo do YouTube" />
+            <a href="https://www.instagram.com/ifrncnat"><img :src="instagramImg" alt="Logotipo do Instagram" /></a>
+            <a href="https://x.com/IFRNCNAT"><img :src="XImg" alt="Logotipo do X" /></a>
+            <a href="https://www.youtube.com/ifrncnat?themeRefresh=1"><img :src="youtubeImg" alt="Logotipo do YouTube" /></a>
           </div>
-          <p>cnat@ifrn.com</p>
+             <p>seac.cnat@ifrn.edu.br</p>
           <address>
             Av. Sen. Salgado Filho, 1559 – Tirol, Natal – RN <br /><strong>CEP:</strong> 59015-000
           </address>
         </div>
       </div>
       <div class="copy">
-        <p>© 2025 - Centro de Soluções Aplicadas. Todos os direitos reservados.</p>
+        <a href="https://csa.cnat.ifrn.edu.br/"><p>© 2025 - Centro de Soluções Aplicadas. Todos os direitos reservados.</p></a>
       </div>
     </footer>
   </div>
@@ -708,6 +709,13 @@ footer {
   background-color: #012118;
   width: 100%;
   opacity: 0.85;
+}
+.copy a {
+  color: inherit;          
+  text-decoration: none;   
+}
+.copy p {
+  color: #ffffff;
 }
 
 /* Space before footer */

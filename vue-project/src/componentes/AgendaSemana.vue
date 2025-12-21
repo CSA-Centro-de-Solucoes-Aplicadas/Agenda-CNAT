@@ -2,10 +2,11 @@
 import { ref, computed } from 'vue'
 import iconLista from '@/assets/iconLista.png'
 import iconCalendario from '@/assets/iconCalendario.png'
+import iconLocal from '@/assets/iconLocal.png'
+import iconHorario from '@/assets/iconHorario.png'
 
-const modoVisualizacao = ref<'hoje' | 'semana'>('semana')
-const tipoVisualizacao = ref<'calendario' | 'lista'>('calendario')
-const categoriaSelecionada = ref('Todas')
+type Modo = 'hoje' | 'semana'
+type Tipo = 'calendario' | 'lista'
 
 interface Evento {
   titulo: string
@@ -17,9 +18,16 @@ interface Evento {
   local: string
 }
 
+const hoje = new Date()
+
+const modoVisualizacao = ref<Modo>('semana')
+const tipoVisualizacao = ref<Tipo>('calendario')
+const categoriaSelecionada = ref('Todas')
+const dataBaseAgenda = ref(new Date(hoje))
+
 const eventos = ref<Evento[]>([
   {
-    titulo: 'Arraiá Junino',
+    titulo: 'Arraiá Junino da melhor idade',
     dataInicio: '15-12-2025',
     dataFim: '21-12-2025',
     inicio: '07:00',
@@ -30,71 +38,61 @@ const eventos = ref<Evento[]>([
   {
     titulo: 'Winfo',
     dataInicio: '15-12-2025',
-    dataFim: '19-12-2025',
+    dataFim: '18-12-2025',
     inicio: '06:00',
     fim: '11:00',
     categoria: 'Tecnologia',
-    local: 'Biblioteca',
+    local: 'Biblioteca Sebastião Fernandes',
   },
-  {
+   {
+    titulo: 'Jogos Internos',
+    dataInicio: '15-12-2025',
+    dataFim: '17-12-2025',
+    inicio: '06:00',
+    fim: '11:00',
+    categoria: 'Esportes',
+    local: 'IFRN',
+  },
+   {
     titulo: 'Wtads',
     dataInicio: '15-12-2025',
-    dataFim: '18-12-2025',
-    inicio: '06:00',
+    dataFim: '15-12-2025',
+    inicio: '08:00',
     fim: '11:00',
-    categoria: 'Palestra',
-    local: 'Biblioteca',
-  },
-  {
-    titulo: 'Jogos internos',
-    dataInicio: '15-12-2025',
-    dataFim: '18-12-2025',
-    inicio: '06:00',
-    fim: '11:00',
-    categoria: 'Esporte',
-    local: 'Biblioteca',
+    categoria: 'Tecnologia',
+    local: 'Mini auditório bloco C',
   },
 ])
 
-const hojeReal = new Date()
-const dataBaseAgenda = ref(new Date(hojeReal))
-
-function parseData(data: string): Date {
-  const partes = data.split('-')
-
+const toDate = (d: string): Date => {
+  const partes = d.split('-')
   if (partes.length !== 3) {
-    throw new Error(`Data inválida: ${data}`)
+    throw new Error(`Data inválida: ${d}`)
   }
 
-  const d = Number(partes[0])
-  const m = Number(partes[1])
-  const y = Number(partes[2])
+  const day = Number(partes[0])
+  const month = Number(partes[1])
+  const year = Number(partes[2])
 
-  if (isNaN(d) || isNaN(m) || isNaN(y)) {
-    throw new Error(`Data inválida: ${data}`)
+  if ([day, month, year].some(isNaN)) {
+    throw new Error(`Data inválida: ${d}`)
   }
 
-  return new Date(y, m - 1, d)
+  return new Date(year, month - 1, day)
 }
 
-function estaEntreDatas(dia: Date, inicio: string, fim: string) {
-  const d = new Date(dia).setHours(0, 0, 0, 0)
-  const di = parseData(inicio).getTime()
-  const df = parseData(fim).getTime()
-  return d >= di && d <= df
+const estaNoIntervalo = (dia: Date, inicio: string, fim: string) => {
+  const base = new Date(dia)
+  base.setHours(0, 0, 0, 0)
+  const time = base.getTime()
+
+  return time >= toDate(inicio).getTime() && time <= toDate(fim).getTime()
 }
 
-function formatarData(date: Date): string {
-  return `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(
-    2,
-    '0',
-  )}-${date.getFullYear()}`
-}
 
 const diasSemana = computed(() => {
-  const base = dataBaseAgenda.value
-  const inicio = new Date(base)
-  inicio.setDate(base.getDate() - ((base.getDay() + 6) % 7))
+  const inicio = new Date(dataBaseAgenda.value)
+  inicio.setDate(inicio.getDate() - ((inicio.getDay() + 6) % 7))
 
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date(inicio)
@@ -105,59 +103,61 @@ const diasSemana = computed(() => {
 
 const mesAnoAtual = computed(() => {
   const base =
-    modoVisualizacao.value === 'hoje' ? hojeReal : (diasSemana.value[0] ?? dataBaseAgenda.value)
+    modoVisualizacao.value === 'hoje'
+      ? hoje
+      : diasSemana.value[0] ?? dataBaseAgenda.value
 
-  return `${base.toLocaleDateString('pt-BR', { month: 'long' })}, ${base.getFullYear()}`
+  const mes = base.toLocaleDateString('pt-BR', { month: 'long' })
+  const ano = base.getFullYear()
+
+  return `${mes}, ${ano}`
 })
 
-const categorias = computed(() => {
-  const unicas = new Set(eventos.value.map((e) => e.categoria))
-  return ['Todas', ...unicas]
-})
+
+const categorias = computed(() => [
+  'Todas',
+  ...new Set(eventos.value.map((e) => e.categoria)),
+])
 
 const coresCategorias = computed<Record<string, string>>(() => {
-  const unicas = Array.from(new Set(eventos.value.map((e) => e.categoria)))
-  const mapa: Record<string, string> = {}
-
-  unicas.forEach((cat, index) => {
-    mapa[cat] = `hsl(145, 45%, ${78 - index * 6}%)`
-  })
-
-  return mapa
+  return Object.fromEntries(
+    [...new Set(eventos.value.map((e) => e.categoria))].map((c, i) => [
+      c,
+      `hsl(145, 45%, ${78 - i * 6}%)`,
+    ]),
+  )
 })
 
-function eventosDoDiaOrdenados(data: Date) {
-  return eventos.value
-    .filter((e) => {
-      const categoriaOk =
-        categoriaSelecionada.value === 'Todas' || e.categoria === categoriaSelecionada.value
-
-      const dataOk = estaEntreDatas(data, e.dataInicio, e.dataFim)
-      return categoriaOk && dataOk
-    })
+const eventosFiltrados = (dia: Date) =>
+  eventos.value
+    .filter(
+      (e) =>
+        (categoriaSelecionada.value === 'Todas' ||
+          e.categoria === categoriaSelecionada.value) &&
+        estaNoIntervalo(dia, e.dataInicio, e.dataFim),
+    )
     .sort((a, b) => a.inicio.localeCompare(b.inicio))
+
+const eventosLista = computed(() =>
+  eventos.value.filter((e) =>
+    modoVisualizacao.value === 'hoje'
+      ? estaNoIntervalo(hoje, e.dataInicio, e.dataFim)
+      : diasSemana.value.some((d) =>
+          estaNoIntervalo(d, e.dataInicio, e.dataFim),
+        ),
+  ),
+)
+
+const semanaAnterior = () => {
+  const novaData = new Date(dataBaseAgenda.value)
+  novaData.setDate(novaData.getDate() - 7)
+  dataBaseAgenda.value = novaData
 }
 
-const eventosLista = computed(() => {
-  return eventos.value.filter((e) => {
-    const categoriaOk =
-      categoriaSelecionada.value === 'Todas' || e.categoria === categoriaSelecionada.value
-
-    const dataOk =
-      modoVisualizacao.value === 'hoje'
-        ? estaEntreDatas(hojeReal, e.dataInicio, e.dataFim)
-        : diasSemana.value.some((d) => estaEntreDatas(d, e.dataInicio, e.dataFim))
-
-    return categoriaOk && dataOk
-  })
-})
-
-function semanaAnterior() {
-  dataBaseAgenda.value = new Date(dataBaseAgenda.value.setDate(dataBaseAgenda.value.getDate() - 7))
-}
-
-function proximaSemana() {
-  dataBaseAgenda.value = new Date(dataBaseAgenda.value.setDate(dataBaseAgenda.value.getDate() + 7))
+const proximaSemana = () => {
+  const novaData = new Date(dataBaseAgenda.value)
+  novaData.setDate(novaData.getDate() + 7)
+  dataBaseAgenda.value = novaData
 }
 </script>
 
@@ -211,65 +211,78 @@ function proximaSemana() {
         </select>
       </div>
     </header>
-    <!-- dias -->
-    <div class="barra-dias">
-      <div class="chips">
-        <div
-          v-for="dia in modoVisualizacao === 'hoje' ? [hojeReal] : diasSemana"
-          :key="dia.toDateString()"
-          class="chip-dia"
-          :class="{ hoje: formatarData(dia) === formatarData(hojeReal) }"
-        >
-          <span class="numero">{{ dia.getDate() }}</span>
-          <span class="semana">
-            {{ dia.toLocaleDateString('pt-BR', { weekday: 'short' }).toUpperCase() }}
-          </span>
-        </div>
-      </div>
-    </div>
 
-    <div class="conteudo">
-      <!-- LISTA -->
-      <div v-if="tipoVisualizacao === 'lista'" class="lista">
-        <div
-          v-for="evento in eventosLista"
-          :key="evento.titulo + evento.dataInicio + evento.dataFim"
-          class="item-lista"
-        >
-          <div class="badge">{{ evento.titulo }}</div>
+    <!-- Dias -->
 
-          <div class="info">
-            <strong> {{ evento.dataInicio }} até {{ evento.dataFim }} </strong>
-
-            <span>{{ evento.local }}</span>
+      <div class="barra-dias">
+        <div class="chips">
+          <div
+            v-for="dia in modoVisualizacao === 'hoje' ? [hoje] : diasSemana"
+            :key="dia.toDateString()"
+            class="chip-dia"
+            :class="{ hoje: dia.toDateString() === hoje.toDateString() }"
+          >
+            <span class="numero">{{ dia.getDate() }}</span>
+            <span class="semana">
+              {{ dia.toLocaleDateString('pt-BR', { weekday: 'short' }).toUpperCase() }}
+            </span>
           </div>
         </div>
       </div>
+      <div class="conteudo">
+  
+        <div v-if="tipoVisualizacao === 'lista'" class="lista">
+          <div
+            v-for="evento in eventosLista"
+            :key="evento.titulo + evento.dataInicio + evento.dataFim"
+            class="item-lista"
+          >
+            <div class="badge">{{ evento.titulo }}</div>
 
-      <!-- CALENDÁRIO -->
-      <div v-else class="grade" :class="{ 'modo-hoje': modoVisualizacao === 'hoje' }">
-        <div class="grade-conteudo">
-          <div class="dias">
-            <div
-              v-for="dia in modoVisualizacao === 'hoje' ? [hojeReal] : diasSemana"
-              :key="dia.toDateString()"
-              class="dia"
-            >
+            <div class="info">
+              <strong>{{ evento.dataInicio }} até {{ evento.dataFim }}</strong>
+              <span>{{ evento.local }}</span>
+            </div>
+          </div>
+        </div>
+
+
+        <div v-else class="grade" :class="{ 'modo-hoje': modoVisualizacao === 'hoje' }">
+          <div class="grade-conteudo">
+            <div class="dias">
               <div
-                v-for="evento in eventosDoDiaOrdenados(dia)"
-                :key="evento.titulo + evento.inicio"
-                class="evento-simples"
-                :style="{ background: coresCategorias[evento.categoria] }"
+                v-for="dia in modoVisualizacao === 'hoje' ? [hoje] : diasSemana"
+                :key="dia.toDateString()"
+                class="dia"
               >
-                <strong class="titulo-evento">{{ evento.titulo }}</strong>
+                <div
+                  v-for="evento in eventosFiltrados(dia)"
+                  :key="evento.titulo + evento.inicio"
+                  class="evento-simples"
+                  :style="{ background: coresCategorias[evento.categoria] }"
+                >
+              
+                  <div class="evento-header">
+                    <strong class="titulo-evento">{{ evento.titulo }}</strong>
+                  </div>
 
-                <div class="info-evento">
-                  <span>{{ evento.local }}</span>
-                  <span>{{ evento.inicio }} às {{ evento.fim }}</span>
+
+                  <div class="evento-info local-evento">
+                    <img :src="iconLocal" alt="Local" class="icon-info" />
+                    <span>{{ evento.local }}</span>
+                  </div>
+
+                
+                  <div class="evento-info horario-evento">
+                    <img :src="iconHorario" alt="Horário" class="icon-info" />
+                    <span>{{ evento.inicio }} às {{ evento.fim }}</span>
+                  </div>
                 </div>
-              </div>
+       
 
-              <p v-if="!eventosDoDiaOrdenados(dia).length" class="dia-vazio">Nenhum evento</p>
+              <p v-if="!eventosFiltrados(dia).length" class="dia-vazio">
+                Nenhum evento
+              </p>
             </div>
           </div>
         </div>
@@ -277,6 +290,7 @@ function proximaSemana() {
     </div>
   </div>
 </template>
+
 
 <style scoped>
 .agenda {
@@ -392,7 +406,7 @@ select {
 }
 .grade-conteudo {
   display: flex;
-  min-width: max-content;
+  min-width: 100%;
 }
 
 .grade.modo-hoje .dias {
@@ -415,60 +429,41 @@ select {
 
 .dias {
   display: flex;
-  min-width: max-content;
+  min-width: 100%;
   min-height: calc((23 - 6) * 40px);
   position: relative;
-  gap: 1px;
+  gap: 10px;
 }
 
 .dia {
-  min-width: 195px;
+  min-width: 0;
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
   padding: 8px 0;
+  width: 200px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   box-sizing: border-box;
 }
-
-.coluna-eventos {
-  position: relative;
-}
-
-.conteudo-evento {
-  display: flex;
-  max-width: 100%;
-  flex-direction: column;
-  gap: 2px;
+.evento-header {
+  background: rgba(0, 0, 0, 0.12);
+  padding: 10px 12px;
 }
 
 .titulo-evento {
   font-size: 18px;
   font-weight: 700;
   line-height: 1.25;
+  max-width: 100%;
 
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-
-  overflow: hidden;
-  word-break: break-word;
-}
-
-.local-evento {
-  font-size: 18px;
-  background-color: #6bb4a6;
-  border-radius: 5px;
-  opacity: 0.8;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.horario-evento {
-  font-size: 18px;
-  background-color: #6bb4a6;
-  border-radius: 5px;
-  opacity: 0.9;
+  white-space: normal;      
+  word-break: break-all;  
+  overflow-wrap: anywhere;  
+ 
+  display: block;
 }
 
 .evento-simples:hover {
@@ -525,7 +520,12 @@ select {
   margin-bottom: 10px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
-
+.info {
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+  color: #555;
+}
 .badge {
   background: #00b894;
   color: #fff;
@@ -534,31 +534,7 @@ select {
   min-width: 380px;
 }
 
-.info {
-  display: flex;
-  justify-content: space-between;
-  flex: 1;
-  font-size: 14px;
-}
 
-.mais-eventos {
-  position: absolute;
-  right: 6px;
-  bottom: 6px;
-  font-size: 11px;
-  background: rgba(0, 0, 0, 0.15);
-  padding: 2px 6px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.lista-oculta {
-  margin-top: 6px;
-  font-size: 11px;
-  background: rgba(255, 255, 255, 0.7);
-  padding: 4px;
-  border-radius: 6px;
-}
 .nav-semana {
   display: flex;
   align-items: center;
@@ -579,59 +555,83 @@ select {
   background: #c8f0e1;
 }
 
-.dia {
-  padding: 8px;
+.evento-info {
+  margin: 5px 6px;              
+  padding: 6px 10px;
+  font-size: 12px;
   display: flex;
-  flex-direction: column;
+  line-height: 1.2;
+  align-items: center;
   gap: 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background-clip: padding-box;
+}
+.icon-info {
+  width: 14px;
+  height: 14px;
+  display: block;       
+  margin-top: -1px;     
+  flex-shrink: 0;
+}
+.evento-info span {
+  line-height: 1;
+  display: block;
 }
 
+.local-evento {
+  background: rgba(76, 220, 93, 0.25);
+
+}
+
+.horario-evento {
+  background: rgba(8, 152, 39, 0.18);
+
+}
+
+
 .evento-simples {
+  padding: 0;
+  border-radius: 12px;
+  gap: 0;
   width: 100%;
   max-width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  min-height: 0;
-  height: 120px;
+  min-height: 120px;
+  height: auto;
   overflow: hidden;
-  border-radius: 10px;
-  padding: 8px 10px;
   color: #fff;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 2px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  justify-content: flex-start;
   transition:
     transform 0.15s ease,
     box-shadow 0.15s ease;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
-.info-evento {
-  background: rgba(85, 126, 79, 0.22);
-  border-radius: 8px;
-  padding: 6px 8px;
 
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-
-  font-size: 12px;
-  line-height: 1.2;
-}
 
 .grade.modo-hoje .evento-simples {
   height: 180px;
-  padding: 16px 18px;
+  padding:0;
   border-radius: 16px;
   gap: 6px;
   overflow: hidden;
 }
-
+.grade.modo-hoje .evento-header {
+  padding: 14px 16px;
+}
 .grade.modo-hoje .titulo-evento {
   font-size: 20px;
   font-weight: 700;
 }
-
+.grade.modo-hoje .evento-info {
+  padding: 10px 16px;
+  font-size: 15px;
+}
 .grade.modo-hoje .local-evento {
   font-size: 17px;
   opacity: 0.9;
@@ -657,7 +657,7 @@ select {
 .dia-vazio {
   font-size: 12px;
   opacity: 0.6;
-  padding: 8px 4px;
+  padding: 8px 30px;
 }
 @media (max-width: 768px) {
   .topo {
@@ -732,11 +732,15 @@ select {
     font-size: 13px;
     flex-direction: column;
     gap: 4px;
-  }
+  }  
+  .barra-dias,
   .grade {
-    overflow-x: auto;
+    overflow: visible;
   }
-
+.coluna-dias {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
   .chips,
   .dias {
     width: max-content;
