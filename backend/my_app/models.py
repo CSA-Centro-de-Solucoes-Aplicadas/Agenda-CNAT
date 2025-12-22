@@ -5,7 +5,7 @@ from django.db.models import JSONField
 from .managers import EventoQuerySet
 import uuid
 # Create your models here.
-class Contato(models.Model):
+class Organizador(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.CharField(max_length=100)
 
@@ -13,8 +13,8 @@ class Contato(models.Model):
         return self.email   
     
     class Meta:
-        verbose_name = "Contato"
-        verbose_name_plural = "Contatos"
+        verbose_name = "Organizador"
+        verbose_name_plural = "Organizadores"
         ordering = ['email']    
 
 class Categoria(models.Model):
@@ -48,7 +48,7 @@ class Event(models.Model):
     dataEventoFinal = models.DateTimeField()
     categoria = models.ManyToManyField(Categoria, related_name='eventos')
     local = models.CharField(max_length=200)
-    contatos = models.ManyToManyField(Contato, related_name='contatos')
+    organizadores = models.ManyToManyField(Organizador, related_name='organizadores')
     objects = EventoQuerySet.as_manager()
 
     def __str__(self):

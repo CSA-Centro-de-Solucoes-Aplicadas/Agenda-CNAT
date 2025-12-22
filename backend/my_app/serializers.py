@@ -1,12 +1,12 @@
 from rest_framework import serializers
 from django.db import transaction
-from .models import Event, Categoria, Contato
+from .models import Event, Categoria, Organizador
 
-class ContatoSerializer(serializers.ModelSerializer):
+class OrganizadorSerializer(serializers.ModelSerializer):
     # a classe ContatoSerializer serializa o model Contato
     class Meta:
         # a classe Meta informa ao serializer qual model ele está serializando
-        model = Contato
+        model = Organizador
         fields = ['id', 'email']
 
 class CategoriaSerializer(serializers.ModelSerializer):
@@ -27,9 +27,10 @@ class EventSerializer(serializers.ModelSerializer):
     # essa linha acima permite que o campo categoria aceite uma lista de IDs de Categoria ao criar/atualizar um Event
 
     # contatos: garante que seja uma lista de strings (e-mails) no nível do serializer
-    organizadores = serializers.ListField(
-        child=serializers.EmailField(),
-        write_only=True
+    organizadores = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Organizador.objects.all(),
+        source='organizadores',
     )
 
 
@@ -40,7 +41,7 @@ class EventSerializer(serializers.ModelSerializer):
             'id', 'titulo', 'descricao',
             'dataInscricao', 'dataInscricaoFinal',
             'dataEventoInicio', 'dataEventoFinal',
-            'categoria', 'local', 'contatos'
+            'categoria', 'local', 'organizadores', 'link', 'imagem',
         ]
         read_only_fields = ['id']
 
@@ -66,22 +67,21 @@ class EventSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         categorias = validated_data.pop('categoria', [])
-        emails = validated_data.pop('organizadores', [])
+        organizadores = validated_data.pop('organizadores', [])
         with transaction.atomic():
             event = Event.objects.create(**validated_data)
 
             if categorias:
                 event.categoria.set(categorias)
 
-            for email in emails:
-                contato, _ = Contato.objects.get_or_create(email=email)
-                event.contatos.add(contato)
+            if organizadores:
+                event.organizadores.set(organizadores)
 
         return event
 
     def update(self, instance, validated_data):
         categorias = validated_data.pop('categoria', None)
-        emails = validated_data.pop('organizadores', None)
+        organizadores = validated_data.pop('organizadores', None)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -92,10 +92,7 @@ class EventSerializer(serializers.ModelSerializer):
             if categorias is not None:
                 instance.categoria.set(categorias)
 
-            if emails is not None:
-                instance.contatos.clear()
-                for email in emails:
-                    contato, _ = Contato.objects.get_or_create(email=email)
-                    instance.contatos.add(contato)
+            if organizadores is not None:
+                instance.organizadores.set(organizadores)
 
         return instance

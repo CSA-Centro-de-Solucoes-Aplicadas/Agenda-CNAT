@@ -56,6 +56,7 @@ const nomeEvento = ref('')
 const imagem = ref<File | null>(null)
 const descricao = ref('')
 const link = ref('')
+const local = ref('')
 
 
 const dataInicioEvento = ref<Date | null>(null)
@@ -81,12 +82,16 @@ function removerOrganizador(index: number) {
 function onImagemSelecionada(event: Event) {
   const input = event.target as HTMLInputElement
 
-  if (input.files && input.files.length > 0) {
-    imagem.value = input.files[0]
-  }
+  const files = input.files
+  if (!files || files.length === 0) return
+
+  const file = files.item(0)
+  if (!file) return
+
+  imagem.value = file
 }
 
-function enviarFormulario() {
+function enviarFormulario(){
   const DadosForm = new FormData()
     DadosForm.append ('nomeEvento', nomeEvento.value)
     if (imagem.value) {
@@ -113,6 +118,7 @@ function enviarFormulario() {
       console.log('Resposta do servidor:', response.data);
     } catch (error) {
       console.error('Erro ao enviar o formulário:', error);
+    }
 }
 </script>
 
@@ -192,8 +198,12 @@ function enviarFormulario() {
           <textarea v-model="descricao" required></textarea>
         </div>
         <div class="form-group">
+          <label>Local</label>
+          <input type="text" v-model="local"/>
+        </div>
+        <div class="form-group">
           <label>Link para mais informações</label>
-          <input type="url" />
+          <input type="url" v-model="link"/>
         </div>
       </section>
 
