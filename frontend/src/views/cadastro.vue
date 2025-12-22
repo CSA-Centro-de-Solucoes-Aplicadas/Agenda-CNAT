@@ -78,6 +78,13 @@ function removerOrganizador(index: number) {
   organizadores.value.splice(index, 1)
 }
 
+function onImagemSelecionada(event: Event) {
+  const input = event.target as HTMLInputElement
+
+  if (input.files && input.files.length > 0) {
+    imagem.value = input.files[0]
+  }
+}
 
 function enviarFormulario() {
   const DadosForm = new FormData()
@@ -93,6 +100,9 @@ function enviarFormulario() {
       DadosForm.append('dataInicioInscricao', dataInicioInscricao.value.toISOString())
       DadosForm.append('dataFimInscricao', dataFimInscricao.value.toISOString())
     }
+    organizadores.value.forEach(email => {
+    DadosForm.append('organizadores', email)
+  })
 
     try{
       const response = await api.post('/events/', DadosForm, {
@@ -129,7 +139,7 @@ function enviarFormulario() {
 
         <div class="form-group">
           <label>Nome do Evento*</label>
-          <input type="text" required />
+          <input type="text" v-model="nomeEvento" required />
         </div>
 
         <div class="form-group">
@@ -179,7 +189,7 @@ function enviarFormulario() {
 
         <div class="form-group">
           <label>Descrição</label>
-          <textarea></textarea required>
+          <textarea v-model="descricao" required></textarea>
         </div>
         <div class="form-group">
           <label>Link para mais informações</label>
@@ -231,7 +241,6 @@ function enviarFormulario() {
           />
         </div>
       </section>
-
 
       <section class="form-section">
         <h2>3. Informações dos organizadores</h2>
