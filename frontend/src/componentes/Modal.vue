@@ -1,122 +1,138 @@
 <script setup lang="ts">
-import { ref } from "vue"
-import modalBanner from "@/assets/modalbanner.png"
+import { ref, computed } from 'vue'
+import modalBanner from '@/assets/modalbanner.png'
 
-// Evento vindo do banco (exemplo)
 const evento = {
-  local: "Biblioteca Central",
-  nome: "Cinebiblio",
-  descricao:
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus condimentum metus mi, sed tempus sapien elementum vitae.",
-  datas: [
-    { dia: "23/06", horario: "11h às 16h" },
-    { dia: "24/06", horario: "10h às 14h" },
-    { dia: "25/06", horario: "08h às 12h" },
-    { dia: "26/06", horario: "13h às 17h" },
-    { dia: "27/06", horario: "09h às 13h" }
-  ],
-  contatos: ["email1@ifrn.edu.br", "email2@ifrn.edu.br", "email3@ifrn.edu.br"],
-  palestras: ["Palestra"],
-  link: "https://ifrn.edu.br/evento",
-  imagem: modalBanner
+  local: 'Biblioteca Central',
+  nome: 'Cinebiblio',
+  descricao: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+  datas: { inicio: '23/06', fim: '27/06' },
+  horario: { inicio: '18:30', fim: '21:00' },
+  organizadores: ['email1@ifrn.edu.br', 'email2@ifrn.edu.br', 'email3@ifrn.edu.br'],
+  palestras: ['Palestra'],
+  link: 'https://ifrn.edu.br/evento',
+  imagem: modalBanner,
 }
 
-const modo = ref("info")
+const contatosLimitados = computed(() => {
+  return evento.organizadores.slice(0, 4)
+})
+
+const temContatos = computed(() => contatosLimitados.value.length > 0)
+const emit = defineEmits(['close'])
+
+const modo = ref('info')
 
 function next() {
-  modo.value = modo.value === "info" ? "imagem" : "info"
+  modo.value = modo.value === 'info' ? 'imagem' : 'info'
 }
 
 function prev() {
-  modo.value = modo.value === "info" ? "imagem" : "info"
+  modo.value = modo.value === 'info' ? 'imagem' : 'info'
 }
 </script>
 
 <template>
-  <div class="story-wrapper">
 
+  <div class="story-wrapper">
     <div class="progress-wrapper">
-      <div class="bar" :class="{ active: modo === 'info' }"></div>
-      <div class="bar" :class="{ active: modo === 'imagem' }"></div>
+      <div class="bar active"></div>
     </div>
 
     <div class="story-card">
+      <button class="close-btn" @click="emit('close')">✕</button>
 
-      <!-- LADO ESQUERDO -->
       <div class="left">
-
-        <div class="title-row">
-          <button class="arrow-btn" @click="prev">‹</button>
-          <h1>{{ evento.nome }}</h1>
-          <button class="arrow-btn" @click="next">›</button>
+        <h1>{{ evento.nome }}</h1>
+      <div class="local-row">
+        <div class="local">
+          <img src="@/assets/localModal.png" alt="">
+          {{ evento.local }}
         </div>
-
-        <!-- PRIMEIRO CARD (INFO) -->
-        <template v-if="modo === 'info'">
-
-          <div class="local">{{ evento.local }}</div>
-
-          <p class="descricao">{{ evento.descricao }}</p>
-
-          <div class="contatos-box">
-            <h2>Contatos</h2>
-
-            <div class="contatos-grid">
-              <div class="contato-item" v-for="(c, i) in evento.contatos" :key="i">
-                <img src="@/assets/contato.png" class="user-icon" />
-                <span>{{ c }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- FOOTER -->
-          <div class="footer">
-            <a :href="evento.link" class="mais-info" target="_blank">mais informações</a>
-
-            <div class="categoria-box">
-              <strong v-for="(p, i) in evento.palestras" :key="i">{{ p }}</strong>
-            </div>
-          </div>
-
-        </template>
-
-        <!-- SEGUNDO CARD (LISTA VERDE) -->
-        <template v-else>
-          <div class="datas-list">
-            <h2>Dias & Horários</h2>
-
-            <ul>
-              <li v-for="(d, i) in evento.datas" :key="i">
-                <strong>{{ d.dia }}</strong>
-                <span>{{ d.horario }}</span>
-              </li>
-            </ul>
-          </div>
-        </template>
 
       </div>
 
-      <!-- LADO DIREITO COM IMAGEM FULL -->
+
+        <div class="datas-list">
+          <span>{{ evento.datas.inicio }} até {{ evento.datas.fim }}</span>
+           <div class="horario">
+               {{ evento.horario.inicio }} – {{ evento.horario.fim }}
+           </div>
+        </div>
+
+        <p class="descricao">{{ evento.descricao }}</p>
+
+        <div class="contatos-box">
+          <h2>Organizadores</h2>
+          <div class="contatos-grid" v-if="temContatos">
+            <div
+              class="contato-item"
+              v-for="(c, i) in contatosLimitados"
+              :key="i"
+              :class="{ single: contatosLimitados.length === 1 }"
+            >
+              <img src="@/assets/contato.png" class="user-icon" />
+              <span>{{ c }}</span>
+            </div>
+          </div>
+
+          <div v-else class="sem-contatos">
+            Não há contatos cadastrados
+          </div>
+
+        </div>
+
+        <div class="footer">
+          <a :href="evento.link" class="mais-info" target="_blank">mais informações</a>
+          <div class="categoria-box">
+            <strong v-for="(p, i) in evento.palestras" :key="i">{{ p }}</strong>
+          </div>
+        </div>
+      </div>
+
       <div class="right">
         <img :src="evento.imagem" class="side-image" />
       </div>
-
     </div>
   </div>
 </template>
 
 <style scoped>
+
+.close-btn {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #333;
+  z-index: 20;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  background: #f0f0f0;
+}
+
 .progress-wrapper {
   position: absolute;
-  top: 30px;
-  left: 110px;
+  top: 20px;
+  left: 135px;
   display: flex;
   gap: 8px;
 }
 
 .bar {
-  width: 100px;
-  height: 6px;
+  width: 150px;
+  height: 7px;
   background: #e5e5e5;
   border-radius: 999px;
 }
@@ -124,95 +140,67 @@ function prev() {
 .bar.active {
   background: linear-gradient(90deg, #5ea4ef, #6fe0a5);
 }
-
 .story-card {
-  width: 800px;
-  height: 500px;
+  width: 850px;
+  position: relative;
+  min-height: 600px; 
+  max-height: 85vh;  
+  height: 650px;
   background: #fff;
   border-radius: 28px;
   overflow: hidden;
   display: flex;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
 }
 
+
 .left {
-  width: 55%;
-  padding: 50px 45px;
+  flex: 1;
+  padding: 40px 30px;
   display: flex;
   flex-direction: column;
   gap: 20px;
+
+  overflow-y: auto; 
 }
-h2{
+
+h1 {
+  font-size: 36px;
+  margin-top: 5px;
+  margin-left: 90px;
+  margin-bottom: 5px;
+}
+h2 {
   margin-bottom: 10px;
-  font-size: 20px;
+  font-size: 18px;
+  color: #1d5b3d;
 }
 .right {
-  width: 45%;
+  flex: 1;
   position: relative;
   overflow: hidden;
 }
 
 .side-image {
-  position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-/* LISTA VERDE COM SCROLL */
 .datas-list {
   background: #dff5e4;
+  display: flex;
   padding: 16px;
   border-radius: 16px;
-  height: 100%;
-  overflow-y: auto;
-  max-height: 330px;
-  padding-right: 10px;
+  height: auto;
 }
-
-/* scrollbar */
-.datas-list::-webkit-scrollbar {
-  width: 8px;
+.datas-list span {
+  font-size: 14px;
+  margin-left: 20px;
+  color: #559e67;
 }
-.datas-list::-webkit-scrollbar-track {
-  background: #c1e7cc;
-  border-radius: 8px;
-}
-.datas-list::-webkit-scrollbar-thumb {
-  background: #7cc98f;
-  border-radius: 8px;
-}
-.datas-list::-webkit-scrollbar-thumb:hover {
-  background: #63b578;
-}
-
-.datas-list h2 {
-  margin-bottom: 12px;
-  color: #0a4f18;
-}
-
-.datas-list ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.datas-list li {
-  background: #ffffff;
-  padding: 12px 14px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  display: flex;
-  justify-content: space-between;
-  font-size: 15px;
-  color: #0f5d1a;
-  font-weight: 500;
-}
-
-/* FOOTER */
 .footer {
-  margin-top: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -237,7 +225,7 @@ h2{
   margin-left: auto;
 }
 
-/* OUTROS */
+
 .title-row {
   display: flex;
   justify-content: space-between;
@@ -256,11 +244,32 @@ h2{
   transform: scale(1.35);
 }
 
+.local-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: 70px;
+}
+
 .local {
   font-size: 18px;
   color: #333;
-  margin-left: 100px;
+  display: flex;
+  align-items: center;
 }
+
+.local img {
+  margin-right: 6px;
+}
+
+.horario {
+  font-size: 14px;
+
+  color:#559e67;
+  padding-left: 30px;
+
+}
+
 
 .descricao {
   color: #6e6e6e;
@@ -291,9 +300,110 @@ h2{
   padding: 10px;
   border-radius: 10px;
 }
-
+.sem-contatos{
+  font-size: 13px;
+  color: #6e6e6e;
+}
 .user-icon {
   width: 20px;
   opacity: 0.7;
 }
+@media (max-width: 768px) {
+  .story-card {
+    width: 100vw;
+    min-height: 100vh;
+    height: auto;              
+    max-height: none;
+    border-radius: 0;
+    flex-direction: column;
+    overflow: visible;         
+  }
+
+  .left {
+    padding: 16px;
+    gap: 14px;
+    flex: none;                
+  }
+
+  .right {
+    width: 100%;
+    height: 220px;             
+    flex: none;
+  }
+
+  .side-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  h1 {
+    font-size: 28px;
+    margin-left: 0;
+    text-align: center;
+  }
+
+  .local-row {
+    margin-left: 0;
+    justify-content: center;
+  }
+
+  .datas-list {
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    align-items: center;
+  }
+  .horario {
+    padding-left: 0;
+    font-size: 13px;
+  }
+
+   h1 {
+    margin-left: 0;
+    margin-bottom: 8px;
+  }
+
+  .descricao {
+    margin: 0;
+    margin-bottom: 8px;
+  }
+
+
+  .footer {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+
+  .categoria-box {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .progress-wrapper {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+   .contatos-box {
+    padding: 14px;
+  }
+
+  .contatos-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .contato-item {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .user-icon {
+    width: 16px;
+  }
+}
+
 </style>
