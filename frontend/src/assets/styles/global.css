@@ -5,6 +5,7 @@ body {
   margin: 0;
   padding: 0;
   width: 100%;
+  scroll-behavior: smooth;
   overflow-x: clip;
   box-sizing: border-box;
 }
@@ -17,5 +18,5 @@ body {
   box-sizing: border-box;
 }
 main section {
-  margin-bottom: 6rem;
+  margin-bottom: 3rem;
 }

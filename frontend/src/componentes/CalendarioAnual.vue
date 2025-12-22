@@ -30,12 +30,12 @@ onMounted(() => {
       dataInicio: '2025-12-10',
       dataFim: '2025-12-15',
     },
-      {
-      id: 3,
+    {
+      id: 4,
       nome: 'FERIASSS(CADE AS FERIAS)',
       dataInicio: '2026-01-02',
       dataFim: '2026-01-20',
-    }
+    },
   ]
 })
 
@@ -66,27 +66,40 @@ function toggleLegenda(ano: number, mes: number) {
   const chave = ano * 100 + mes
   legendaExpandida.value[chave] = !legendaExpandida.value[chave]
 }
-function gradientePizza(tipos: string[]) {
-  if (tipos.length === 0) return '#eef6f8'
+function corDoEvento(ev: Evento) {
+  return PALETA_CORES[ev.id % PALETA_CORES.length]
+}
 
-  const cores: Record<string, string> = {
-    inicio: '#2ecc71',
-    meio: '#3498db',
-    fim: '#9b59b6',
-  }
+function eventosDoDia(data: Date | null): Evento[] {
+  if (!data) return []
 
-  const step = 360 / tipos.length
+  return eventos.value.filter((ev) => {
+    const inicio = criarDataLocal(ev.dataInicio)
+    const fim = criarDataLocal(ev.dataFim)
 
-  return `conic-gradient(${tipos
-    .map((t, i) => {
+    return data >= inicio && data <= fim
+  })
+}
+function gradientePizza(eventosNoDia: Evento[]) {
+  if (eventosNoDia.length === 0) return '#efeded'
+
+  const cores = eventosNoDia
+    .slice(0, 5) 
+    .map(corDoEvento)
+
+  const step = 360 / cores.length
+
+  return `conic-gradient(${cores
+    .map((cor, i) => {
       const start = i * step
       const end = (i + 1) * step
-      return `${cores[t]} ${start}deg ${end}deg`
+      return `${cor} ${start}deg ${end}deg`
     })
     .join(', ')})`
 }
 
-/*evita erro de fuso horário */
+const PALETA_CORES = ['#57c083', '#5c95bb', '#e66070', '#f2a65a', '#9b6bcc']
+
 function criarDataLocal(data: string) {
   const [ano, mes, dia] = data.split('-').map(Number)
   return new Date(ano, mes - 1, dia)
@@ -109,23 +122,6 @@ function gerarDiasDoMes(ano: number, mes: number) {
   return dias
 }
 
-function tiposDiaEvento(data: Date | null): string[] {
-  if (!data) return []
-
-  const tipos = new Set<string>()
-
-  for (const ev of eventos.value) {
-    const inicio = criarDataLocal(ev.dataInicio)
-    const fim = criarDataLocal(ev.dataFim)
-
-    if (data.getTime() === inicio.getTime()) tipos.add('inicio')
-    else if (data.getTime() === fim.getTime()) tipos.add('fim')
-    else if (data > inicio && data < fim) tipos.add('meio')
-  }
-
-  return Array.from(tipos).slice(0, 3) // 🔒 no máximo 3 cores
-}
-
 
 function eventosDoMes(ano: number, mes: number) {
   return eventos.value.filter((ev) => {
@@ -143,17 +139,23 @@ const meses = computed(() => {
   const m1 = dataBase.value
   const m2 = new Date(m1.getFullYear(), m1.getMonth() + 1)
 
+  const formatarMesAno = (data: Date) => {
+    const mes = data.toLocaleDateString('pt-BR', { month: 'long' })
+    const ano = data.getFullYear()
+    return `${mes}, ${ano}`
+  }
+
   return [
     {
       ano: m1.getFullYear(),
       mes: m1.getMonth(),
-      nome: m1.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }),
+      nome: formatarMesAno(m1),
       dias: gerarDiasDoMes(m1.getFullYear(), m1.getMonth()),
     },
     {
       ano: m2.getFullYear(),
       mes: m2.getMonth(),
-      nome: m2.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }),
+      nome: formatarMesAno(m2),
       dias: gerarDiasDoMes(m2.getFullYear(), m2.getMonth()),
     },
   ]
@@ -163,8 +165,6 @@ function formatarData(data: string) {
   const [, m, d] = data.split('-')
   return `${d}/${m}`
 }
-
-
 </script>
 
 <template>
@@ -186,23 +186,25 @@ function formatarData(data: string) {
           <span
             v-if="dia"
             class="dia-bg"
-            :style="{ background: gradientePizza(tiposDiaEvento(dia)) }"
+            :style="{ background: gradientePizza(eventosDoDia(dia)) }"
           ></span>
 
           <span class="dia-numero">{{ dia ? dia.getDate() : '' }}</span>
         </span>
-
       </div>
 
       <div class="legenda">
-        <p v-for="ev in eventosVisiveis(mes.ano, mes.mes)" :key="ev.id">
+        <p
+          v-for="ev in eventosVisiveis(mes.ano, mes.mes)"
+          :key="ev.id"
+          :style="{ color: corDoEvento(ev) }"
+        >
           <span class="data-inicio">{{ formatarData(ev.dataInicio) }}</span>
           <span class="ate"> até </span>
           <span class="data-fim">{{ formatarData(ev.dataFim) }}</span>
           <span class="traco"> – </span>
           <span class="nome-evento">{{ ev.nome }}</span>
         </p>
-
 
         <button
           v-if="eventosDoMes(mes.ano, mes.mes).length > 2"
@@ -220,8 +222,8 @@ function formatarData(data: string) {
 .calendario {
   display: flex;
   gap: 24px;
-  background: #fff;
-  padding: 28px 102px;
+  background: #ffffff;
+  padding: 18px 82px;
   border-radius: 18px;
   max-width: 1100px;
   margin: 34px auto;
@@ -272,7 +274,7 @@ button {
 
 .dias-semana {
   font-weight: 600;
- font-size: 14px;        
+  font-size: 14px;
   margin: 10px 0;
   color: #555;
 }
@@ -285,7 +287,7 @@ button {
   position: relative;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
-  background: #eef6f8;
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -301,43 +303,18 @@ button {
 .dia-numero {
   position: relative;
   z-index: 2;
-  color: #fff;
+  color: #ffffff;
 }
-
-
-.dia.inicio {
-  background: #2ecc71;
-  color: #fff;
-}
-
-.dia.meio {
-  background: #3498db;
-  color: #fff;
-}
-
-.dia.fim {
-  background: #9b59b6;
-  color: #fff;
-}
-
 .legenda {
   margin-top: 10px;
-  font-size: 20px;
+  font-size: 15px;
   color: #007c91;
   line-height: 1.45;
 }
-.data-inicio {
-  color: #2b8952;
-  font-weight: 700;
-}
 
-.data-fim {
-  color: #55186d; 
-  font-weight: 700;
-}
 .ate,
 .traco {
-   color: #007c91;
+  color: #007c91;
 }
 
 .nome-evento {
@@ -402,9 +379,8 @@ button {
   .legenda {
     font-size: 7px;
   }
-  .ver-mais{
+  .ver-mais {
     font-size: 7px;
   }
-  
 }
 </style>

@@ -106,7 +106,7 @@ function focarBusca() {
   gap: 8px;
   padding: 8px 12px;
   border-radius: 25px;
-  background: #f3f3f3;
+  background: #ffffff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
