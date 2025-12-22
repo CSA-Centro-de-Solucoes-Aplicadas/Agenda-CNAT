@@ -8,7 +8,7 @@ import youtubeImg from '@/assets/youtube.png'
 import { VueDatePicker as DatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import { ref } from 'vue'
-
+import api from '@/services/api'
 
 const todasCategorias = [
   'Tecnologia',
@@ -51,7 +51,6 @@ function removerCategoria(nome: string) {
     categoriasSelecionadas.value.filter(c => c !== nome)
 }
 
-
 const nomeEvento = ref('')
 const imagem = ref<File | null>(null)
 const descricao = ref('')
@@ -80,29 +79,31 @@ function removerOrganizador(index: number) {
 
 
 function enviarFormulario() {
-  const dados = {
-    nomeEvento: nomeEvento.value,
-    imagem: imagem.value,
-    categorias: categoriasSelecionadas.value,
-    descricao: descricao.value,
-    link: link.value,
-    periodoEvento: {
-      dataInicio: dataInicioEvento.value,
-      dataFim: dataFimEvento.value,
-      horarioInicio: horarioInicioEvento.value,
-      horarioFim: horarioFimEvento.value,
-    },
-    inscricao: {
-      dataInicio: dataInicioInscricao.value,
-      dataFim: dataFimInscricao.value,
-    },
-    organizadores: organizadores.value.filter(o => o.trim() !== ''),
-  }
+  const DadosForm = new FormData()
+    DadosForm.append ('nomeEvento', nomeEvento.value)
+    if (imagem.value) {
+      DadosForm.append('imagem', imagem.value)
+    }
+    DadosForm.append('descricao', descricao.value)
+    DadosForm.append('link', link.value)
+    DadosForm.append('dataInicioEvento', dataInicioEvento.value? dataInicioEvento.value.toISOString(): '')
+    DadosForm.append('dataFimEvento', dataFimEvento.value? dataFimEvento.value.toISOString(): '')
+    if (dataInicioInscricao.value && dataFimInscricao.value) {
+      DadosForm.append('dataInicioInscricao', dataInicioInscricao.value.toISOString())
+      DadosForm.append('dataFimInscricao', dataFimInscricao.value.toISOString())
+    }
 
-  console.log('ENVIADO COM SUCESSO:', dados)
+    try{
+      const response = await api.post('/events/', DadosForm, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log('Resposta do servidor:', response.data);
+    } catch (error) {
+      console.error('Erro ao enviar o formulário:', error);
 }
 </script>
-
 
 <template>
   <div class="page">

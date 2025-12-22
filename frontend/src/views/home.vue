@@ -11,128 +11,21 @@ import CardDestaque from '@/componentes/CardDestaque.vue'
 import CardInscricao from '@/componentes/CardInscricao.vue'
 import BarradePesquisa from '@/componentes/BarradePesquisa.vue'
 import AgendaSemana from '@/componentes/AgendaSemana.vue'
-const eventos = [
-  {
-    titulo: 'Evento alusivo ao dia do professor de geografia',
-    local: 'Miniauditório Central',
-    categoria: 'Palestras',
-    datas: [
-      { data: '20/06', hora: '14:00', descricao: 'Abertura das inscrições' },
-      { data: '20/07', hora: '12:00', descricao: 'Inicio do evento' },
-      { data: '24/06', hora: '23:59', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-]
+import api from '@/services/api'
+import { ref } from 'vue'
+const eventosDestque = ref([])
+const evetosInscricao = ref([])
+async function fetchEventos() {
+  try {
+    const responseDestaque = await api.get('/eventos/destaques/')
+    eventosDestque.value = responseDestaque.data
+
+    const responseInscricao = await api.get('/eventos/inscricoes_abertas/')
+    evetosInscricao.value = responseInscricao.data
+  } catch (error) {
+    console.error('Erro ao buscar eventos:', error)
+  }
+}
 </script>
 
 <template>
@@ -155,7 +48,7 @@ const eventos = [
       <section class="destaques-default-section">
         <div class="content-container">
           <h3>Eventos do CNAT</h3>
-          <Carrossel :itens="eventos" :component="CardDestaque" />
+          <Carrossel :itens="eventosDestque" :component="CardDestaque" />
         </div>
       </section>
 
@@ -179,6 +72,7 @@ const eventos = [
       <section class="inscricoes">
         <div class="inscricoes-content">
           <h3>Inscrições abertas</h3>
+          <Carrossel :itens="evetosInscricao" :component="CardInscricao" />
         </div>
       </section>
     </main>

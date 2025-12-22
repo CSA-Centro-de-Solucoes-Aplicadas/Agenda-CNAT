@@ -32,9 +32,16 @@ class Categoria(models.Model):
         # a classe Meta é usada para definir metadados para o modelo, como nomes legíveis e ordenação padrão.
     
 class Event(models.Model):
+
+    def evento_upload_path(instance, filename):
+        # Função para definir o caminho de upload da imagem
+        return f'event_images/{instance.id}/{filename}'
+    
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     titulo = models.CharField(max_length=200, db_index=True)
     descricao = models.TextField()
+    link = models.URLField(max_length=200, null=True, blank=True)
+    imagem = models.ImageField(upload_to=evento_upload_path, null=True, blank=True)
     dataInscricao = models.DateTimeField(null=True, blank=True)
     dataInscricaoFinal = models.DateTimeField(null=True, blank=True)
     dataEventoInicio = models.DateTimeField(default=timezone.now, db_index=True)
@@ -46,6 +53,14 @@ class Event(models.Model):
 
     def __str__(self):
         return self.titulo
+    
+    @property
+    def inscricao_aberta(self):
+        if not self.inscricao_inicio or not self.inscricao_fim:
+            return False
+        hoje = timezone.now().date()
+        return self.inscricao_inicio <= hoje <= self.inscricao_fim
+        # Retorna True se a inscrição estiver aberta, caso contrário, False
     
     def clean(self):
         # Se tiver data de inscrição início, precisa da final
