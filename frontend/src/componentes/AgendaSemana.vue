@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import api from '@/services/api.ts'
+import { ref, computed } from 'vue'
 import iconLista from '@/assets/iconLista.png'
 import iconCalendario from '@/assets/iconCalendario.png'
 import iconLocal from '@/assets/iconLocal.png'
@@ -26,24 +25,44 @@ const tipoVisualizacao = ref<Tipo>('calendario')
 const categoriaSelecionada = ref('Todas')
 const dataBaseAgenda = ref(new Date(hoje))
 
-const eventos = ref<Evento[]>([])
-
-async function carregarEventos() {
-  try {
-    const response = await api.get<Evento[]>('/eventos')
-    eventos.value = response.data.map((evento:any) => ({
-      titulo: evento.titulo,
-      dataInicio: formatarData(new Date(evento.dataInicio)),
-      dataFim: formatarData(new Date(evento.dataFim)),
-      inicio: evento.inicio,
-      fim: evento.fim,
-      categoria: evento.categoria,
-      local: evento.local,
-    }))
-  } catch (error) {
-    console.error('Erro ao buscar eventos:', error)
-  }
-}
+const eventos = ref<Evento[]>([
+  {
+    titulo: 'Arraiá Junino da melhor idade',
+    dataInicio: '15-12-2025',
+    dataFim: '21-12-2025',
+    inicio: '07:00',
+    fim: '11:00',
+    categoria: 'Cultura',
+    local: 'Ginásio',
+  },
+  {
+    titulo: 'Winfo',
+    dataInicio: '15-12-2025',
+    dataFim: '18-12-2025',
+    inicio: '06:00',
+    fim: '11:00',
+    categoria: 'Tecnologia',
+    local: 'Biblioteca Sebastião Fernandes',
+  },
+   {
+    titulo: 'Jogos Internos',
+    dataInicio: '23-12-2025',
+    dataFim: '25-12-2025',
+    inicio: '06:00',
+    fim: '11:00',
+    categoria: 'Esportes',
+    local: 'IFRN',
+  },
+   {
+    titulo: 'Wtads',
+    dataInicio: '15-12-2025',
+    dataFim: '15-12-2025',
+    inicio: '08:00',
+    fim: '11:00',
+    categoria: 'Tecnologia',
+    local: 'Mini auditório bloco C',
+  },
+])
 
 const toDate = (d: string): Date => {
   const partes = d.split('-')
@@ -135,13 +154,11 @@ const semanaAnterior = () => {
   dataBaseAgenda.value = novaData
 }
 
-function proximaSemana() {
-  dataBaseAgenda.value = new Date(dataBaseAgenda.value.setDate(dataBaseAgenda.value.getDate() + 7))
+const proximaSemana = () => {
+  const novaData = new Date(dataBaseAgenda.value)
+  novaData.setDate(novaData.getDate() + 7)
+  dataBaseAgenda.value = novaData
 }
-
-onMounted(() => {
-  carregarEventos()
-})
 </script>
 
 <template>

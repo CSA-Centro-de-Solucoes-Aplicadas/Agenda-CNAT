@@ -91,35 +91,35 @@ function onImagemSelecionada(event: Event) {
   imagem.value = file
 }
 
-function enviarFormulario(){
-  const DadosForm = new FormData()
-    DadosForm.append ('nomeEvento', nomeEvento.value)
-    if (imagem.value) {
-      DadosForm.append('imagem', imagem.value)
-    }
-    DadosForm.append('descricao', descricao.value)
-    DadosForm.append('link', link.value)
-    DadosForm.append('dataInicioEvento', dataInicioEvento.value? dataInicioEvento.value.toISOString(): '')
-    DadosForm.append('dataFimEvento', dataFimEvento.value? dataFimEvento.value.toISOString(): '')
-    if (dataInicioInscricao.value && dataFimInscricao.value) {
-      DadosForm.append('dataInicioInscricao', dataInicioInscricao.value.toISOString())
-      DadosForm.append('dataFimInscricao', dataFimInscricao.value.toISOString())
-    }
-    organizadores.value.forEach(email => {
-    DadosForm.append('organizadores', email)
-  })
+// function enviarFormulario(){
+//   const DadosForm = new FormData()
+//     DadosForm.append ('nomeEvento', nomeEvento.value)
+//     if (imagem.value) {
+//       DadosForm.append('imagem', imagem.value)
+//     }
+//     DadosForm.append('descricao', descricao.value)
+//     DadosForm.append('link', link.value)
+//     DadosForm.append('dataInicioEvento', dataInicioEvento.value? dataInicioEvento.value.toISOString(): '')
+//     DadosForm.append('dataFimEvento', dataFimEvento.value? dataFimEvento.value.toISOString(): '')
+//     if (dataInicioInscricao.value && dataFimInscricao.value) {
+//       DadosForm.append('dataInicioInscricao', dataInicioInscricao.value.toISOString())
+//       DadosForm.append('dataFimInscricao', dataFimInscricao.value.toISOString())
+//     }
+//     organizadores.value.forEach(email => {
+//     DadosForm.append('organizadores', email)
+//   })
 
-    try{
-      const response = await api.post('/events/', DadosForm, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      console.log('Resposta do servidor:', response.data);
-    } catch (error) {
-      console.error('Erro ao enviar o formulário:', error);
-    }
-}
+//     try{
+//       const response = await api.post('/events/', DadosForm, {
+//         headers: {
+//           'Content-Type': 'multipart/form-data',
+//         },
+//       });
+//       console.log('Resposta do servidor:', response.data);
+//     } catch (error) {
+//       console.error('Erro ao enviar o formulário:', error);
+//     }
+// }
 </script>
 
 <template>
@@ -285,7 +285,7 @@ function enviarFormulario(){
           </div>
       </section>
       <div class="submit-container">
-         <button class="submit-btn" @click="enviarFormulario">Confirmar</button>
+         <button class="submit-btn" >Confirmar</button>
       </div>
     </main>
 

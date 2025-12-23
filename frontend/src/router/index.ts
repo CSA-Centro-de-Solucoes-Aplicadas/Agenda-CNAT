@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/home.vue'
 import Cadastro from '@/views/cadastro.vue'
 import Eventos from '@/views/eventos.vue'
+import Modal from '@/componentes/Modal.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -9,6 +10,7 @@ const router = createRouter({
     { path: '/', component: Home },
     { path: '/cadastro', component: Cadastro },
     { path: '/eventos', component: Eventos },
+    {path: '/modal', component: Modal}
   ],
 
   scrollBehavior(to) {
