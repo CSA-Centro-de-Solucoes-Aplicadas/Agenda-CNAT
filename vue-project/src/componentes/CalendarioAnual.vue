@@ -42,13 +42,33 @@ onMounted(() => {
 const hoje = new Date()
 const dataBase = ref(new Date(hoje.getFullYear(), hoje.getMonth()))
 
+const isMobile = ref(false)
+
+function verificarTela() {
+  isMobile.value = window.innerWidth <= 480
+}
+
+onMounted(() => {
+  verificarTela()
+  window.addEventListener('resize', verificarTela)
+})
+
 function proximo() {
-  dataBase.value = new Date(dataBase.value.getFullYear(), dataBase.value.getMonth() + 2)
+  const passo = isMobile.value ? 1 : 2
+  dataBase.value = new Date(
+    dataBase.value.getFullYear(),
+    dataBase.value.getMonth() + passo
+  )
 }
 
 function anterior() {
-  dataBase.value = new Date(dataBase.value.getFullYear(), dataBase.value.getMonth() - 2)
+  const passo = isMobile.value ? 1 : 2
+  dataBase.value = new Date(
+    dataBase.value.getFullYear(),
+    dataBase.value.getMonth() - passo
+  )
 }
+
 
 const legendaExpandida = ref<Record<number, boolean>>({})
 function eventosVisiveis(ano: number, mes: number) {
@@ -136,30 +156,38 @@ function eventosDoMes(ano: number, mes: number) {
 }
 
 const meses = computed(() => {
-  const m1 = dataBase.value
-  const m2 = new Date(m1.getFullYear(), m1.getMonth() + 1)
-
   const formatarMesAno = (data: Date) => {
     const mes = data.toLocaleDateString('pt-BR', { month: 'long' })
     const ano = data.getFullYear()
     return `${mes}, ${ano}`
   }
 
-  return [
+  const m1 = dataBase.value
+
+  const lista = [
     {
       ano: m1.getFullYear(),
       mes: m1.getMonth(),
       nome: formatarMesAno(m1),
       dias: gerarDiasDoMes(m1.getFullYear(), m1.getMonth()),
     },
-    {
+  ]
+
+  // Só adiciona o segundo mês se NÃO for mobile
+  if (!isMobile.value) {
+    const m2 = new Date(m1.getFullYear(), m1.getMonth() + 1)
+
+    lista.push({
       ano: m2.getFullYear(),
       mes: m2.getMonth(),
       nome: formatarMesAno(m2),
       dias: gerarDiasDoMes(m2.getFullYear(), m2.getMonth()),
-    },
-  ]
+    })
+  }
+
+  return lista
 })
+
 
 function formatarData(data: string) {
   const [, m, d] = data.split('-')
@@ -171,10 +199,25 @@ function formatarData(data: string) {
   <div class="calendario">
     <section class="mes" v-for="(mes, index) in meses" :key="index">
       <div class="cabecalho">
-        <button v-if="index === 0" @click="anterior">‹</button>
+       
+        <button
+          v-if="index === 0"
+          @click="anterior"
+        >
+          ‹
+        </button>
+
         <h3>{{ mes.nome }}</h3>
-        <button v-if="index === 1" @click="proximo">›</button>
+
+        
+        <button
+          v-if="!isMobile && index === 1 || isMobile"
+          @click="proximo"
+        >
+          ›
+        </button>
       </div>
+
 
       <div class="dias-semana">
         <span>D</span><span>S</span><span>T</span> <span>Q</span><span>Q</span><span>S</span
@@ -233,7 +276,7 @@ function formatarData(data: string) {
 }
 
 .mes {
-  width: 45%;
+  width: 50%;
   max-width: 400px;
 }
 
@@ -339,7 +382,7 @@ button {
   font-weight: 600;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 680px) {
   .calendario {
     padding: 20px;
     gap: 16px;
@@ -348,9 +391,10 @@ button {
     max-width: calc(100% - 24px);
   }
 
-  .mes {
-    width: 50%;
-  }
+.mes {
+  width: 100%;
+}
+
 
   h3 {
     font-size: 10px;
@@ -377,10 +421,10 @@ button {
   }
 
   .legenda {
-    font-size: 7px;
+    font-size: 14px;
   }
   .ver-mais {
-    font-size: 7px;
+    font-size: 10px;
   }
 }
 </style>

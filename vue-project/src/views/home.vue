@@ -577,7 +577,12 @@ footer {
 main section:last-child {
   margin-bottom: 6rem;
 }
-
+.barra-pesquisa {
+  display: flex;
+  margin: auto;
+  width: 100%;
+  display: block;
+}
 @media (max-width: 1024px) {
   .header-logo {
     top: 20px;
@@ -608,12 +613,6 @@ main section:last-child {
   }
 }
 
-.barra-pesquisa {
-  display: flex;
-  margin: auto;
-  width: 100%;
-  display: block;
-}
 @media (max-width: 900px) {
   .header-container {
     flex-direction: column;
@@ -748,36 +747,31 @@ main section:last-child {
   .inscricoes-content {
     padding: 20px 10px;
   }
-.adicionarEvento-container {
-    display: flex;
-    flex-direction: row;          /* imagem à esquerda */
-    align-items: center;
-    gap: 16px;
-    min-height: 300px;
-    height: 100%;
-    min-width: 400px;
-    width: 100%;
+ .adicionar-evento::before,
+  .adicionarEvento-container::after {
+    display: none;
+  }
+
+  .adicionarEvento-container {
+    flex-direction: column;       
     height: auto;
-    border-radius: 18px;
+    padding: 30px 20px;
+    border-radius: 30px;
+    text-align: center;
   }
 
   .adicionarEvento-vetor {
-    width: 60%;                 
-    max-width: none;
-    flex-shrink: 0;
-    margin: 0;       
-    order: 0; 
+    max-width: 260px;
+    width: 100%;
   }
 
   .adicionarEvento-texto {
-    flex: 1;
-    max-width: none;
+    max-width: 100%;
+    align-items: center;
+  }
 
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-
-    text-align: left;             
+  .btn-solicitar-evento {
+    margin-top: 12px;
   }
 
   .adicionarEvento-texto h3 {

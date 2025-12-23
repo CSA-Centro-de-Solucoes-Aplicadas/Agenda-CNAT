@@ -304,7 +304,6 @@ function enviarFormulario() {
   background-color: #8aeec3;
   box-shadow: 2px 1px 5px #b8b8b8;
   position: relative;
-  margin-bottom: 100px;
   overflow: hidden;
   min-height: 120px;
   max-height: 250px;
@@ -363,16 +362,16 @@ header li a:hover {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 
-/* MAIN */
 .main-content {
   max-width: 1440px;
-  width: 1440px;
+  width: 100%;
   margin: 20px auto;
-  padding: 0;
+  padding: 0 20px;
   display: flex;
   flex-direction: column;
   gap: 40px;
 }
+
 
 h1 {
   color: #0a4635;
@@ -721,5 +720,118 @@ footer {
 /* Space before footer */
 main section:last-child {
   margin-bottom: 6rem;
+}
+
+.form-section {
+  width: 100%;
+}
+.form-group input,
+.form-group textarea,
+.form-group .dp__input_wrap,
+.form-group .dp__main {
+  width: 100%;
+}
+.cat-dropdown {
+  width: 100%;
+  max-width: 320px;
+}
+
+@media (max-width: 1024px) {
+  .header-logo {
+    top: 20px;
+    left: 30px;
+    max-width: 130px;
+  }
+}
+@media (max-width: 900px) {
+  .header-container {
+    flex-direction: column;
+    align-items: center;
+    padding-top: 80px;
+    gap: 20px;
+  }
+
+  header ul {
+    display: none;
+  }
+
+  header li a {
+    font-size: 1rem;
+  }
+
+  .header-logo-container {
+    justify-content: left;
+  }
+
+  .header-logo {
+    width: 120px;
+  }
+
+
+}
+
+@media (max-width: 750px) {
+  header ul {
+    display: none;
+  }
+
+  .main-header {
+    min-height: 60px;
+    max-height: 60px;
+  }
+
+  .header-container {
+    padding: 0;
+  }
+
+  .header-logo-container {
+    position: static;
+    transform: none;
+    justify-content: left;
+    padding: 10px 8px;
+  }
+
+  .header-logo {
+    top: 50px;
+    left: 10px;
+    width: 50%;
+    max-width: 80px;
+  }
+ .organizador-field {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .remove-field {
+    align-self: flex-end;
+  }
+  h1{
+     font-size: 25px;
+  }
+  h3 {
+    font-size: 20px;
+    text-align: left;
+  }
+ .submit-container {
+    justify-content: center;
+  }
+
+  .submit-btn {
+    width: 100%;
+  }
+  .footer-content {
+    flex-direction: column;
+    align-items: left;
+    text-align: left;
+  }
+  .footer-right {
+    text-align: left;
+    align-items: left;
+    margin-top: 20px;
+  }
+  .social {
+    justify-content: left;
+  }
+
 }
 </style>
