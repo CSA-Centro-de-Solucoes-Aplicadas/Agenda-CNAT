@@ -8,8 +8,7 @@ import youtubeImg from '@/assets/youtube.png'
 import { VueDatePicker as DatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import { ref } from 'vue'
-import { RouterLink } from 'vue-router'
-import api from '@/services/api'
+
 
 const todasCategorias = [
   'Tecnologia',
@@ -52,11 +51,11 @@ function removerCategoria(nome: string) {
     categoriasSelecionadas.value.filter(c => c !== nome)
 }
 
+
 const nomeEvento = ref('')
 const imagem = ref<File | null>(null)
 const descricao = ref('')
 const link = ref('')
-const local = ref('')
 
 
 const dataInicioEvento = ref<Date | null>(null)
@@ -79,60 +78,43 @@ function removerOrganizador(index: number) {
   organizadores.value.splice(index, 1)
 }
 
-function onImagemSelecionada(event: Event) {
-  const input = event.target as HTMLInputElement
 
-  const files = input.files
-  if (!files || files.length === 0) return
+function enviarFormulario() {
+  const dados = {
+    nomeEvento: nomeEvento.value,
+    imagem: imagem.value,
+    categorias: categoriasSelecionadas.value,
+    descricao: descricao.value,
+    link: link.value,
+    periodoEvento: {
+      dataInicio: dataInicioEvento.value,
+      dataFim: dataFimEvento.value,
+      horarioInicio: horarioInicioEvento.value,
+      horarioFim: horarioFimEvento.value,
+    },
+    inscricao: {
+      dataInicio: dataInicioInscricao.value,
+      dataFim: dataFimInscricao.value,
+    },
+    organizadores: organizadores.value.filter(o => o.trim() !== ''),
+  }
 
-  const file = files.item(0)
-  if (!file) return
-
-  imagem.value = file
-}
-
-function enviarFormulario(){
-  const DadosForm = new FormData()
-    DadosForm.append ('nomeEvento', nomeEvento.value)
-    if (imagem.value) {
-      DadosForm.append('imagem', imagem.value)
-    }
-    DadosForm.append('descricao', descricao.value)
-    DadosForm.append('link', link.value)
-    DadosForm.append('dataInicioEvento', dataInicioEvento.value? dataInicioEvento.value.toISOString(): '')
-    DadosForm.append('dataFimEvento', dataFimEvento.value? dataFimEvento.value.toISOString(): '')
-    if (dataInicioInscricao.value && dataFimInscricao.value) {
-      DadosForm.append('dataInicioInscricao', dataInicioInscricao.value.toISOString())
-      DadosForm.append('dataFimInscricao', dataFimInscricao.value.toISOString())
-    }
-    organizadores.value.forEach(email => {
-    DadosForm.append('organizadores', email)
-  })
-
-    try{
-      const response = await api.post('/events/', DadosForm, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      console.log('Resposta do servidor:', response.data);
-    } catch (error) {
-      console.error('Erro ao enviar o formulário:', error);
-    }
+  console.log('ENVIADO COM SUCESSO:', dados)
 }
 </script>
+
 
 <template>
   <div class="page">
     <header class="main-header">
-        <RouterLink to="/" class="header-logo-container">
-             <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
-        </RouterLink>
+      <div class="header-logo-container">
+        <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
+      </div>
       <div class="header-inner">
         <ul>
-          <li><RouterLink to="/#programacao">Programação</RouterLink></li>
-          <li><RouterLink to="/#adicionar-evento">Adicionar Evento</RouterLink></li>
-          <li><RouterLink to="/#inscricoes">Inscrições Abertas</RouterLink></li>
+          <li><a href="">Calendário</a></li>
+          <li><a href="">Adicionar Evento</a></li>
+          <li><a href="">Inscrições Abertas</a></li>
         </ul>
       </div>
     </header>
@@ -145,7 +127,7 @@ function enviarFormulario(){
 
         <div class="form-group">
           <label>Nome do Evento*</label>
-          <input type="text" v-model="nomeEvento" required />
+          <input type="text" required />
         </div>
 
         <div class="form-group">
@@ -195,15 +177,11 @@ function enviarFormulario(){
 
         <div class="form-group">
           <label>Descrição</label>
-          <textarea v-model="descricao" required></textarea>
-        </div>
-        <div class="form-group">
-          <label>Local</label>
-          <input type="text" v-model="local"/>
+          <textarea></textarea required>
         </div>
         <div class="form-group">
           <label>Link para mais informações</label>
-          <input type="url" v-model="link"/>
+          <input type="url" />
         </div>
       </section>
 
@@ -252,6 +230,7 @@ function enviarFormulario(){
         </div>
       </section>
 
+
       <section class="form-section">
         <h2>3. Informações dos organizadores</h2>
           <div class="organizadores-section">
@@ -288,24 +267,24 @@ function enviarFormulario(){
     <footer>
       <div class="footer-content">
         <div class="footer-left">
-          <a href=""><img :src="logoFooter" alt="Eventos CNAT" class="footer-logo" /></a>
-          <a href="https://portal.ifrn.edu.br/"><img :src="logoIfrn" alt="Logo do IFRN" class="logo-if" /></a>
+          <img :src="logoFooter" alt="Eventos CNAT" class="footer-logo" />
+          <img :src="logoIfrn" alt="Logo do IFRN" class="logo-if" />
         </div>
 
         <div class="footer-right">
           <div class="social">
-            <a href="https://www.instagram.com/ifrncnat"><img :src="instagramImg" alt="Logotipo do Instagram" /></a>
-            <a href="https://x.com/IFRNCNAT"><img :src="XImg" alt="Logotipo do X" /></a>
-            <a href="https://www.youtube.com/ifrncnat?themeRefresh=1"><img :src="youtubeImg" alt="Logotipo do YouTube" /></a>
+            <img :src="instagramImg" alt="Logotipo do Instagram" />
+            <img :src="XImg" alt="Logotipo do X" />
+            <img :src="youtubeImg" alt="Logotipo do YouTube" />
           </div>
-             <p>seac.cnat@ifrn.edu.br</p>
+          <p>cnat@ifrn.com</p>
           <address>
             Av. Sen. Salgado Filho, 1559 – Tirol, Natal – RN <br /><strong>CEP:</strong> 59015-000
           </address>
         </div>
       </div>
       <div class="copy">
-        <a href="https://csa.cnat.ifrn.edu.br/"><p>© 2025 - Centro de Soluções Aplicadas. Todos os direitos reservados.</p></a>
+        <p>© 2025 - Centro de Soluções Aplicadas. Todos os direitos reservados.</p>
       </div>
     </footer>
   </div>
@@ -729,13 +708,6 @@ footer {
   background-color: #012118;
   width: 100%;
   opacity: 0.85;
-}
-.copy a {
-  color: inherit;          
-  text-decoration: none;   
-}
-.copy p {
-  color: #ffffff;
 }
 
 /* Space before footer */

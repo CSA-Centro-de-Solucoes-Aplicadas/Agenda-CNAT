@@ -4,6 +4,8 @@ import CardDestaque from './CardDestaque.vue'
 import CardInscricao from './CardInscricao.vue'
 import ButtonSeta from './ButtonSeta.vue'
 
+const cardWidth = ref(0)
+const gapWidth = ref(0)
 /* ---------- props ---------- */
 const props = defineProps({
   itens: { type: Array, required: true },
@@ -13,9 +15,22 @@ const props = defineProps({
 /* ---------- device ---------- */
 const device = ref('desktop')
 
+function updateCardMetrics() {
+  if (!viewport.value) return
+  
+  const firstCard = viewport.value.querySelector('.Itens > *')
+  if (!firstCard) return
+  
+  const styles = window.getComputedStyle(firstCard)
+  cardWidth.value = firstCard.offsetWidth
+  
+  const itensStyles = window.getComputedStyle(firstCard.parentElement)
+  gapWidth.value = parseFloat(itensStyles.columnGap || itensStyles.gap || 0)
+}
+
 function updateDevice() {
   const w = window.innerWidth
-  if (w >= 1024) device.value = 'desktop'
+  if (w >= 1440) device.value = 'desktop'
   else if (w >= 768) device.value = 'tablet'
   else device.value = 'mobile'
   console.log('Mounted carrossel, device:', device.value)
@@ -23,7 +38,12 @@ function updateDevice() {
 
 onMounted(() => {
   updateDevice()
-  window.addEventListener('resize', updateDevice)
+  updateCardMetrics()
+  window.addEventListener('resize', () => {
+    updateDevice()
+    updateCardMetrics()
+    clampIndex(currentIndex.value)
+  })
 })
 
 onBeforeUnmount(() => {
@@ -82,10 +102,11 @@ function moveToIndex(i) {
 
 /* ---------- translate ---------- */
 const translateStyle = computed(() => {
-  const basePercent = (100 / cardsPerPage.value) * currentIndex.value
-  // use CSS calc to combine percent and pixel offset
+  const passo = cardWidth.value + gapWidth.value
+  const translateX = passo * currentIndex.value
+
   return {
-    transform: `translateX(calc(-${basePercent}% + ${dragOffset.value}px))`,
+    transform: `translateX(${-(translateX) + dragOffset.value}px)`,
     '--cards-per-page': cardsPerPage.value,
     maxWidth: layoutConfig.value.maxWidth,
   }
@@ -107,26 +128,14 @@ function moveDrag(clientX) {
 }
 
 function endDrag() {
-  if (!isDragging.value || !viewport.value) {
-    dragOffset.value = 0
-    isDragging.value = false
-    return
-  }
+  if (!isDragging.value) return
 
-  const viewportWidth = viewport.value.clientWidth
-  const cardWidth = viewportWidth / cardsPerPage.value
+  const step = cardWidth.value + gapWidth.value
+  const movedCards = dragOffset.value / step
 
-  // quantos cards o usuário "andou"
-  const deltaCards = dragOffset.value / cardWidth
-
-  // índice alvo (arredonda pro mais próximo)
-  const targetIndex = Math.round(currentIndex.value - deltaCards)
-
-  // evitar movimentos pequenos
-
+  const targetIndex = Math.round(currentIndex.value - movedCards)
   clampIndex(targetIndex)
 
-  // reset
   dragOffset.value = 0
   isDragging.value = false
 }
@@ -229,7 +238,7 @@ const totalPages = computed(() => maxIndex.value + 1)
   align-items: center;
   position: relative;
   gap: 0.875rem;
-  max-width: clamp(320px, 90vw, 1320px);
+  max-width: 100%;
   overflow: hidden;
   margin: auto;
 }
