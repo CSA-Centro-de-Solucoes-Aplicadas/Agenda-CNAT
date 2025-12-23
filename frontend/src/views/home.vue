@@ -143,9 +143,9 @@ const eventos = [
   <div class="page">
     <header class="main-header">
       <div class="header-container">
-          <RouterLink to="/" class="header-logo-container">
-             <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
-          </RouterLink>
+        <RouterLink to="/" class="header-logo-container">
+          <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
+        </RouterLink>
         <ul>
           <li><a href="#programacao">Programação</a></li>
           <li><a href="#adicionar-evento">Adicionar Evento</a></li>
@@ -177,11 +177,7 @@ const eventos = [
           <div class="adicionarEvento-texto">
             <h3>Quer adicionar algum evento ao nosso calendário?</h3>
             <p>Clique no botão abaixo para cadastrar seu evento no SUAP</p>
-            <a
-              href="https://suap.ifrn.edu.br/"
-              target="_blank"
-              class="btn-solicitar-evento"
-            >
+            <a href="https://suap.ifrn.edu.br/" target="_blank" class="btn-solicitar-evento">
               <span class="btn-texto">Solicitar Evento</span>
 
               <span class="btn-icon">
@@ -192,45 +188,50 @@ const eventos = [
         </div>
       </section>
 
-      <section id="inscricoes"class="inscricoes">
+      <section id="inscricoes" class="inscricoes">
         <div class="inscricoes-content">
           <h3>Inscrições abertas</h3>
           <Carrossel :itens="eventos" :component="CardInscricao" />
           <div class="btn-inscricoes-wrapper">
-            <a
-              href="https://suap.ifrn.edu.br/"
-              target="_blank"
-              class="btn-inscricoes-suap"
-            >
+            <a href="https://suap.ifrn.edu.br/" target="_blank" class="btn-inscricoes-suap">
               Inscrições pelo SUAP
             </a>
           </div>
-
         </div>
       </section>
     </main>
-
     <footer>
       <div class="footer-content">
         <div class="footer-left">
           <a href=""><img :src="logoFooter" alt="Eventos CNAT" class="footer-logo" /></a>
-          <a href="https://portal.ifrn.edu.br/"><img :src="logoIfrn" alt="Logo do IFRN" class="logo-if" /></a>
+          <a href="https://portal.ifrn.edu.br/"
+            ><img :src="logoIfrn" alt="Logo do IFRN" class="logo-if"
+          /></a>
+          <RouterLink to="/eventos"><p>Painel Admin</p></RouterLink>
         </div>
 
         <div class="footer-right">
           <div class="social">
-            <a href="https://www.instagram.com/ifrncnat"><img :src="instagramImg" alt="Logotipo do Instagram" /></a>
+            <a href="https://www.instagram.com/ifrncnat"
+              ><img :src="instagramImg" alt="Logotipo do Instagram"
+            /></a>
             <a href="https://x.com/IFRNCNAT"><img :src="XImg" alt="Logotipo do X" /></a>
-            <a href="https://www.youtube.com/ifrncnat?themeRefresh=1"><img :src="youtubeImg" alt="Logotipo do YouTube" /></a>
+            <a href="https://www.youtube.com/ifrncnat?themeRefresh=1"
+              ><img :src="youtubeImg" alt="Logotipo do YouTube"
+            /></a>
           </div>
-             <p>seac.cnat@ifrn.edu.br</p>
+
+          <p>seac.cnat@ifrn.edu.br</p>
+
           <address>
             Av. Sen. Salgado Filho, 1559 – Tirol, Natal – RN <br /><strong>CEP:</strong> 59015-000
           </address>
         </div>
       </div>
       <div class="copy">
-        <a href="https://csa.cnat.ifrn.edu.br/"><p>© 2025 - Centro de Soluções Aplicadas. Todos os direitos reservados.</p></a>
+        <a href="https://csa.cnat.ifrn.edu.br/"
+          ><p>© 2025 - Centro de Soluções Aplicadas. Todos os direitos reservados.</p></a
+        >
       </div>
     </footer>
   </div>
@@ -414,12 +415,10 @@ header li a:hover {
   box-shadow: 0 10px 22px rgba(57, 184, 127, 0.45);
 }
 
-
 .btn-texto {
   line-height: 1;
   white-space: nowrap;
 }
-
 
 .btn-icon img {
   width: 34px;
@@ -519,6 +518,14 @@ footer {
   margin: 10px 4px;
 }
 
+footer-left a,
+p {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
 .footer-logo {
   width: 220px;
 }
@@ -567,13 +574,13 @@ footer {
   text-decoration: none;
 }
 .copy a {
-  color: inherit;          
-  text-decoration: none;   
+  color: inherit;
+  text-decoration: none;
 }
 .copy p {
   color: #ffffff;
 }
-/* Space before footer */
+
 main section:last-child {
   margin-bottom: 6rem;
 }
@@ -598,8 +605,8 @@ main section:last-child {
   .adicionarEvento-vetor {
     width: 260px;
     max-width: none;
-    margin: 0;        
-    order: 0;        
+    margin: 0;
+    order: 0;
   }
 
   .adicionarEvento-texto {
@@ -647,7 +654,6 @@ main section:last-child {
     height: auto;
     padding: 30px 20px;
     border-radius: 30px;
-  
   }
 
   .adicionarEvento-vetor {
@@ -734,7 +740,7 @@ main section:last-child {
   .social {
     justify-content: left;
   }
-   .btn-solicitar-evento {
+  .btn-solicitar-evento {
     font-size: 1rem;
     padding: 0.6rem 1.4rem;
   }
@@ -747,13 +753,13 @@ main section:last-child {
   .inscricoes-content {
     padding: 20px 10px;
   }
- .adicionar-evento::before,
+  .adicionar-evento::before,
   .adicionarEvento-container::after {
     display: none;
   }
 
   .adicionarEvento-container {
-    flex-direction: column;       
+    flex-direction: column;
     height: auto;
     padding: 30px 20px;
     border-radius: 30px;

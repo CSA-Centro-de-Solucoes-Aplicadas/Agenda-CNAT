@@ -7,7 +7,7 @@ import XImg from '@/assets/x.png'
 import instagramImg from '@/assets/instagram.png'
 import youtubeImg from '@/assets/youtube.png'
 import BarradePesquisa from '@/componentes/BarradePesquisa.vue'
-// const API_URL = ' ' 
+// const API_URL = ' '
 
 // onMounted(async () => {
 //   const res = await fetch(API_URL)
@@ -23,31 +23,98 @@ interface Evento {
 
 const isAdmin = ref(true)
 
-
-
 const eventos = ref<Evento[]>([
   { id: 1, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  { id: 2, titulo: 'Arraiá Junino da Melhor Idade', data: '18/09 à 25/09', local: 'Miniauditório Central' },
-  { id: 3, titulo: 'Engenharia de Energia com a Solif', data: '18/09 à 25/09', local: 'Miniauditório Central' },
+  {
+    id: 2,
+    titulo: 'Arraiá Junino da Melhor Idade',
+    data: '18/09 à 25/09',
+    local: 'Miniauditório Central',
+  },
+  {
+    id: 3,
+    titulo: 'Engenharia de Energia com a Solif',
+    data: '18/09 à 25/09',
+    local: 'Miniauditório Central',
+  },
   { id: 4, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  { id: 5, titulo: 'Arraiá Junino da Melhor Idade', data: '18/09 à 25/09', local: 'Miniauditório Central' },
-  { id: 6, titulo: 'Engenharia de Energia com a Solif', data: '18/09 à 25/09', local: 'Miniauditório Central' },
+  {
+    id: 5,
+    titulo: 'Arraiá Junino da Melhor Idade',
+    data: '18/09 à 25/09',
+    local: 'Miniauditório Central',
+  },
+  {
+    id: 6,
+    titulo: 'Engenharia de Energia com a Solif',
+    data: '18/09 à 25/09',
+    local: 'Miniauditório Central',
+  },
   { id: 7, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  { id: 8, titulo: 'Arraiá Junino da Melhor Idade', data: '18/09 à 25/09', local: 'Miniauditório Central' },
-  { id: 9, titulo: 'Engenharia de Energia com a Solif', data: '18/09 à 25/09', local: 'Miniauditório Central' },
+  {
+    id: 8,
+    titulo: 'Arraiá Junino da Melhor Idade',
+    data: '18/09 à 25/09',
+    local: 'Miniauditório Central',
+  },
+  {
+    id: 9,
+    titulo: 'Engenharia de Energia com a Solif',
+    data: '18/09 à 25/09',
+    local: 'Miniauditório Central',
+  },
   { id: 10, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  { id: 11, titulo: 'Arraiá Junino da Melhor Idade', data: '18/09 à 25/09', local: 'Miniauditório Central' },
-  { id: 12, titulo: 'Engenharia de Energia com a Solif', data: '18/09 à 25/09', local: 'Miniauditório Central' },
-  { id: 13, titulo: 'Engenharia de Energia com a Solif', data: '18/09 à 25/09', local: 'Miniauditório Central' },
+  {
+    id: 11,
+    titulo: 'Arraiá Junino da Melhor Idade',
+    data: '18/09 à 25/09',
+    local: 'Miniauditório Central',
+  },
+  {
+    id: 12,
+    titulo: 'Engenharia de Energia com a Solif',
+    data: '18/09 à 25/09',
+    local: 'Miniauditório Central',
+  },
+  {
+    id: 13,
+    titulo: 'Engenharia de Energia com a Solif',
+    data: '18/09 à 25/09',
+    local: 'Miniauditório Central',
+  },
   { id: 14, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  { id: 15, titulo: 'Arraiá Junino da Melhor Idade', data: '18/09 à 25/09', local: 'Miniauditório Central' },
-  { id: 16, titulo: 'Engenharia de Energia com a Solif', data: '18/09 à 25/09', local: 'Miniauditório Central' },
-  { id: 17, titulo: 'Engenharia de Energia com a Solif', data: '18/09 à 25/09', local: 'Miniauditório Central' },
+  {
+    id: 15,
+    titulo: 'Arraiá Junino da Melhor Idade',
+    data: '18/09 à 25/09',
+    local: 'Miniauditório Central',
+  },
+  {
+    id: 16,
+    titulo: 'Engenharia de Energia com a Solif',
+    data: '18/09 à 25/09',
+    local: 'Miniauditório Central',
+  },
+  {
+    id: 17,
+    titulo: 'Engenharia de Energia com a Solif',
+    data: '18/09 à 25/09',
+    local: 'Miniauditório Central',
+  },
   { id: 18, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  { id: 19, titulo: 'Arraiá Junino da Melhor Idade', data: '18/09 à 25/09', local: 'Miniauditório Central' },
-  { id: 20, titulo: 'Engenharia de Energia com a Solif', data: '18/09 à 25/09', local: 'Miniauditório Central' }
+  {
+    id: 19,
+    titulo: 'Arraiá Junino da Melhor Idade',
+    data: '18/09 à 25/09',
+    local: 'Miniauditório Central',
+  },
+  {
+    id: 20,
+    titulo: 'Engenharia de Energia com a Solif',
+    data: '18/09 à 25/09',
+    local: 'Miniauditório Central',
+  },
 ])
-
 
 // async function excluirEvento(id: number) {
 //   const confirmar = confirm('Tem certeza que deseja excluir este evento?')
@@ -64,7 +131,7 @@ const modalAberto = ref(false)
 const eventoEditando = ref<Evento | null>(null)
 
 function abrirEdicao(evento: Evento) {
-  eventoEditando.value = { ...evento } 
+  eventoEditando.value = { ...evento }
   modalAberto.value = true
 }
 
@@ -93,68 +160,52 @@ function abrirEdicao(evento: Evento) {
 function salvarEdicao() {
   if (!eventoEditando.value) return
 
-  const index = eventos.value.findIndex(
-    e => e.id === eventoEditando.value!.id
-  )
+  const index = eventos.value.findIndex((e) => e.id === eventoEditando.value!.id)
 
   if (index !== -1) {
     eventos.value[index] = { ...eventoEditando.value }
   }
 
-     
   modalAberto.value = false
 }
 function excluirEvento(id: number) {
   const confirmar = confirm('Tem certeza que deseja excluir este evento?')
   if (!confirmar) return
 
-  eventos.value = eventos.value.filter(evento => evento.id !== id)
-
+  eventos.value = eventos.value.filter((evento) => evento.id !== id)
 }
-
 </script>
-
 
 <template>
   <div class="page">
+    <header class="main-header">
+      <RouterLink to="/" class="header-logo-container">
+        <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
+      </RouterLink>
 
-        <header class="main-header">
+      <div v-if="isAdmin" class="header-inner">
+        <ul>
+          <li>
+            <RouterLink to="/cadastro"> Cadastrar eventos </RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/eventos"> Editar eventos </RouterLink>
+          </li>
+        </ul>
+      </div>
 
-   
-        <RouterLink to="/" class="header-logo-container">
-            <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
-        </RouterLink>
+      <!-- HEADER PÚBLICO -->
+      <div v-else class="header-inner">
+        <ul>
+          <li><RouterLink to="/#programacao">Programação</RouterLink></li>
+          <li><RouterLink to="/#adicionar-evento">Adicionar Evento</RouterLink></li>
+          <li><RouterLink to="/#inscricoes">Inscrições Abertas</RouterLink></li>
+        </ul>
+      </div>
+    </header>
 
-  
-        <div v-if="isAdmin" class="header-inner">
-            <ul>
-            <li>
-                <RouterLink to="/admin/cadastrar-evento">
-                Cadastrar eventos
-                </RouterLink>
-            </li>
-            <li>
-                <RouterLink to="/admin/eventos">
-                Editar eventos
-                </RouterLink>
-            </li>
-            </ul>
-        </div>
-
-        <!-- HEADER PÚBLICO -->
-        <div v-else class="header-inner">
-            <ul>
-            <li><RouterLink to="/#programacao">Programação</RouterLink></li>
-            <li><RouterLink to="/#adicionar-evento">Adicionar Evento</RouterLink></li>
-            <li><RouterLink to="/#inscricoes">Inscrições Abertas</RouterLink></li>
-            </ul>
-        </div>
-
-        </header>
-
- 
     <main class="main-content">
-        <BarradePesquisa />
+      <BarradePesquisa />
       <section class="eventos-wrapper">
         <h2>Visualização dos eventos</h2>
 
@@ -176,18 +227,12 @@ function excluirEvento(id: number) {
             <div class="evento-local">
               {{ evento.local }}
             </div>
-            <button
-                v-if="isAdmin"
-                class="evento-acao"
-                @click.stop="excluirEvento(evento.id)"                      >
-                🗑
+            <button v-if="isAdmin" class="evento-acao" @click.stop="excluirEvento(evento.id)">
+              🗑
             </button>
-
           </div>
 
-          <p v-if="eventos.length === 0">
-            Nenhum evento encontrado.
-          </p>
+          <p v-if="eventos.length === 0">Nenhum evento encontrado.</p>
         </div>
       </section>
     </main>
@@ -256,9 +301,7 @@ function excluirEvento(id: number) {
   </div>
 </template>
 
-
 <style scoped>
-
 .page {
   min-height: 100vh;
   display: flex;
@@ -449,7 +492,6 @@ header li a:hover {
   border-radius: 10px;
 }
 
-
 /* TAG VERDE */
 .evento-tag {
   background: #4caf84;
@@ -469,14 +511,12 @@ header li a:hover {
   color: #333;
 }
 
-
 .evento-btn {
   border: none;
   background: transparent;
   cursor: pointer;
   font-size: 1.1rem;
 }
-
 
 .eventos-list::-webkit-scrollbar {
   width: 6px;
@@ -489,7 +529,7 @@ header li a:hover {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -609,8 +649,8 @@ footer {
   opacity: 0.85;
 }
 .copy a {
-  color: inherit;          
-  text-decoration: none;   
+  color: inherit;
+  text-decoration: none;
 }
 .copy p {
   color: #ffffff;
@@ -620,7 +660,6 @@ footer {
 main section:last-child {
   margin-bottom: 6rem;
 }
-
 
 @media (max-width: 1024px) {
   .header-logo {
@@ -652,8 +691,6 @@ main section:last-child {
   .header-logo {
     width: 120px;
   }
-
-
 }
 
 @media (max-width: 750px) {
@@ -702,6 +739,5 @@ main section:last-child {
   .social {
     justify-content: left;
   }
-
 }
 </style>

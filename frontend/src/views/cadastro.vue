@@ -113,11 +113,15 @@ function enviarFormulario() {
         </RouterLink>
       <div class="header-inner">
         <ul>
-          <li><RouterLink to="/#programacao">Programação</RouterLink></li>
-          <li><RouterLink to="/#adicionar-evento">Adicionar Evento</RouterLink></li>
-          <li><RouterLink to="/#inscricoes">Inscrições Abertas</RouterLink></li>
+          <li>
+            <RouterLink to="/cadastro"> Cadastrar eventos </RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/eventos"> Editar eventos </RouterLink>
+          </li>
         </ul>
       </div>
+
     </header>
 
     <main class="main-content">
