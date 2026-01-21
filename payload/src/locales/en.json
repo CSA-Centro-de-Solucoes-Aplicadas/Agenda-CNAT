@@ -1,0 +1,33 @@
+{
+  "collections": {
+    "eventos": {
+      "singular": "Event",
+      "plural": "Events",
+      "fields": {
+        "titulo": "Title",
+        "descricao": "Description",
+        "dataInscricaoInicio": "Registration Start",
+        "dataInscricaoFinal": "Registration End",
+        "dataEventoInicio": "Event Start",
+        "dataEventoFinal": "Event End",
+        "categorias": "Categories",
+        "local": "Location",
+        "colaboradores": "Collaborators",
+        "visivel": "Visible"
+      }
+    },
+    "users": {
+      "singular": "User",
+      "plural": "Users",
+      "fields": {
+        "role": "Role"
+      }
+    }
+  },
+  "general": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "create": "Create",
+    "edit": "Edit"
+  }
+}
