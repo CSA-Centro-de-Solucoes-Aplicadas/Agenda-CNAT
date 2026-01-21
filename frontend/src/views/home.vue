@@ -205,7 +205,7 @@ const eventos = [
               Inscrições pelo SUAP
             </a>
           </div>
-
+        
         </div>
       </section>
     </main>
@@ -254,11 +254,34 @@ h3 {
   max-width: 1440px;
   margin: 0 auto;
   padding: 0 20px;
+  width: 100%;
 }
 
 .content-container h3 {
   margin-bottom: 80px;
 }
+
+.destaques-default-section {
+  width: 100%;
+  padding: 3rem 0;
+  overflow-x: hidden;
+}
+
+.inscricoes {
+  max-width: 100%;
+  margin: 0 auto;
+  overflow-x: hidden;
+  border-top-left-radius: 6rem;
+  border-bottom-right-radius: 6rem;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  background-image: url('@/assets/inscricoesSection.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
 .main-header {
   width: 100%;
   background-color: #8aeec3;
@@ -430,22 +453,6 @@ header li a:hover {
 .btn-solicitar-evento:hover .btn-icon {
   transform: translateX(4px);
   transition: transform 0.25s ease;
-}
-
-.inscricoes {
-  max-width: 1440px;
-  width: 100%;
-  margin: 0 auto;
-  overflow-x: hidden;
-  border-top-left-radius: 6rem;
-  border-bottom-right-radius: 6rem;
-  min-height: 600px;
-  display: flex;
-  flex-direction: column;
-  background-image: url('@/assets/inscricoesSection.svg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
 }
 
 .inscricoes-content {
