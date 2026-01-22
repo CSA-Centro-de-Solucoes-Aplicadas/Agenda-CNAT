@@ -15,9 +15,7 @@ import CalendarioAnualVue from '@/componentes/CalendarioAnual.vue'
 import arrowImg from '@/assets/arrow-right.png'
 import { RouterLink } from 'vue-router'
 
-import api from '@/services/api'
-import { ref } from 'vue'
-const eventosDestque = [
+const eventos = [
   {
     titulo: 'Evento alusivo ao dia do professor de geografia',
     local: 'Miniauditório Central',
@@ -139,18 +137,6 @@ const eventosDestque = [
     ],
   },
 ]
-const evetosInscricao = ref([])
-async function fetchEventos() {
-  try {
-    const responseDestaque = await api.get('/eventos/destaques/')
-    eventosDestque.value = responseDestaque.data
-
-    const responseInscricao = await api.get('/eventos/inscricoes_abertas/')
-    evetosInscricao.value = responseInscricao.data
-  } catch (error) {
-    console.error('Erro ao buscar eventos:', error)
-  }
-}
 </script>
 
 <template>
@@ -173,15 +159,15 @@ async function fetchEventos() {
       <section class="destaques-default-section">
         <div class="content-container">
           <h3>Eventos do CNAT</h3>
-          <Carrossel :itens="eventosDestque" :component="CardDestaque" />
+          <Carrossel :itens="eventos" :component="CardDestaque" />
         </div>
       </section>
 
       <section id="programacao" class="calendarioSemanal default-section">
         <div class="content-container">
           <h3>Programação</h3>
-          <AgendaSemana></AgendaSemana>
-          <CalendarioAnualVue></CalendarioAnualVue>
+          <!-- <AgendaSemana></AgendaSemana>
+          <CalendarioAnualVue></CalendarioAnualVue> -->
         </div>
       </section>
 
@@ -205,12 +191,17 @@ async function fetchEventos() {
       <section id="inscricoes" class="inscricoes">
         <div class="inscricoes-content">
           <h3>Inscrições abertas</h3>
-          <Carrossel :itens="eventosDestque" :component="CardInscricao" />
+          <Carrossel :itens="eventos" :component="CardInscricao" />
           <div class="btn-inscricoes-wrapper">
-            <a href="https://suap.ifrn.edu.br/" target="_blank" class="btn-inscricoes-suap">
+            <a
+              href="https://suap.ifrn.edu.br/"
+              target="_blank"
+              class="btn-inscricoes-suap"
+            >
               Inscrições pelo SUAP
             </a>
           </div>
+        
         </div>
       </section>
     </main>
@@ -269,11 +260,34 @@ h3 {
   max-width: 1440px;
   margin: 0 auto;
   padding: 0 20px;
+  width: 100%;
 }
 
 .content-container h3 {
   margin-bottom: 80px;
 }
+
+.destaques-default-section {
+  width: 100%;
+  padding: 3rem 0;
+  overflow-x: hidden;
+}
+
+.inscricoes {
+  max-width: 100%;
+  margin: 0 auto;
+  overflow-x: hidden;
+  border-top-left-radius: 6rem;
+  border-bottom-right-radius: 6rem;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  background-image: url('@/assets/inscricoesSection.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
 .main-header {
   width: 100%;
   background-color: #8aeec3;
@@ -443,22 +457,6 @@ header li a:hover {
 .btn-solicitar-evento:hover .btn-icon {
   transform: translateX(4px);
   transition: transform 0.25s ease;
-}
-
-.inscricoes {
-  max-width: 1440px;
-  width: 100%;
-  margin: 0 auto;
-  overflow-x: hidden;
-  border-top-left-radius: 6rem;
-  border-bottom-right-radius: 6rem;
-  min-height: 600px;
-  display: flex;
-  flex-direction: column;
-  background-image: url('@/assets/inscricoesSection.svg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
 }
 
 .inscricoes-content {

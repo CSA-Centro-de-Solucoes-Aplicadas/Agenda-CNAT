@@ -8,8 +8,7 @@ import youtubeImg from '@/assets/youtube.png'
 import { VueDatePicker as DatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import { ref } from 'vue'
-import { RouterLink } from 'vue-router'
-import api from '@/services/api'
+
 
 const todasCategorias = [
   'Tecnologia',
@@ -52,11 +51,11 @@ function removerCategoria(nome: string) {
     categoriasSelecionadas.value.filter(c => c !== nome)
 }
 
+
 const nomeEvento = ref('')
 const imagem = ref<File | null>(null)
 const descricao = ref('')
 const link = ref('')
-const local = ref('')
 
 
 const dataInicioEvento = ref<Date | null>(null)
@@ -79,63 +78,43 @@ function removerOrganizador(index: number) {
   organizadores.value.splice(index, 1)
 }
 
-function onImagemSelecionada(event: Event) {
-  const input = event.target as HTMLInputElement
 
-  const files = input.files
-  if (!files || files.length === 0) return
+function enviarFormulario() {
+  const dados = {
+    nomeEvento: nomeEvento.value,
+    imagem: imagem.value,
+    categorias: categoriasSelecionadas.value,
+    descricao: descricao.value,
+    link: link.value,
+    periodoEvento: {
+      dataInicio: dataInicioEvento.value,
+      dataFim: dataFimEvento.value,
+      horarioInicio: horarioInicioEvento.value,
+      horarioFim: horarioFimEvento.value,
+    },
+    inscricao: {
+      dataInicio: dataInicioInscricao.value,
+      dataFim: dataFimInscricao.value,
+    },
+    organizadores: organizadores.value.filter(o => o.trim() !== ''),
+  }
 
-  const file = files.item(0)
-  if (!file) return
-
-  imagem.value = file
+  console.log('ENVIADO COM SUCESSO:', dados)
 }
-
-// function enviarFormulario(){
-//   const DadosForm = new FormData()
-//     DadosForm.append ('nomeEvento', nomeEvento.value)
-//     if (imagem.value) {
-//       DadosForm.append('imagem', imagem.value)
-//     }
-//     DadosForm.append('descricao', descricao.value)
-//     DadosForm.append('link', link.value)
-//     DadosForm.append('dataInicioEvento', dataInicioEvento.value? dataInicioEvento.value.toISOString(): '')
-//     DadosForm.append('dataFimEvento', dataFimEvento.value? dataFimEvento.value.toISOString(): '')
-//     if (dataInicioInscricao.value && dataFimInscricao.value) {
-//       DadosForm.append('dataInicioInscricao', dataInicioInscricao.value.toISOString())
-//       DadosForm.append('dataFimInscricao', dataFimInscricao.value.toISOString())
-//     }
-//     organizadores.value.forEach(email => {
-//     DadosForm.append('organizadores', email)
-//   })
-
-//     try{
-//       const response = await api.post('/events/', DadosForm, {
-//         headers: {
-//           'Content-Type': 'multipart/form-data',
-//         },
-//       });
-//       console.log('Resposta do servidor:', response.data);
-//     } catch (error) {
-//       console.error('Erro ao enviar o formulário:', error);
-//     }
-// }
 </script>
+
 
 <template>
   <div class="page">
     <header class="main-header">
-        <RouterLink to="/" class="header-logo-container">
-             <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
-        </RouterLink>
+      <div class="header-logo-container">
+        <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
+      </div>
       <div class="header-inner">
         <ul>
-          <li>
-            <RouterLink to="/cadastro"> Cadastrar eventos </RouterLink>
-          </li>
-          <li>
-            <RouterLink to="/eventos"> Editar eventos </RouterLink>
-          </li>
+          <li><a href="">Calendário</a></li>
+          <li><a href="">Adicionar Evento</a></li>
+          <li><a href="">Inscrições Abertas</a></li>
         </ul>
       </div>
 
@@ -149,7 +128,7 @@ function onImagemSelecionada(event: Event) {
 
         <div class="form-group">
           <label>Nome do Evento*</label>
-          <input type="text" v-model="nomeEvento" required />
+          <input type="text" required />
         </div>
 
         <div class="form-group">
@@ -199,15 +178,11 @@ function onImagemSelecionada(event: Event) {
 
         <div class="form-group">
           <label>Descrição</label>
-          <textarea v-model="descricao" required></textarea>
-        </div>
-        <div class="form-group">
-          <label>Local</label>
-          <input type="text" v-model="local"/>
+          <textarea></textarea required>
         </div>
         <div class="form-group">
           <label>Link para mais informações</label>
-          <input type="url" v-model="link"/>
+          <input type="url" />
         </div>
       </section>
 
@@ -256,6 +231,7 @@ function onImagemSelecionada(event: Event) {
         </div>
       </section>
 
+
       <section class="form-section">
         <h2>3. Informações dos organizadores</h2>
           <div class="organizadores-section">
@@ -292,24 +268,24 @@ function onImagemSelecionada(event: Event) {
     <footer>
       <div class="footer-content">
         <div class="footer-left">
-          <a href=""><img :src="logoFooter" alt="Eventos CNAT" class="footer-logo" /></a>
-          <a href="https://portal.ifrn.edu.br/"><img :src="logoIfrn" alt="Logo do IFRN" class="logo-if" /></a>
+          <img :src="logoFooter" alt="Eventos CNAT" class="footer-logo" />
+          <img :src="logoIfrn" alt="Logo do IFRN" class="logo-if" />
         </div>
 
         <div class="footer-right">
           <div class="social">
-            <a href="https://www.instagram.com/ifrncnat"><img :src="instagramImg" alt="Logotipo do Instagram" /></a>
-            <a href="https://x.com/IFRNCNAT"><img :src="XImg" alt="Logotipo do X" /></a>
-            <a href="https://www.youtube.com/ifrncnat?themeRefresh=1"><img :src="youtubeImg" alt="Logotipo do YouTube" /></a>
+            <img :src="instagramImg" alt="Logotipo do Instagram" />
+            <img :src="XImg" alt="Logotipo do X" />
+            <img :src="youtubeImg" alt="Logotipo do YouTube" />
           </div>
-             <p>seac.cnat@ifrn.edu.br</p>
+          <p>cnat@ifrn.com</p>
           <address>
             Av. Sen. Salgado Filho, 1559 – Tirol, Natal – RN <br /><strong>CEP:</strong> 59015-000
           </address>
         </div>
       </div>
       <div class="copy">
-        <a href="https://csa.cnat.ifrn.edu.br/"><p>© 2025 - Centro de Soluções Aplicadas. Todos os direitos reservados.</p></a>
+        <p>© 2025 - Centro de Soluções Aplicadas. Todos os direitos reservados.</p>
       </div>
     </footer>
   </div>
@@ -733,129 +709,9 @@ footer {
   width: 100%;
   opacity: 0.85;
 }
-.copy a {
-  color: inherit;          
-  text-decoration: none;   
-}
-.copy p {
-  color: #ffffff;
-}
 
 /* Space before footer */
 main section:last-child {
   margin-bottom: 6rem;
-}
-
-.form-section {
-  width: 100%;
-}
-.form-group input,
-.form-group textarea,
-.form-group .dp__input_wrap,
-.form-group .dp__main {
-  width: 100%;
-}
-.cat-dropdown {
-  width: 100%;
-  max-width: 320px;
-}
-
-@media (max-width: 1024px) {
-  .header-logo {
-    top: 20px;
-    left: 30px;
-    max-width: 130px;
-  }
-}
-@media (max-width: 900px) {
-  .header-container {
-    flex-direction: column;
-    align-items: center;
-    padding-top: 80px;
-    gap: 20px;
-  }
-
-  header ul {
-    display: none;
-  }
-
-  header li a {
-    font-size: 1rem;
-  }
-
-  .header-logo-container {
-    justify-content: left;
-  }
-
-  .header-logo {
-    width: 120px;
-  }
-
-
-}
-
-@media (max-width: 750px) {
-  header ul {
-    display: none;
-  }
-
-  .main-header {
-    min-height: 60px;
-    max-height: 60px;
-  }
-
-  .header-container {
-    padding: 0;
-  }
-
-  .header-logo-container {
-    position: static;
-    transform: none;
-    justify-content: left;
-    padding: 10px 8px;
-  }
-
-  .header-logo {
-    top: 50px;
-    left: 10px;
-    width: 50%;
-    max-width: 80px;
-  }
- .organizador-field {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .remove-field {
-    align-self: flex-end;
-  }
-  h1{
-     font-size: 25px;
-  }
-  h3 {
-    font-size: 20px;
-    text-align: left;
-  }
- .submit-container {
-    justify-content: center;
-  }
-
-  .submit-btn {
-    width: 100%;
-  }
-  .footer-content {
-    flex-direction: column;
-    align-items: left;
-    text-align: left;
-  }
-  .footer-right {
-    text-align: left;
-    align-items: left;
-    margin-top: 20px;
-  }
-  .social {
-    justify-content: left;
-  }
-
 }
 </style>
