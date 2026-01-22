@@ -46,14 +46,22 @@ const props = defineProps({
   max-width: 345px;
   width: 100%;
   border-radius: 16px;
-  padding: 28px 28px 18px 28px;
+  padding: 28px 28px 5px 28px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   margin: 0.5rem;
   box-sizing: border-box;
+  transition: box-shadow 0.3s ease, 
+              transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  cursor: grab;
 }
+
+.cardevento:active {
+  cursor: grabbing;
+}
+
 h3 {
   font-size: 1rem;
 }
@@ -95,7 +103,7 @@ li:last-child:before {
 }
 .data {
   font-size: 0.68rem;
-  font-weight: lighter;
+  font-weight: normal;
 }
 .cardfooter {
   justify-content: right;
@@ -104,7 +112,5 @@ li:last-child:before {
   display: flex;
   align-items: flex-end;
   width: 100%;
-}
-.cardfooter p {
 }
 </style>
