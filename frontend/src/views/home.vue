@@ -29,7 +29,7 @@ const eventos = [
   {
     titulo: 'CineBiblio',
     local: 'Biblioteca Central',
-    categoria: 'Cultura',
+    categoria: 'Esporte',
     datas: [
       { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
       { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
