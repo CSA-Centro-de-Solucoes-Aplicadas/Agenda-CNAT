@@ -1,0 +1,51 @@
+/* ===== SWIPER CUSTOM STYLES ===== */
+
+/* ===== SWIPER TRANSITIONS ===== */
+
+/* Default slide transition */
+.swiper-wrapper {
+  transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Carousel active slide effects */
+.swiper-slide {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* Inscricao carousel - centered focus effect */
+.swiper-inscricao .swiper-slide {
+  opacity: 0.7;
+}
+
+.swiper-inscricao .swiper-slide-active {
+  opacity: 1;
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+.swiper-inscricao .swiper-slide-next,
+.swiper-inscricao .swiper-slide-prev {
+  opacity: 0.85;
+  transform: scale(0.98);
+}
+
+/* Grab cursor behavior */
+.swiper {
+  cursor: grab;
+}
+
+.swiper.swiper-grabbing {
+  cursor: grabbing;
+}
+
+/* ===== RESPONSIVE ADJUSTMENTS ===== */
+
+@media (max-width: 767px) {
+  /* Responsive styles if needed */
+}
+
+/* Prevent text selection during drag */
+.swiper-slide {
+  user-select: none;
+  -webkit-user-select: none;
+}

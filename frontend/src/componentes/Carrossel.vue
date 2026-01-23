@@ -1,10 +1,15 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import { Scrollbar, Mousewheel, FreeMode, Navigation } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/scrollbar'
 import CardDestaque from './CardDestaque.vue'
 import CardInscricao from './CardInscricao.vue'
 
-const cardWidth = ref(0)
-const gapWidth = ref(0)
+/* ---------- modules Swiper ---------- */
+const modules = [Scrollbar, Mousewheel, FreeMode, Navigation]
+
 /* ---------- props ---------- */
 const props = defineProps({
   itens: { type: Array, required: true },
@@ -13,19 +18,6 @@ const props = defineProps({
 
 /* ---------- device ---------- */
 const device = ref('desktop')
-
-function updateCardMetrics() {
-  if (!viewport.value) return
-  
-  const firstCard = viewport.value.querySelector('.Itens > *')
-  if (!firstCard) return
-  
-  const styles = window.getComputedStyle(firstCard)
-  cardWidth.value = firstCard.offsetWidth
-  
-  const itensStyles = window.getComputedStyle(firstCard.parentElement)
-  gapWidth.value = parseFloat(itensStyles.columnGap || itensStyles.gap || 0)
-}
 
 function updateDevice() {
   const w = window.innerWidth
@@ -36,12 +28,7 @@ function updateDevice() {
 
 onMounted(() => {
   updateDevice()
-  updateCardMetrics()
-  window.addEventListener('resize', () => {
-    updateDevice()
-    updateCardMetrics()
-    clampIndex(currentIndex.value)
-  })
+  window.addEventListener('resize', updateDevice)
 })
 
 onBeforeUnmount(() => {
@@ -54,191 +41,134 @@ const variant = computed(() => (props.component === CardDestaque ? 'destaque' : 
 /* ---------- config central ---------- */
 const DEVICE_CONFIG = {
   desktop: {
-    destaque: { cardsPerPage: 4 },
-    inscricao: { cardsPerPage: 3 },
+    destaque: { slidesPerView: 4 },
+    inscricao: { slidesPerView: 3 },
   },
   tablet: {
-    destaque: { cardsPerPage: 3 },
-    inscricao: { cardsPerPage: 3 },
+    destaque: { slidesPerView: 3 },
+    inscricao: { slidesPerView: 3 },
   },
   mobile: {
-    destaque: { cardsPerPage: 2 },
-    inscricao: { cardsPerPage: 3 },
+    destaque: { slidesPerView: 2 },
+    inscricao: { slidesPerView: 1.5 },
   },
 }
 
 /* ---------- layout derivado ---------- */
 const layoutConfig = computed(() => DEVICE_CONFIG[device.value][variant.value])
-const cardsPerPage = computed(() => layoutConfig.value.cardsPerPage)
+const slidesPerView = computed(() => layoutConfig.value.slidesPerView)
 
-/* ---------- viewport e scroll ---------- */
-const viewport = ref(null)
+/* ---------- índice de slides ---------- */
 const currentIndex = ref(0)
-const isDragging = ref(false)
-const startX = ref(0)
+const swiperInstance = ref(null)
 
-/* ---------- navegação calculada ---------- */
-const maxIndex = computed(() => Math.max(0, props.itens.length - cardsPerPage.value))
-const totalPages = computed(() => maxIndex.value + 1)
-
-/* ---------- scroll para índice ---------- */
-function scrollToIndex(index) {
-  if (!viewport.value) return
-  
-  currentIndex.value = Math.max(0, Math.min(index, maxIndex.value))
-  
-  // Calcula a posição de scroll baseado no índice
-  const element = viewport.value.querySelector('.Itens > *')
-  if (!element) return
-  
-  const cardWidth = element.offsetWidth
-  const gap = parseFloat(getComputedStyle(viewport.value.querySelector('.Itens')).gap || 0)
-  const scrollPosition = (cardWidth + gap) * currentIndex.value
-  
-  viewport.value.scrollTo({
-    left: scrollPosition,
-    behavior: 'smooth',
-  })
+function onSlideChange(swiper) {
+  currentIndex.value = swiper.activeIndex
+  swiperInstance.value = swiper
 }
 
-/* ---------- scroll snap manual ---------- */
-function snapToNearestCard() {
-  if (!viewport.value) return
-  
-  const element = viewport.value.querySelector('.Itens > *')
-  if (!element) return
-  
-  const cardWidth = element.offsetWidth
-  const gap = parseFloat(getComputedStyle(viewport.value.querySelector('.Itens')).gap || 0)
-  const step = cardWidth + gap
-  
-  const scrollPos = viewport.value.scrollLeft
-  const nearestIndex = Math.round(scrollPos / step)
-  
-  // Restaura scroll-behavior smooth para snap suave
-  if (viewport.value.classList.contains('is-dragging')) {
-    viewport.value.classList.remove('is-dragging')
-  }
-  
-  scrollToIndex(nearestIndex)
-}
-
-/* ---------- drag handlers ---------- */
-function onMouseDown(e) {
-  isDragging.value = true
-  startX.value = e.clientX
-  e.preventDefault()
-  
-  // Listeners locais no viewport
-  viewport.value?.addEventListener('mousemove', onMouseMove)
-  window.addEventListener('mouseup', onMouseUp)
-}
-
-function onMouseMove(e) {
-  if (!isDragging.value || !viewport.value) return
-  
-  e.preventDefault()
-  const diff = startX.value - e.clientX
-  viewport.value.scrollLeft += diff
-  startX.value = e.clientX
-}
-
-function onMouseUp() {
-  isDragging.value = false
-  
-  if (viewport.value) {
-    viewport.value.removeEventListener('mousemove', onMouseMove)
-  }
-  window.removeEventListener('mouseup', onMouseUp)
-  
-  // Snap suave após soltar
-  setTimeout(() => snapToNearestCard(), 50)
-}
-
-/* ---------- touch handlers ---------- */
-function onTouchStart(e) {
-  if (!e.touches || e.touches.length === 0) return
-  isDragging.value = true
-  startX.value = e.touches[0].clientX
-}
-
-function onTouchMove(e) {
-  if (!isDragging.value || !e.touches || e.touches.length === 0) return
-  
-  const diff = startX.value - e.touches[0].clientX
-  if (viewport.value) {
-    viewport.value.scrollLeft += diff
-  }
-  startX.value = e.touches[0].clientX
-}
-
-function onTouchEnd() {
-  isDragging.value = false
-  snapToNearestCard()
-}
-
-/* ---------- scroll listener para sincronizar index ---------- */
-function onScroll() {
-  if (!viewport.value) return
-  
-  const element = viewport.value.querySelector('.Itens > *')
-  if (!element) return
-  
-  const cardWidth = element.offsetWidth
-  const gap = parseFloat(getComputedStyle(viewport.value.querySelector('.Itens')).gap || 0)
-  const step = cardWidth + gap
-  
-  // Apenas sincroniza index quando não está arrastando
-  if (!isDragging.value) {
-    currentIndex.value = Math.round(viewport.value.scrollLeft / step)
+async function goToSlide(index) {
+  await nextTick()
+  if (swiperInstance.value) {
+    swiperInstance.value.slideTo(index, 500)
   }
 }
+
+/* ---------- calculado total de "páginas" visíveis ---------- */
+const totalPages = computed(() => {
+  const remaining = props.itens.length - Math.floor(slidesPerView.value)
+  return Math.max(1, Math.ceil(remaining) + 1)
+})
+
+/* ---------- Swiper config por variante ---------- */
+const swiperConfig = computed(() => {
+  const baseConfig = {
+    modules,
+    spaceBetween: variant.value === 'destaque' ? 12 : 20,
+    loop: false,
+    grabCursor: true,
+    mousewheel: { forceToAxis: true },
+    on: {
+      slideChange: onSlideChange,
+    },
+  }
+
+  if (variant.value === 'destaque') {
+    return {
+      ...baseConfig,
+      slidesPerView: slidesPerView.value,
+      freeMode: {
+        enabled: true,
+        momentum: true,
+        momentumRatio: 1,
+        momentumVelocityRatio: 1,
+        momentumBounce: true,
+        momentumBounceRatio: 1,
+      },
+      freeModeMomentum: true,
+      freeModeSticky: false,
+    }
+  } else {
+    // inscricao
+    return {
+      ...baseConfig,
+      slidesPerView: slidesPerView.value,
+      centeredSlides: true,
+      freeMode: {
+        enabled: true,
+        momentum: true,
+        momentumRatio: 1,
+        momentumVelocityRatio: 1,
+      },
+    }
+  }
+})
+
 </script>
 
 <template>
   <div class="carrossel-wrapper">
-    <div 
-      class="viewport"
-      ref="viewport"
-      :class="{
-        'viewport-destaque': variant === 'destaque',
-        'viewport-inscricao': variant === 'inscricao',
-        'is-dragging': isDragging,
-      }"
-      @mousedown="onMouseDown"
-      @touchstart.passive="onTouchStart"
-      @touchmove.passive="onTouchMove"
-      @touchend="onTouchEnd"
-      @scroll="onScroll"
-    >
-      <div
-        class="Itens"
+    <div class="viewport-container">
+      <swiper
+        :modules="modules"
+        :slides-per-view="slidesPerView"
+        :space-between="variant === 'destaque' ? 12 : 20"
+        :loop="false"
+        :grab-cursor="true"
+        :mousewheel="{ forceToAxis: true }"
+        :free-mode-momentum="variant === 'destaque'"
+        :centered-slides="variant === 'inscricao'"
+        @swiper="(swiper) => { swiperInstance = swiper }"
+        @slide-change="onSlideChange"
         :class="{
-          ItensInscricao: variant === 'inscricao',
-          ItensDestaque: variant === 'destaque',
+          'swiper-destaque': variant === 'destaque',
+          'swiper-inscricao': variant === 'inscricao',
         }"
       >
-        <component
-          v-for="(item, i) in itens"
-          :key="i"
-          :is="component"
-          :item="item"
-          :class="{ emphasis: variant === 'inscricao' }"
-        />
-      </div>
+        <swiper-slide v-for="(item, i) in itens" :key="i">
+          <component
+            :is="component"
+            :item="item"
+            :class="{ 'card-focus': variant === 'inscricao' }"
+          />
+        </swiper-slide>
+      </swiper>
     </div>
-    
-    <!-- Barra de índice -->
-    <div class="scroll-index">
+
+    <!-- Scrollbar com índices clicáveis para ambos carrosséis -->
+    <div class="carousel-scrollbar">
       <button
-        v-for="i in totalPages"
+        v-for="i in itens.length"
         :key="i"
-        class="index-dot"
+        class="scrollbar-index"
         :class="{ active: currentIndex === i - 1 }"
-        @click="scrollToIndex(i - 1)"
+        @click="goToSlide(i - 1)"
         :aria-label="`Ir para card ${i}`"
+        :title="`Card ${i} de ${itens.length}`"
       />
     </div>
+
+    <!-- Índice em pontos apenas para carrossel de destaques -->
   </div>
 </template>
 
@@ -251,89 +181,66 @@ function onScroll() {
   width: 100%;
 }
 
-.viewport {
+/* ===== VIEWPORT CONTAINER - Alinhado com margens da página ===== */
+.viewport-container {
   width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  cursor: grab;
-  scroll-behavior: smooth;
-  transition: scroll-behavior 0.2s ease;
-}
-
-.viewport.is-dragging {
-  cursor: grabbing;
-  scroll-behavior: auto;
-  scroll-snap-type: none;
-}
-
-/* Remove scrollbar visível */
-.viewport::-webkit-scrollbar {
-  height: 0;
-}
-
-.viewport-destaque {
-  max-width: 100%;
-}
-
-.viewport-inscricao {
-  max-width: 100%;
-}
-
-.Itens {
+  overflow: hidden;
   display: flex;
-  gap: clamp(1rem, 3vw, 2rem);
-  padding: 2rem clamp(0.5rem, 2vw, 2rem);
-  scroll-snap-type: x mandatory;
+  justify-content: center;
 }
 
-.ItensInscricao {
-  gap: 4rem;
-  padding: 2rem clamp(1rem, 5vw, 3rem);
-  /* Centraliza com overflow nas laterais */
-  width: fit-content;
-  margin: 0 auto;
+/* ===== SWIPER BASE ===== */
+:deep(.swiper) {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 0;
+  padding: 1.5rem 0;
+  box-sizing: border-box;
 }
 
-.ItensDestaque {
-  gap: clamp(1rem, 3vw, 2rem);
-  padding: 2rem clamp(1rem, 2vw, 2rem);
+:deep(.swiper-wrapper) {
+  transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.Itens > * {
-  scroll-snap-align: start;
-  flex: 0 0 auto;
-  scroll-snap-stop: always;
-  user-select: none;
+:deep(.swiper-slide) {
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Destaque: responsivo com flex */
-.ItensDestaque > * {
-  width: calc((100% / 4) - (3 * clamp(1rem, 3vw, 2rem) / 4));
-  max-width: 260px;
+/* ===== CARROSSEL DESTAQUE (Stories Style) ===== */
+.swiper-destaque {
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Inscrição: 3 cards com ênfase central */
-.ItensInscricao > * {
-  width: calc((100% / 3) - (2 * 4rem / 3));
-  max-width: 300px;
+/* ===== CARROSSEL INSCRIÇÃO (Centered Focus) ===== */
+.swiper-inscricao {
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.ItensDestaque > *:hover {
+/* Cards com foco central - escala e transição */
+:deep(.swiper-inscricao .swiper-slide) {
+  opacity: 0.7;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  transform: scale(0.95);
+}
+
+:deep(.swiper-inscricao .swiper-slide-active) {
+  opacity: 1;
   transform: scale(1.05);
-  transition: transform 0.4s ease;
+  filter: brightness(1.1);
 }
 
-/* Ênfase no card central para inscrições */
-.ItensInscricao > .emphasis {
-  transform: scale(1.15);
-  z-index: 10;
-  transition: transform 0.4s ease;
+:deep(.swiper-inscricao .swiper-slide-next) {
+  opacity: 0.85;
+  transform: scale(0.98);
 }
 
-/* Barra de índice em formato de dots */
-.scroll-index {
+/* ===== PAGINATION DOTS ===== */
+.carousel-pagination {
   display: flex;
   gap: 0.75rem;
   justify-content: center;
@@ -341,7 +248,7 @@ function onScroll() {
   flex-wrap: wrap;
 }
 
-.index-dot {
+.pagination-dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
@@ -353,51 +260,93 @@ function onScroll() {
   margin: 0;
 }
 
-.index-dot:hover {
+.pagination-dot:hover {
   border-color: #999;
   transform: scale(1.2);
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
 }
 
-.index-dot.active {
+.pagination-dot.active {
   background-color: #0b513f;
   border-color: #0b513f;
   box-shadow: 0 0 12px rgba(11, 81, 63, 0.4);
 }
 
-/* Mobile: 2 cards para destaque */
-@media (max-width: 1439px) and (min-width: 768px) {
-  .ItensDestaque > * {
-    width: calc((100% / 3) - (2 * clamp(1rem, 3vw, 2rem) / 3));
-  }
+/* ===== SCROLLBAR COM ÍNDICES CLICÁVEIS ===== */
+.carousel-scrollbar {
+  width: 100%;
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-radius: 10px;
 }
 
+.carousel-scrollbar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.carousel-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.carousel-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(11, 81, 63, 0.3);
+  border-radius: 10px;
+}
+
+.scrollbar-index {
+  width: 12px;
+  height: 12px;
+  min-width: 12px;
+  min-height: 12px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(11, 81, 63, 0.4);
+  background-color: rgba(11, 81, 63, 0.15);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.scrollbar-index:hover {
+  background-color: rgba(11, 81, 63, 0.3);
+  border-color: #0b513f;
+  transform: scale(1.2);
+}
+
+.scrollbar-index.active {
+  background-color: #0b513f;
+  border-color: #0b513f;
+  box-shadow: 0 2px 8px rgba(11, 81, 63, 0.4);
+  transform: scale(1.3);
+}
+
+/* ===== RESPONSIVIDADE ===== */
 @media (max-width: 767px) {
-  .ItensDestaque > * {
-    width: calc((100% / 2) - (1 * clamp(1rem, 3vw, 2rem) / 2));
-    max-width: 100%;
+  .carrossel-wrapper {
+    gap: 1rem;
   }
 
-  .ItensInscricao > * {
-    width: calc((100% / 3) - (2 * 4rem / 3));
-    max-width: 100%;
+  :deep(.swiper) {
+    padding: 1rem 0;
   }
-  
-  .index-dot {
+
+  .pagination-dot {
     width: 8px;
     height: 8px;
   }
 }
 
-@media (max-width: 767px) {
-  .seta {
-    display: none;
-  }
-  .carrossel {
-    gap: 0.5rem;
-  }
-  .Itens > * {
-    max-width: 200px;
-  }
+/* Garante que clique e arraste funciona em toda a área */
+:deep(.swiper) {
+  cursor: grab;
+}
+
+:deep(.swiper.swiper-grabbing) {
+  cursor: grabbing;
 }
 </style>
