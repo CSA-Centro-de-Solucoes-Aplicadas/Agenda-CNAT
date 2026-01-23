@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Scrollbar, Mousewheel, FreeMode, Navigation } from 'swiper/modules'
 import 'swiper/css'
@@ -60,17 +60,17 @@ const slidesPerView = computed(() => layoutConfig.value.slidesPerView)
 
 /* ---------- índice de slides ---------- */
 const currentIndex = ref(0)
+const swiperInstance = ref(null)
 
 function onSlideChange(swiper) {
   currentIndex.value = swiper.activeIndex
+  swiperInstance.value = swiper
 }
 
-function goToSlide(index) {
-  const swiperInstance = document.querySelector(
-    `.swiper-${variant.value}`
-  ).__swiper__
-  if (swiperInstance) {
-    swiperInstance.slideTo(index, 500)
+async function goToSlide(index) {
+  await nextTick()
+  if (swiperInstance.value) {
+    swiperInstance.value.slideTo(index, 500)
   }
 }
 
@@ -138,6 +138,7 @@ const swiperConfig = computed(() => {
         :mousewheel="{ forceToAxis: true }"
         :free-mode-momentum="variant === 'destaque'"
         :centered-slides="variant === 'inscricao'"
+        @swiper="(swiper) => { swiperInstance = swiper }"
         @slide-change="onSlideChange"
         :class="{
           'swiper-destaque': variant === 'destaque',
@@ -154,17 +155,20 @@ const swiperConfig = computed(() => {
       </swiper>
     </div>
 
-    <!-- Índice em pontos para ambos carrosséis -->
-    <div class="carousel-pagination">
+    <!-- Scrollbar com índices clicáveis para ambos carrosséis -->
+    <div class="carousel-scrollbar">
       <button
-        v-for="i in totalPages"
+        v-for="i in itens.length"
         :key="i"
-        class="pagination-dot"
+        class="scrollbar-index"
         :class="{ active: currentIndex === i - 1 }"
         @click="goToSlide(i - 1)"
-        :aria-label="`Ir para slide ${i}`"
+        :aria-label="`Ir para card ${i}`"
+        :title="`Card ${i} de ${itens.length}`"
       />
     </div>
+
+    <!-- Índice em pontos apenas para carrossel de destaques -->
   </div>
 </template>
 
@@ -266,6 +270,59 @@ const swiperConfig = computed(() => {
   background-color: #0b513f;
   border-color: #0b513f;
   box-shadow: 0 0 12px rgba(11, 81, 63, 0.4);
+}
+
+/* ===== SCROLLBAR COM ÍNDICES CLICÁVEIS ===== */
+.carousel-scrollbar {
+  width: 100%;
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-radius: 10px;
+}
+
+.carousel-scrollbar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.carousel-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.carousel-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(11, 81, 63, 0.3);
+  border-radius: 10px;
+}
+
+.scrollbar-index {
+  width: 12px;
+  height: 12px;
+  min-width: 12px;
+  min-height: 12px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(11, 81, 63, 0.4);
+  background-color: rgba(11, 81, 63, 0.15);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.scrollbar-index:hover {
+  background-color: rgba(11, 81, 63, 0.3);
+  border-color: #0b513f;
+  transform: scale(1.2);
+}
+
+.scrollbar-index.active {
+  background-color: #0b513f;
+  border-color: #0b513f;
+  box-shadow: 0 2px 8px rgba(11, 81, 63, 0.4);
+  transform: scale(1.3);
 }
 
 /* ===== RESPONSIVIDADE ===== */
