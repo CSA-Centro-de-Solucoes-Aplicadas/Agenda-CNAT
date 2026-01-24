@@ -125,24 +125,24 @@ input {
   cursor: pointer;
 }
 
-/* Categorias como uma aba discreta, minimalista */
+
 .dropdown-categorias {
   margin-top: 6px;
   display: flex;
   flex-direction: column; /* uma embaixo da outra */
-  gap: 4px; /* espaço mínimo entre categorias */
+  gap: 4px; 
 }
 
 /* wrapper do filtro para posicionar o dropdown lateral */
 .filtro-wrapper {
-  position: relative; /* dropdown fica relativo ao ícone */
+  position: relative; 
   display: inline-block;
 }
 
-/* dropdown flutuante */
+
 .dropdown-categorias {
   position: absolute;
-  top: 24px; /* logo abaixo do ícone */
+  top: 24px; 
   right: 0;
   min-width: 100px; /* largura pequena */
   background: #fff;
@@ -173,7 +173,7 @@ input {
   color: #fff;
 }
 
-/* Lista de eventos também sem position absolute */
+
 .lista {
   margin-top: 8px; /* distância do input */
   background: #fff;

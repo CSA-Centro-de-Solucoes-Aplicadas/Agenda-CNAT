@@ -248,7 +248,7 @@ h3 {
 .content-container {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 100px;
+  padding: 0;
   width: 100%;
 }
 
@@ -258,7 +258,7 @@ h3 {
 
 .destaques-default-section {
   width: 100%;
-  padding: 2rem 0;
+  padding: 5rem 0;
   overflow-x: hidden;
 }
 
@@ -283,8 +283,8 @@ h3 {
   box-shadow: 2px 1px 5px #b8b8b8;
   position: relative;
   overflow: hidden;
-  min-height: 110px;
-  max-height: 110px;
+  min-height: 100px;
+  max-height: 100px;
 }
 
 .main-content {

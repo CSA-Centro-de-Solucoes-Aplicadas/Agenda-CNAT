@@ -384,7 +384,7 @@ button {
 
 @media (max-width: 680px) {
   .calendario {
-    padding: 20px;
+    padding: 50px;
     gap: 16px;
 
     margin: 16px 12px;
@@ -397,7 +397,7 @@ button {
 
 
   h3 {
-    font-size: 10px;
+    font-size: 15px;
     font-weight: 700;
     line-height: 1.2;
   }
@@ -411,7 +411,7 @@ button {
   }
 
   .dia {
-    font-size: 8px;
+    font-size: 10px;
   }
 
   button {
