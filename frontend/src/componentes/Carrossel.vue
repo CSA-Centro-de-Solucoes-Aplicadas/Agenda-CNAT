@@ -21,7 +21,7 @@ const device = ref('desktop')
 
 function updateDevice() {
   const w = window.innerWidth
-  if (w >= 1440) device.value = 'desktop'
+  if (w >= 1200) device.value = 'desktop'
   else if (w >= 768) device.value = 'tablet'
   else device.value = 'mobile'
 }
@@ -177,7 +177,7 @@ const swiperConfig = computed(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
+  gap: 0.5rem;
   width: 100%;
 }
 
@@ -186,7 +186,7 @@ const swiperConfig = computed(() => {
   width: 100%;
   overflow: hidden;
   display: flex;
-  justify-content: center;
+  justify-content: left;
 }
 
 /* ===== SWIPER BASE ===== */
@@ -194,7 +194,7 @@ const swiperConfig = computed(() => {
   width: 100%;
   overflow: hidden;
   border-radius: 0;
-  padding: 1.5rem 0;
+  padding: 1rem 0;
   box-sizing: border-box;
 }
 
@@ -205,7 +205,7 @@ const swiperConfig = computed(() => {
 :deep(.swiper-slide) {
   height: auto;
   display: flex;
-  justify-content: center;
+  justify-content: justify;
   align-items: center;
 }
 
@@ -246,18 +246,6 @@ const swiperConfig = computed(() => {
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
-}
-
-.pagination-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: 2px solid #ddd;
-  background-color: transparent;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  padding: 0;
-  margin: 0;
 }
 
 .pagination-dot:hover {
@@ -348,5 +336,13 @@ const swiperConfig = computed(() => {
 
 :deep(.swiper.swiper-grabbing) {
   cursor: grabbing;
+}
+
+:deep(.swiper-slide) {
+  height: auto;
+  display: flex;
+  /* justify-content: left; */
+  align-items: left;
+  margin-right: 5px;
 }
 </style>

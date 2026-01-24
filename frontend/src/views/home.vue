@@ -158,7 +158,6 @@ const eventos = [
       <BarradePesquisa class="barra-pesquisa" />
       <section class="destaques-default-section">
         <div class="content-container">
-          <h3>Eventos do CNAT</h3>
           <Carrossel :itens="eventos" :component="CardDestaque" />
         </div>
       </section>
@@ -166,8 +165,8 @@ const eventos = [
       <section id="programacao" class="calendarioSemanal default-section">
         <div class="content-container">
           <h3>Programação</h3>
-          <!-- <AgendaSemana></AgendaSemana>
-          <CalendarioAnualVue></CalendarioAnualVue> -->
+          <AgendaSemana></AgendaSemana>
+          <CalendarioAnualVue></CalendarioAnualVue>
         </div>
       </section>
 
@@ -192,15 +191,6 @@ const eventos = [
         <div class="inscricoes-content">
           <h3>Inscrições abertas</h3>
           <Carrossel :itens="eventos" :component="CardInscricao" />
-          <div class="btn-inscricoes-wrapper">
-            <a
-              href="https://suap.ifrn.edu.br/"
-              target="_blank"
-              class="btn-inscricoes-suap"
-            >
-              Inscrições pelo SUAP
-            </a>
-          </div>
         
         </div>
       </section>
@@ -212,7 +202,6 @@ const eventos = [
           <a href="https://portal.ifrn.edu.br/"
             ><img :src="logoIfrn" alt="Logo do IFRN" class="logo-if"
           /></a>
-          <RouterLink to="/eventos"><p>Painel Admin</p></RouterLink>
         </div>
 
         <div class="footer-right">
@@ -259,17 +248,17 @@ h3 {
 .content-container {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 100px;
   width: 100%;
 }
 
 .content-container h3 {
-  margin-bottom: 80px;
+  margin-bottom: 40px;
 }
 
 .destaques-default-section {
   width: 100%;
-  padding: 3rem 0;
+  padding: 2rem 0;
   overflow-x: hidden;
 }
 
@@ -313,7 +302,7 @@ h3 {
   width: 100%;
   display: flex;
   justify-content: flex-start;
-  padding: 0 20px;
+  padding: 0 100px;
   z-index: 10;
 }
 
@@ -330,7 +319,7 @@ h3 {
   width: 100%;
   display: flex;
   align-items: center;
-  padding: 20px;
+  padding: 20px 100px 20px 100px;
   position: relative;
 }
 
@@ -463,13 +452,13 @@ header li a:hover {
   max-width: 1440px;
   margin: 0 auto;
   width: 100%;
-  padding: 30px 20px;
+  padding: 30px 100px 50px;
 }
 
 .inscricoes-content h3 {
   color: white;
   font-size: 32px;
-  padding: 30px;
+  padding: 30px 0 10px 0;
   margin: 0;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
 }
@@ -519,7 +508,7 @@ footer {
   justify-content: space-between;
   align-items: flex-start;
   flex-wrap: wrap;
-  padding: 40px 20px 30px;
+  padding: 40px 100px 30px;
   gap: 20px;
 }
 

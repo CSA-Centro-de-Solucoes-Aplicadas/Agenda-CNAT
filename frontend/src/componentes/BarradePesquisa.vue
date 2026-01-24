@@ -95,7 +95,7 @@ function focarBusca() {
 .barra-pesquisa {
   width: 100%;
   max-width: 620px;
-  padding: 50px 20px;
+  padding: 50px 0 0 0;
   position: relative;
   font-family: 'Inter', sans-serif;
 }
