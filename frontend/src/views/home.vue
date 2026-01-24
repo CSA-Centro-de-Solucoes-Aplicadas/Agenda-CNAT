@@ -621,7 +621,15 @@ main section:last-child {
   }
 }
 
+  .content-container {
+    padding: 0 40px;
+  }
+
 @media (max-width: 900px) {
+  .content-container {
+    padding: 0 20px;
+  }
+
   .header-container {
     flex-direction: column;
     align-items: center;
@@ -710,6 +718,10 @@ main section:last-child {
 
   .content-container h3 {
     margin-bottom: 40px;
+  }
+
+  .content-container {
+    padding: 0 16px;
   }
 
   .adicionar-evento {
