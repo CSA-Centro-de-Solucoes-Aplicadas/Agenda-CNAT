@@ -7,6 +7,9 @@ import 'swiper/css/scrollbar'
 import CardDestaque from './CardDestaque.vue'
 import CardInscricao from './CardInscricao.vue'
 
+/*---------- emits ---------- */
+const emit = defineEmits(['select'])
+
 /* ---------- modules Swiper ---------- */
 const modules = [Scrollbar, Mousewheel, FreeMode, Navigation]
 
@@ -15,7 +18,6 @@ const props = defineProps({
   itens: { type: Array, required: true },
   component: { type: Object, required: true },
 })
-
 /* ---------- device ---------- */
 const device = ref('desktop')
 
@@ -150,6 +152,8 @@ const swiperConfig = computed(() => {
             :is="component"
             :item="item"
             :class="{ 'card-focus': variant === 'inscricao' }"
+            :style="{ cursor: 'pointer' }"
+            @click="emit('select', item)"
           />
         </swiper-slide>
       </swiper>
