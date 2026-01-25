@@ -7,8 +7,10 @@ import instagramImg from '@/assets/instagram.png'
 import youtubeImg from '@/assets/youtube.png'
 import { VueDatePicker as DatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
-import { ref } from 'vue'
-
+import { ref } from 'vue' 
+import footer from '@/componentes/footer.vue'
+import Footer from '@/componentes/footer.vue'
+import Header from '@/componentes/header.vue'
 
 const todasCategorias = [
   'Tecnologia',
@@ -106,19 +108,7 @@ function enviarFormulario() {
 
 <template>
   <div class="page">
-    <header class="main-header">
-      <div class="header-logo-container">
-        <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
-      </div>
-      <div class="header-inner">
-        <ul>
-          <li><a href="">Calendário</a></li>
-          <li><a href="">Adicionar Evento</a></li>
-          <li><a href="">Inscrições Abertas</a></li>
-        </ul>
-      </div>
-
-    </header>
+    <Header />
 
     <main class="main-content">
       <h1>Adicionar Evento</h1>
@@ -206,6 +196,7 @@ function enviarFormulario() {
             placeholder="Selecione o dia e horário final"
           />
         </div>
+
       </section>
 
 
@@ -264,30 +255,7 @@ function enviarFormulario() {
          <button class="submit-btn" >Confirmar</button>
       </div>
     </main>
-
-    <footer>
-      <div class="footer-content">
-        <div class="footer-left">
-          <img :src="logoFooter" alt="Eventos CNAT" class="footer-logo" />
-          <img :src="logoIfrn" alt="Logo do IFRN" class="logo-if" />
-        </div>
-
-        <div class="footer-right">
-          <div class="social">
-            <img :src="instagramImg" alt="Logotipo do Instagram" />
-            <img :src="XImg" alt="Logotipo do X" />
-            <img :src="youtubeImg" alt="Logotipo do YouTube" />
-          </div>
-          <p>cnat@ifrn.com</p>
-          <address>
-            Av. Sen. Salgado Filho, 1559 – Tirol, Natal – RN <br /><strong>CEP:</strong> 59015-000
-          </address>
-        </div>
-      </div>
-      <div class="copy">
-        <p>© 2025 - Centro de Soluções Aplicadas. Todos os direitos reservados.</p>
-      </div>
-    </footer>
+    <Footer/>
   </div>
 </template>
 
@@ -297,69 +265,6 @@ function enviarFormulario() {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-}
-
-.main-header {
-  width: 100%;
-  background-color: #8aeec3;
-  box-shadow: 2px 1px 5px #b8b8b8;
-  position: relative;
-  overflow: hidden;
-  min-height: 120px;
-  max-height: 250px;
-}
-
-.header-logo-container {
-  position: absolute;
-  top: 15px;
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: 1440px;
-  width: 100%;
-  display: flex;
-  justify-content: flex-start;
-  padding: 0 20px;
-  z-index: 10;
-}
-
-.header-logo {
-  width: 15%;
-  max-width: 180px;
-  height: auto;
-  cursor: pointer;
-}
-
-.header-inner {
-  max-width: 1440px;
-  margin: 0 auto;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-  padding: 20px;
-}
-
-header ul {
-  list-style: none;
-  display: flex;
-  gap: 2.5rem;
-  padding: 1.5rem;
-  z-index: 20;
-  margin-left: auto;
-}
-
-header li a {
-  text-decoration: none;
-  font-size: 1.2rem;
-  color: #07753e;
-  font-weight: 500;
-  transition: 0.2s;
-}
-
-header li a:hover {
-  color: #044632;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 
 .main-content {
@@ -633,85 +538,4 @@ h1 {
   cursor: pointer;
 }
 
-
-footer {
-  background-color: #02402e;
-  color: #ffffff;
-  font-size: 14px;
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.footer-content {
-  max-width: 1440px;
-  margin: 0 auto;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  padding: 40px 20px 30px;
-  gap: 20px;
-}
-
-.footer-left {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin: 10px 4px;
-}
-
-.footer-logo {
-  width: 220px;
-}
-
-.logo-if {
-  width: 220px;
-}
-
-.footer-right {
-  display: flex;
-  flex-direction: column;
-  text-align: right;
-  gap: 6px;
-}
-
-.footer-right p {
-  margin: 10px 4px;
-  font-size: 20px;
-}
-
-.social {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  margin-bottom: 8px;
-}
-
-.social img {
-  width: 38px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.social img:hover {
-  transform: scale(1.1);
-  opacity: 0.8;
-}
-
-.copy {
-  text-align: center;
-  font-size: 12px;
-  padding: 15px 20px;
-  background-color: #012118;
-  width: 100%;
-  opacity: 0.85;
-}
-
-/* Space before footer */
-main section:last-child {
-  margin-bottom: 6rem;
-}
 </style>

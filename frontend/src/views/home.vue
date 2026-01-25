@@ -14,7 +14,8 @@ import AgendaSemana from '@/componentes/AgendaSemana.vue'
 import CalendarioAnualVue from '@/componentes/CalendarioAnual.vue'
 import arrowImg from '@/assets/arrow-right.png'
 import { RouterLink } from 'vue-router'
-
+import Header from '@/componentes/header.vue'
+import Footer from '@/componentes/footer.vue'
 const eventos = [
   {
     titulo: 'Evento alusivo ao dia do professor de geografia',
@@ -141,19 +142,7 @@ const eventos = [
 
 <template>
   <div class="page">
-    <header class="main-header">
-      <div class="header-container">
-        <RouterLink to="/" class="header-logo-container">
-          <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
-        </RouterLink>
-        <ul>
-          <li><a href="#programacao">Programação</a></li>
-          <li><a href="#adicionar-evento">Adicionar Evento</a></li>
-          <li><a href="#inscricoes">Inscrições Abertas</a></li>
-        </ul>
-      </div>
-    </header>
-
+    <Header />
     <main class="main-content">
       <BarradePesquisa class="barra-pesquisa" />
       <section class="destaques-default-section">
@@ -162,7 +151,7 @@ const eventos = [
         </div>
       </section>
 
-      <section id="programacao" class="calendarioSemanal default-section">
+      <section id="programacao">
         <div class="content-container">
           <h3>Programação</h3>
           <AgendaSemana></AgendaSemana>
@@ -195,39 +184,7 @@ const eventos = [
         </div>
       </section>
     </main>
-    <footer>
-      <div class="footer-content">
-        <div class="footer-left">
-          <a href=""><img :src="logoFooter" alt="Eventos CNAT" class="footer-logo" /></a>
-          <a href="https://portal.ifrn.edu.br/"
-            ><img :src="logoIfrn" alt="Logo do IFRN" class="logo-if"
-          /></a>
-        </div>
-
-        <div class="footer-right">
-          <div class="social">
-            <a href="https://www.instagram.com/ifrncnat"
-              ><img :src="instagramImg" alt="Logotipo do Instagram"
-            /></a>
-            <a href="https://x.com/IFRNCNAT"><img :src="XImg" alt="Logotipo do X" /></a>
-            <a href="https://www.youtube.com/ifrncnat?themeRefresh=1"
-              ><img :src="youtubeImg" alt="Logotipo do YouTube"
-            /></a>
-          </div>
-
-          <p>seac.cnat@ifrn.edu.br</p>
-
-          <address>
-            Av. Sen. Salgado Filho, 1559 – Tirol, Natal – RN <br /><strong>CEP:</strong> 59015-000
-          </address>
-        </div>
-      </div>
-      <div class="copy">
-        <a href="https://csa.cnat.ifrn.edu.br/"
-          ><p>© 2025 - Centro de Soluções Aplicadas. Todos os direitos reservados.</p></a
-        >
-      </div>
-    </footer>
+    <Footer/>
   </div>
 </template>
 
@@ -263,7 +220,9 @@ h3 {
 }
 
 .inscricoes {
-  max-width: 100%;
+
+  max-width: 1440px;
+  width: 100%;
   margin: 0 auto;
   overflow-x: hidden;
   border-top-left-radius: 6rem;
@@ -277,73 +236,12 @@ h3 {
   background-repeat: no-repeat;
 }
 
-.main-header {
-  width: 100%;
-  background-color: #8aeec3;
-  box-shadow: 2px 1px 5px #b8b8b8;
-  position: relative;
-  overflow: hidden;
-  min-height: 100px;
-  max-height: 100px;
-}
-
 .main-content {
   flex: 1;
   width: 100%;
   overflow-x: hidden;
 }
 
-.header-logo-container {
-  position: absolute;
-  top: 15px;
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: 1440px;
-  width: 100%;
-  display: flex;
-  justify-content: flex-start;
-  padding: 0 100px;
-  z-index: 10;
-}
-
-.header-logo {
-  width: 15%;
-  max-width: 180px;
-  height: auto;
-  cursor: pointer;
-}
-
-.header-container {
-  max-width: 1440px;
-  margin: 0 auto;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  padding: 20px 100px 20px 100px;
-  position: relative;
-}
-
-header ul {
-  list-style: none;
-  display: flex;
-  gap: 2.5rem;
-  padding: 1.5rem;
-  z-index: 20;
-  margin-left: auto;
-}
-
-header li a {
-  text-decoration: none;
-  font-size: 1.2rem;
-  color: #07753e;
-  font-weight: 500;
-  transition: 0.2s;
-}
-
-header li a:hover {
-  color: #044632;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-}
 .adicionar-evento {
   position: relative;
   width: 100%;
@@ -452,7 +350,7 @@ header li a:hover {
   max-width: 1440px;
   margin: 0 auto;
   width: 100%;
-  padding: 30px 100px 50px;
+  padding: 30px ;
 }
 
 .inscricoes-content h3 {
@@ -490,101 +388,7 @@ header li a:hover {
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
 }
 
-footer {
-  background-color: #02402e;
-  color: #ffffff;
-  font-size: 14px;
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
 
-.footer-content {
-  max-width: 1440px;
-  margin: 0 auto;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  padding: 40px 100px 30px;
-  gap: 20px;
-}
-
-.footer-left {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin: 10px 4px;
-}
-
-footer-left a,
-p {
-  color: #ffffff;
-  text-decoration: none;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.footer-logo {
-  width: 220px;
-}
-
-.logo-if {
-  width: 220px;
-}
-
-.footer-right {
-  display: flex;
-  flex-direction: column;
-  text-align: right;
-  gap: 6px;
-}
-
-.footer-right p {
-  margin: 10px 4px;
-  font-size: 20px;
-}
-
-.social {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  margin-bottom: 8px;
-}
-
-.social img {
-  width: 38px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.social img:hover {
-  transform: scale(1.1);
-  opacity: 0.8;
-}
-
-.copy {
-  text-align: center;
-  font-size: 12px;
-  padding: 15px 20px;
-  background-color: #012118;
-  width: 100%;
-  opacity: 0.85;
-  text-decoration: none;
-}
-.copy a {
-  color: inherit;
-  text-decoration: none;
-}
-.copy p {
-  color: #ffffff;
-}
-
-main section:last-child {
-  margin-bottom: 6rem;
-}
 .barra-pesquisa {
   display: flex;
   margin: auto;
@@ -592,11 +396,6 @@ main section:last-child {
   display: block;
 }
 @media (max-width: 1024px) {
-  .header-logo {
-    top: 20px;
-    left: 30px;
-    max-width: 130px;
-  }
 
   .adicionarEvento-container {
     padding: 0 24px;
@@ -629,30 +428,6 @@ main section:last-child {
   .content-container {
     padding: 0 20px;
   }
-
-  .header-container {
-    flex-direction: column;
-    align-items: center;
-    padding-top: 80px;
-    gap: 20px;
-  }
-
-  header ul {
-    display: none;
-  }
-
-  header li a {
-    font-size: 1rem;
-  }
-
-  .header-logo-container {
-    justify-content: left;
-  }
-
-  .header-logo {
-    width: 120px;
-  }
-
   .adicionar-evento::before,
   .adicionarEvento-container::after {
     display: none;
@@ -681,32 +456,6 @@ main section:last-child {
 }
 
 @media (max-width: 750px) {
-  header ul {
-    display: none;
-  }
-
-  .main-header {
-    min-height: 60px;
-    max-height: 60px;
-  }
-
-  .header-container {
-    padding: 0;
-  }
-
-  .header-logo-container {
-    position: static;
-    transform: none;
-    justify-content: left;
-    padding: 10px 8px;
-  }
-
-  .header-logo {
-    top: 50px;
-    left: 10px;
-    width: 50%;
-    max-width: 80px;
-  }
 
   .default-section {
     padding: 25px 0;
@@ -740,19 +489,6 @@ main section:last-child {
     font-size: 22px;
   }
 
-  .footer-content {
-    flex-direction: column;
-    align-items: left;
-    text-align: left;
-  }
-  .footer-right {
-    text-align: left;
-    align-items: left;
-    margin-top: 20px;
-  }
-  .social {
-    justify-content: left;
-  }
   .btn-solicitar-evento {
     font-size: 1rem;
     padding: 0.6rem 1.4rem;

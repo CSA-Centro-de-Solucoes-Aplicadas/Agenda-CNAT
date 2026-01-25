@@ -213,77 +213,76 @@ const proximaSemana = () => {
     </header>
 
     <!-- Dias -->
-
-      <div class="barra-dias">
-        <div class="chips">
-          <div
-            v-for="dia in modoVisualizacao === 'hoje' ? [hoje] : diasSemana"
-            :key="dia.toDateString()"
-            class="chip-dia"
-            :class="{ hoje: dia.toDateString() === hoje.toDateString() }"
-          >
-            <span class="numero">{{ dia.getDate() }}</span>
-            <span class="semana">
-              {{ dia.toLocaleDateString('pt-BR', { weekday: 'short' }).toUpperCase() }}
-            </span>
-          </div>
-        </div>
-      </div>
-      <div class="conteudo">
-  
-        <div v-if="tipoVisualizacao === 'lista'" class="lista">
-          <div
-            v-for="evento in eventosLista"
-            :key="evento.titulo + evento.dataInicio + evento.dataFim"
-            class="item-lista"
-          >
-            <div class="badge">{{ evento.titulo }}</div>
-
-            <div class="info">
-              <strong>{{ evento.dataInicio }} até {{ evento.dataFim }}</strong>
-              <span>{{ evento.local }}</span>
+      <div class="dias-grade">
+        <div class="barra-dias">
+          <div class="chips">
+            <div
+              v-for="dia in modoVisualizacao === 'hoje' ? [hoje] : diasSemana"
+              :key="dia.toDateString()"
+              class="chip-dia"
+              :class="{ hoje: dia.toDateString() === hoje.toDateString() }"
+            >
+              <span class="numero">{{ dia.getDate() }}</span>
+              <span class="semana">
+                {{ dia.toLocaleDateString('pt-BR', { weekday: 'short' }).toUpperCase() }}
+              </span>
             </div>
           </div>
         </div>
+        <div class="conteudo">
+    
+          <div v-if="tipoVisualizacao === 'lista'" class="lista">
+            <div
+              v-for="evento in eventosLista"
+              :key="evento.titulo + evento.dataInicio + evento.dataFim"
+              class="item-lista"
+            >
+              <div class="badge">{{ evento.titulo }}</div>
+
+              <div class="info">
+                <strong>{{ evento.dataInicio }} até {{ evento.dataFim }}</strong>
+                <span>{{ evento.local }}</span>
+              </div>
+            </div>
+          </div>
 
 
-        <div v-else class="grade" :class="{ 'modo-hoje': modoVisualizacao === 'hoje' }">
-          <div class="grade-conteudo">
-            <div class="dias">
-              <div
-                v-for="dia in modoVisualizacao === 'hoje' ? [hoje] : diasSemana"
-                :key="dia.toDateString()"
-                class="dia"
-              >
+          <div v-else class="grade" :class="{ 'modo-hoje': modoVisualizacao === 'hoje' }">
+            <div class="grade-conteudo">
+              <div class="dias">
                 <div
-                  v-for="evento in eventosFiltrados(dia)"
-                  :key="evento.titulo + evento.inicio"
-                  class="evento-simples"
-                  :style="{ background: coresCategorias[evento.categoria] }"
+                  v-for="dia in modoVisualizacao === 'hoje' ? [hoje] : diasSemana"
+                  :key="dia.toDateString()"
+                  class="dia"
                 >
-              
-                  <div class="evento-header">
-                    <strong class="titulo-evento">{{ evento.titulo }}</strong>
-                  </div>
-
-
-                  <div class="evento-info local-evento">
-                    <img :src="iconLocal" alt="Local" class="icon-info" />
-                    <span>{{ evento.local }}</span>
-                  </div>
-
+                  <div
+                    v-for="evento in eventosFiltrados(dia)"
+                    :key="evento.titulo + evento.inicio"
+                    class="evento-simples"
+                    :style="{ background: coresCategorias[evento.categoria] }"
+                  >
                 
-                  <div class="evento-info horario-evento">
-                    <img :src="iconHorario" alt="Horário" class="icon-info" />
-                    <span>{{ evento.inicio }} às {{ evento.fim }}</span>
-                  </div>
-                </div>
-       
+                    <div class="evento-header">
+                      <strong class="titulo-evento">{{ evento.titulo }}</strong>
+                    </div>
 
+
+                    <div class="evento-info local-evento">
+                      <img :src="iconLocal" alt="Local" class="icon-info" />
+                      <span>{{ evento.local }}</span>
+                    </div>
+
+                  
+                    <div class="evento-info horario-evento">
+                      <img :src="iconHorario" alt="Horário" class="icon-info" />
+                      <span>{{ evento.inicio }} às {{ evento.fim }}</span>
+                    </div>
+                  </div>
               <p v-if="!eventosFiltrados(dia).length" class="dia-vazio">
                 Nenhum evento
               </p>
             </div>
+          </div>
           </div>
         </div>
       </div>
@@ -366,7 +365,7 @@ select {
 
 .chips {
   display: flex;
-  gap: 23px;
+  gap: 14px;
   margin-left: 20px;
   flex: 1;
 }
@@ -659,6 +658,67 @@ select {
   opacity: 0.6;
   padding: 8px 30px;
 }
+@media (max-width: 1250px) {
+ 
+  .toggle-wrapper {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .toggle-btn {
+    flex: 1;
+  }
+  .chips {
+    gap: 14px;
+    margin-left: 12px;
+  
+  }
+
+  .chip-dia {
+    min-width: 150px;
+    width: 150px;
+    height: 34px;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 9px;
+    border-radius: 12px;
+  }
+
+  .chip-dia .numero {
+    font-size: 10px;
+    font-weight: bold;
+  }
+  .item-lista {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .info {
+    width: 100%;
+    font-size: 13px;
+    flex-direction: column;
+    gap: 4px;
+  }  
+ /* .dias, .grade{
+    overflow: visible;
+    
+  } */
+.coluna-dias {
+    overflow-y: hidden;
+  
+  }
+  .chips,
+  .dias {
+    width: max-content;
+  }
+
+  .dia {
+    min-width: 140px;
+    width: 140px;
+  }
+
+
+}
 @media (max-width: 768px) {
   .topo {
     grid-template-columns: 1fr;
@@ -697,6 +757,7 @@ select {
   .chips {
     gap: 10px;
     margin-left: 12px;
+  
   }
 
   .chip-dia {
@@ -733,13 +794,10 @@ select {
     flex-direction: column;
     gap: 4px;
   }  
-  .barra-dias,
-  .grade {
-    overflow: visible;
-  }
+:ZZZZZ
 .coluna-dias {
-    overflow-x: auto;
     overflow-y: hidden;
+    
   }
   .chips,
   .dias {
@@ -751,12 +809,6 @@ select {
     width: 140px;
   }
 
-  .evento-simples {
-    height: 120px;
-    overflow: hidden;
-    padding: 6px 8px;
-  }
-
   .titulo-evento {
     font-size: 12px;
   }
@@ -766,7 +818,6 @@ select {
     font-size: 10px;
   }
   .barra-dias {
-    overflow-x: auto;
     overflow-y: hidden;
   }
 
