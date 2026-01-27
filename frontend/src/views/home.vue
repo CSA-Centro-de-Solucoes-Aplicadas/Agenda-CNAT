@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onMounted, ref, watch } from 'vue'
 import logoImg from '@/assets/logo.svg'
 import vetorImg from '@/assets/vetor.png'
 import logoFooter from '@/assets/logoFooter.png'
@@ -16,6 +17,7 @@ import arrowImg from '@/assets/arrow-right.png'
 import { RouterLink } from 'vue-router'
 import Header from '@/componentes/header.vue'
 import Footer from '@/componentes/footer.vue'
+import Modal from '@/componentes/Modal.vue'
 const eventos = [
   {
     titulo: 'Evento alusivo ao dia do professor de geografia',
@@ -138,16 +140,51 @@ const eventos = [
     ],
   },
 ]
+// interface de evento
+interface Evento {
+  titulo: string
+  local: string
+  categoria: string
+  datas: { data: string; hora: string; descricao: string }[]
+  link?: string
+  organizadores?: string[]
+  imagem?: string
+}
+
+// lógica para abrir modal
+const ShowModal = ref(false)
+const EventoSelecionado = ref<Evento | null>(null)
+
+watch(ShowModal, (novoValor) => {
+  if (novoValor) {
+    document.body.style.overflow = 'hidden'
+  } else {
+    document.body.style.overflow = 'auto'
+  }
+})
+
+onMounted(() => {
+  document.body.style.overflow = 'auto'
+})
+
+function AbrirModal(eventoClicado : Evento) {
+  EventoSelecionado.value = eventoClicado
+  ShowModal.value = true
+}
+function FecharModal() {
+  ShowModal.value = false
+  EventoSelecionado.value = null
+}
 </script>
 
 <template>
   <div class="page">
-    <Header />
+    <Header/>
     <main class="main-content">
       <BarradePesquisa class="barra-pesquisa" />
       <section class="destaques-default-section">
         <div class="content-container">
-          <Carrossel :itens="eventos" :component="CardDestaque" />
+          <Carrossel :itens="eventos" :component="CardDestaque" @select="AbrirModal" />
         </div>
       </section>
 
@@ -186,9 +223,22 @@ const eventos = [
     </main>
     <Footer/>
   </div>
+  <Teleport to="body">
+    <Transition name="fade">
+      <Modal v-if="ShowModal" :evento="EventoSelecionado" @close="FecharModal" />
+    </Transition>
+  </Teleport>
 </template>
 
 <style scoped>
+/* modal */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
 h3 {
   font-size: 32px;

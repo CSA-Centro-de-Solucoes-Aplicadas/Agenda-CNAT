@@ -2,17 +2,18 @@
 import { ref, computed } from 'vue'
 import modalBanner from '@/assets/modalbanner.png'
 
-const evento = {
-  local: 'Biblioteca Central',
-  nome: 'Cinebiblio',
-  descricao: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-  datas: { inicio: '23/06', fim: '27/06' },
-  horario: { inicio: '18:30', fim: '21:00' },
-  organizadores: ['email1@ifrn.edu.br', 'email2@ifrn.edu.br', 'email3@ifrn.edu.br'],
-  palestras: ['Palestra'],
-  link: 'https://ifrn.edu.br/evento',
-  imagem: modalBanner,
+interface Evento {
+  titulo: string
+  local: string
+  categoria: string
+  datas: { data: string; hora: string; descricao: string }[]
+  link: string
+  organizadores: string[]
+  imagem: string
 }
+const props = defineProps<{
+  evento: Evento
+}>()
 
 const contatosLimitados = computed(() => {
   return evento.organizadores.slice(0, 4)
@@ -33,71 +34,83 @@ function prev() {
 </script>
 
 <template>
+  <div class="modal-overlay">
+    <div class="story-wrapper">
+      <!-- <div class="progress-wrapper">
+        <div class="bar active"></div>
+      </div> -->
+      <div class="story-card">
+        <button class="close-btn" @click="emit('close')">✕</button>
 
-  <div class="story-wrapper">
-    <div class="progress-wrapper">
-      <div class="bar active"></div>
-    </div>
+        <div class="left">
+          <h1>{{ evento.titulo }}</h1>
+        <div class="local-row">
+          <div class="local">
+            <img src="@/assets/localModal.png" alt="">
+            {{ evento.local }}
+          </div>
 
-    <div class="story-card">
-      <button class="close-btn" @click="emit('close')">✕</button>
-
-      <div class="left">
-        <h1>{{ evento.nome }}</h1>
-      <div class="local-row">
-        <div class="local">
-          <img src="@/assets/localModal.png" alt="">
-          {{ evento.local }}
         </div>
 
-      </div>
 
-
-        <div class="datas-list">
-          <span>{{ evento.datas.inicio }} até {{ evento.datas.fim }}</span>
-           <div class="horario">
-               {{ evento.horario.inicio }} – {{ evento.horario.fim }}
-           </div>
-        </div>
-
-        <p class="descricao">{{ evento.descricao }}</p>
-
-        <div class="contatos-box">
-          <h2>Organizadores</h2>
-          <div class="contatos-grid" v-if="temContatos">
-            <div
-              class="contato-item"
-              v-for="(c, i) in contatosLimitados"
-              :key="i"
-              :class="{ single: contatosLimitados.length === 1 }"
-            >
-              <img src="@/assets/contato.png" class="user-icon" />
-              <span>{{ c }}</span>
+          <div class="datas-list">
+            <span>{{ evento.datas[0].data }} até {{ evento.datas[2].data }}</span>
+            <div class="horario">
+                {{ evento.datas[0].hora }} – {{ evento.datas[1].hora }}
             </div>
           </div>
 
-          <div v-else class="sem-contatos">
-            Não há contatos cadastrados
+          <p class="descricao">{{ evento.descricao }}</p>
+
+          <div class="contatos-box">
+            <h2>Organizadores</h2>
+            <div class="contatos-grid" v-if="temContatos">
+              <div
+                class="contato-item"
+                v-for="(c, i) in contatosLimitados"
+                :key="i"
+                :class="{ single: contatosLimitados.length === 1 }"
+              >
+                <img src="@/assets/contato.png" class="user-icon" />
+                <span>{{ c }}</span>
+              </div>
+            </div>
+
+            <div v-else class="sem-contatos">
+              Não há contatos cadastrados
+            </div>
+
           </div>
 
-        </div>
-
-        <div class="footer">
-          <a :href="evento.link" class="mais-info" target="_blank">mais informações</a>
-          <div class="categoria-box">
-            <strong v-for="(p, i) in evento.palestras" :key="i">{{ p }}</strong>
+          <div class="footer">
+            <a :href="evento.link" class="mais-info" target="_blank">mais informações</a>
+            <div class="categoria-box">
+              <strong v-for="(p, i) in evento.palestras" :key="i">{{ p }}</strong>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="right">
-        <img :src="evento.imagem" class="side-image" />
+        <div class="right">
+          <img :src="evento.imagem" class="side-image" />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
 
 .close-btn {
   position: absolute;
