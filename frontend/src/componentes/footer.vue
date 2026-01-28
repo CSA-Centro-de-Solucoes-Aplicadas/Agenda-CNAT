@@ -1,5 +1,4 @@
 <script setup>
-import logoImg from '@/assets/logo.svg'
 import logoFooter from '@/assets/logoFooter.png'
 import logoIfrn from '@/assets/ifrn.png'
 import XImg from '@/assets/x.png'
@@ -140,4 +139,73 @@ p {
 main section:last-child {
   margin-bottom: 6rem;
 }
+@media (max-width: 768px) {
+  footer {
+    min-height: auto;
+    margin-top: 4rem;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 30px 20px;
+  }
+
+ 
+  .footer-left {
+    flex-direction: row;  
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin: 0;
+  }
+
+  .footer-logo,
+  .logo-if {
+    width: 160px;
+  }
+
+  .footer-right {
+    align-items: center;
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .footer-right p {
+    font-size: 16px;
+    margin: 6px 0;
+  }
+
+  address {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .social {
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+
+  .social img {
+    width: 34px;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-logo,
+  .logo-if {
+    width: 130px;
+  }
+
+  .footer-right p {
+    font-size: 15px;
+  }
+
+  .copy {
+    font-size: 11px;
+    padding: 12px;
+  }
+}
+
 </style>

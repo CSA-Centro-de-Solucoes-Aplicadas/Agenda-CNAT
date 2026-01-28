@@ -71,4 +71,56 @@ h3 {
   display: flex;
   gap: 1rem;
 }
+
+@media (max-width: 768px) {
+  .carddestaque {
+    max-width: 220px;
+    border-radius: 16px;
+    padding: 12px;
+  }
+
+  h3 {
+    font-size: 16px;
+    line-height: 1.2;
+  }
+
+  p {
+    font-size: 14px;
+  }
+
+  .local,
+  .data {
+    gap: 0.6rem;
+    align-items: center;
+  }
+
+  .local img,
+  .data img {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .carddestaque {
+    max-width: 190px;
+    aspect-ratio: 220 / 420;
+    padding: 10px;
+  }
+
+  h3 {
+    font-size: 14px;
+  }
+
+  p {
+    font-size: 13px;
+  }
+
+  .local img,
+  .data img {
+    width: 16px;
+    height: 16px;
+  }
+}
+
 </style>
