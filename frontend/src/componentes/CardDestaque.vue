@@ -1,8 +1,4 @@
-<script setup>
-const props = defineProps({
-  item: Object
-})
-
+<script setup lang="ts">
 interface Evento {
   titulo: string
   descricao?: string
@@ -14,21 +10,25 @@ interface Evento {
   local: string
   colaboradores?: string[]
 }
+const props = defineProps<{
+  evento: Evento
+}>()
+
 import localImg from '@/assets/images/icons/local.svg'
 import calendario_horaImg from'@/assets/images/icons/calendario_hora.svg'
 import '@/assets/images/illustrations/fundodestaque.png'
 </script>
 <template>
   <div class="carddestaque">
-    <h3>{{ item.titulo }}</h3>
+    <h3>{{ evento.titulo }}</h3>
     <div class="local">
       <img :src="localImg"></img>
-      <p>{{ item.local }}</p>
+      <p>{{ evento.local }}</p>
     </div>
     <div class="data">
       <img :src="calendario_horaImg"></img>
       <!-- <img></img> -->
-      <p>{{ item.datas[1].data }}</p>
+      <p>{{ evento.dataEventoInicio}}</p>
     </div>
   </div>
 </template>

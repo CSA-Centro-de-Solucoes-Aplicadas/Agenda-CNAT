@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+
+// Seus imports de imagem (mantidos)
 import iconLista from '@/assets/iconLista.png'
 import iconCalendario from '@/assets/iconCalendario.png'
 import iconLocal from '@/assets/iconLocal.png'
@@ -10,15 +12,34 @@ type Tipo = 'calendario' | 'lista'
 
 interface Evento {
   titulo: string
-  dataInscricaoInicio: { data: string; hora: string }
-  dataInscricaoFim: { data: string; hora: string }
-  dataEventoInicio: { data: string; hora: string }
-  dataEventoFim: { data: string; hora: string }
-  horaEventoInicio: string
-  horaEventoFim: string
-  categorias: string []
+  dataInscricaoInicio?: string
+  dataInscricaoFim?: string
+  dataEventoInicio?: string
+  dataEventoFim: string 
+  categorias: string[]
   local: string
 }
+
+const eventos = ref<Evento[]>([
+  {
+    titulo: 'Feira de Ciências',
+    dataInscricaoInicio: '2024-12-25T14:30:00.000Z',
+    dataInscricaoFim: '2024-06-10T23:59:00.000Z',
+    dataEventoInicio: '2024-06-15T09:00:00.000Z', // Padronizei para ISO para evitar erros
+    dataEventoFim: '2024-06-15T18:00:00.000Z',
+    categorias: ['Ciência', 'Educação'],
+    local: 'Auditório Principal',
+  },
+  {
+    titulo: 'Oficina de Robótica',
+    dataInscricaoInicio: '2024-06-05T08:00:00.000Z',
+    dataInscricaoFim: '2024-06-20T18:00:00.000Z',
+    dataEventoInicio: '2024-06-25T14:00:00.000Z',
+    dataEventoFim: '2024-06-25T16:00:00.000Z',
+    categorias: ['Tecnologia', 'Educação'],
+    local: 'Laboratório de Informática',
+  },
+])
 
 const hoje = new Date()
 
@@ -27,74 +48,46 @@ const tipoVisualizacao = ref<Tipo>('calendario')
 const categoriaSelecionada = ref('Todas')
 const dataBaseAgenda = ref(new Date(hoje))
 
-const eventos = ref<Evento[]>([
-  {
-    titulo: 'Arraiá Junino da melhor idade',
-    dataInicio: '15-12-2025',
-    dataFim: '21-12-2025',
-    inicio: '07:00',
-    fim: '11:00',
-    categoria: 'Cultura',
-    local: 'Ginásio',
-  },
-  {
-    titulo: 'Winfo',
-    dataInicio: '15-12-2025',
-    dataFim: '18-12-2025',
-    inicio: '06:00',
-    fim: '11:00',
-    categoria: 'Tecnologia',
-    local: 'Biblioteca Sebastião Fernandes',
-  },
-   {
-    titulo: 'Jogos Internos',
-    dataInicio: '23-12-2025',
-    dataFim: '25-12-2025',
-    inicio: '06:00',
-    fim: '11:00',
-    categoria: 'Esportes',
-    local: 'IFRN',
-  },
-   {
-    titulo: 'Wtads',
-    dataInicio: '15-12-2025',
-    dataFim: '15-12-2025',
-    inicio: '08:00',
-    fim: '11:00',
-    categoria: 'Tecnologia',
-    local: 'Mini auditório bloco C',
-  },
-])
+// --- FUNÇÕES DE DATA ---
 
-const toDate = (d: string): Date => {
-  const partes = d.split('-')
-  if (partes.length !== 3) {
-    throw new Error(`Data inválida: ${d}`)
-  }
+const separarDataHora = (dataISO?: string) => {
+  if (!dataISO) return { data: '--/--/--', hora: '--:--' }
+  
+  const dataObj = new Date(dataISO);
+  const dataFormatada = dataObj.toLocaleDateString('pt-BR');
+  const horaFormatada = dataObj.toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 
-  const day = Number(partes[0])
-  const month = Number(partes[1])
-  const year = Number(partes[2])
-
-  if ([day, month, year].some(isNaN)) {
-    throw new Error(`Data inválida: ${d}`)
-  }
-
-  return new Date(year, month - 1, day)
+  return { data: dataFormatada, hora: horaFormatada };
 }
 
-const estaNoIntervalo = (dia: Date, inicio: string, fim: string) => {
-  const base = new Date(dia)
-  base.setHours(0, 0, 0, 0)
-  const time = base.getTime()
+// Verifica se "dia" está entre "inicio" e "fim" (ignorando hora para o calendário funcionar bem)
+const estaNoIntervalo = (dia: Date, inicioISO?: string, fimISO?: string) => {
+  if (!inicioISO || !fimISO) return false
 
-  return time >= toDate(inicio).getTime() && time <= toDate(fim).getTime()
+  // Normaliza o dia do calendário para meia-noite
+  const d = new Date(dia)
+  d.setHours(0, 0, 0, 0)
+
+  // Normaliza o início do evento para meia-noite
+  const start = new Date(inicioISO)
+  start.setHours(0, 0, 0, 0)
+
+  // Normaliza o fim do evento para o final do dia
+  const end = new Date(fimISO)
+  end.setHours(23, 59, 59, 999)
+
+  return d.getTime() >= start.getTime() && d.getTime() <= end.getTime()
 }
 
+// --- COMPUTEDS E LÓGICA DE NAVEGAÇÃO ---
 
 const diasSemana = computed(() => {
   const inicio = new Date(dataBaseAgenda.value)
-  inicio.setDate(inicio.getDate() - ((inicio.getDay() + 6) % 7))
+  // Ajusta para pegar o Domingo da semana atual
+  inicio.setDate(inicio.getDate() - inicio.getDay()) 
 
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date(inicio)
@@ -104,50 +97,79 @@ const diasSemana = computed(() => {
 })
 
 const mesAnoAtual = computed(() => {
-  const base =
-    modoVisualizacao.value === 'hoje'
+  const base = modoVisualizacao.value === 'hoje'
       ? hoje
       : diasSemana.value[0] ?? dataBaseAgenda.value
 
+  // Capitaliza a primeira letra do mês (pt-BR retorna minúsculo)
   const mes = base.toLocaleDateString('pt-BR', { month: 'long' })
+  const mesCapitalizado = mes.charAt(0).toUpperCase() + mes.slice(1)
   const ano = base.getFullYear()
 
-  return `${mes}, ${ano}`
+  return `${mesCapitalizado}, ${ano}`
 })
 
+// --- LÓGICA DE CATEGORIAS ---
 
-const categorias = computed(() => [
-  'Todas',
-  ...new Set(eventos.value.map((e) => e.categoria)),
-])
+const categorias = computed(() => {
+  // flatMap: pega os arrays ['A', 'B'] e ['C', 'A'] e transforma em ['A', 'B', 'C', 'A']
+  const todas = eventos.value.flatMap(e => e.categorias)
+  return ['Todas', ...new Set(todas)]
+})
 
 const coresCategorias = computed<Record<string, string>>(() => {
+  // Pega categorias únicas (sem 'Todas') para gerar cores
+  const catsUnicas = [...new Set(eventos.value.flatMap(e => e.categorias))]
+  
   return Object.fromEntries(
-    [...new Set(eventos.value.map((e) => e.categoria))].map((c, i) => [
-      c,
-      `hsl(145, 45%, ${78 - i * 6}%)`,
-    ]),
+    catsUnicas.map((c, i) => {
+      // Se for 'Geral', usamos um tom cinza-azulado, senão usamos a lógica do HSL
+      const cor = c === 'Geral' 
+        ? 'hsl(210, 15%, 60%)' 
+        : `hsl(145, 45%, ${78 - (i % 5) * 6}%)` // o % 5 evita que a cor fique preta se houver muitas cats
+      
+      return [c, cor]
+    }),
   )
 })
 
+// --- FILTRAGEM DE EVENTOS ---
+
+// Filtra eventos para um dia específico (usado nas células do calendário)
 const eventosFiltrados = (dia: Date) =>
   eventos.value
-    .filter(
-      (e) =>
-        (categoriaSelecionada.value === 'Todas' ||
-          e.categoria === categoriaSelecionada.value) &&
-        estaNoIntervalo(dia, e.dataInicio, e.dataFim),
-    )
-    .sort((a, b) => a.inicio.localeCompare(b.inicio))
+    .filter((e) => {
+      // Verifica Categoria (Array includes)
+      const matchCategoria = categoriaSelecionada.value === 'Todas' || e.categorias.includes(categoriaSelecionada.value)
+      
+      // Verifica Data
+      const matchData = estaNoIntervalo(dia, e.dataEventoInicio, e.dataEventoFim)
 
+      return matchCategoria && matchData
+    })
+    .sort((a, b) => {
+      // Sort seguro caso data seja undefined
+      return (a.dataEventoInicio || '').localeCompare(b.dataEventoInicio || '')
+    })
+
+// Lista geral de eventos visíveis na semana ou dia atual
 const eventosLista = computed(() =>
-  eventos.value.filter((e) =>
-    modoVisualizacao.value === 'hoje'
-      ? estaNoIntervalo(hoje, e.dataInicio, e.dataFim)
-      : diasSemana.value.some((d) =>
-          estaNoIntervalo(d, e.dataInicio, e.dataFim),
-        ),
-  ),
+  eventos.value.filter((e) => {
+    // 1. Filtro de Categoria
+    if (categoriaSelecionada.value !== 'Todas' && !e.categorias.includes(categoriaSelecionada.value)) {
+      return false
+    }
+
+    // 2. Filtro de Tempo (Hoje ou Semana Visível)
+    if (modoVisualizacao.value === 'hoje') {
+      return estaNoIntervalo(hoje, e.dataEventoInicio, e.dataEventoFim)
+    } else {
+      // Verifica se o evento cai em QUALQUER dia da semana atual
+      return diasSemana.value.some((d) =>
+        estaNoIntervalo(d, e.dataEventoInicio, e.dataEventoFim),
+      )
+    }
+  })
 )
 
 const semanaAnterior = () => {
@@ -160,6 +182,25 @@ const proximaSemana = () => {
   const novaData = new Date(dataBaseAgenda.value)
   novaData.setDate(novaData.getDate() + 7)
   dataBaseAgenda.value = novaData
+}
+
+// Primeira categoria ou 'Geral' se vazio
+const getPrimeiraCategoria = (categorias: string[]) => {
+  return (categorias && categorias.length) > 0 ? categorias[0] : 'Geral'
+}
+
+// Definir o ícone
+const getIconPath = (categoria: string) => {
+  const categoryMap: Record<string, string> = {
+    'Palestras': 'palestras.svg',
+    'Cultura': 'cultura.svg',
+    'Esporte': 'esporte.svg',
+    'Tecnologia': 'tecnologia.svg',
+    'Saúde': 'saude.svg',
+  }
+  
+  const fileName = categoryMap[categoria] || 'default.svg'
+  return `/src/assets/images/icons/${fileName}`
 }
 </script>
 
@@ -235,14 +276,14 @@ const proximaSemana = () => {
     
           <div v-if="tipoVisualizacao === 'lista'" class="lista">
             <div
-              v-for="evento in eventosLista"
-              :key="evento.titulo + evento.dataInicio + evento.dataFim"
+              v-for="evento in eventos"
+              :key="evento.titulo + evento.dataEventoInicio + evento.dataEventoFim"
               class="item-lista"
             >
               <div class="badge">{{ evento.titulo }}</div>
 
               <div class="info">
-                <strong>{{ evento.dataInicio }} até {{ evento.dataFim }}</strong>
+                <strong>{{ separarDataHora(evento.dataEventoInicio).data }} até {{ separarDataHora(evento.dataEventoFim).data }}</strong>
                 <span>{{ evento.local }}</span>
               </div>
             </div>
@@ -259,9 +300,9 @@ const proximaSemana = () => {
                 >
                   <div
                     v-for="evento in eventosFiltrados(dia)"
-                    :key="evento.titulo + evento.inicio"
+                    :key="evento.titulo + evento.dataEventoInicio"
                     class="evento-simples"
-                    :style="{ background: coresCategorias[evento.categoria] }"
+                    :style="{ background: coresCategorias[getPrimeiraCategoria(evento.categorias)] }"
                   >
                 
                     <div class="evento-header">
@@ -277,7 +318,7 @@ const proximaSemana = () => {
                   
                     <div class="evento-info horario-evento">
                       <img :src="iconHorario" alt="Horário" class="icon-info" />
-                      <span>{{ evento.inicio }} às {{ evento.fim }}</span>
+                      <span>{{ separarDataHora(evento.dataEventoInicio).hora }} às {{ separarDataHora(evento.dataEventoFim).hora }}</span>
                     </div>
                   </div>
               <p v-if="!eventosFiltrados(dia).length" class="dia-vazio">
