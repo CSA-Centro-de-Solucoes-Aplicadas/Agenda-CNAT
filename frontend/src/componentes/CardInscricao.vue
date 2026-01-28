@@ -222,7 +222,7 @@ li:last-child::before {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
 }
 
-@media (max-width: 600px) {
+@media (max-width: 750px) {
   .cardevento {
     background-position: 70% 30%;
     max-width: 98vw;
@@ -251,4 +251,70 @@ li:last-child::before {
     height: 32px;
   }
 }
+@media (max-width: 480px) {
+  .cardevento {
+    max-width: 100%;
+    padding: 14px 5vw 12px 5vw;
+    border-radius: 12px;
+    gap: 0.5rem;
+  }
+
+  .cardheader h3 {
+    font-size: 1.05rem;
+    line-height: 1.25;
+  }
+
+  .local {
+    font-size: 0.85rem;
+  }
+
+  .timeline {
+    margin-left: 6px;
+    padding-left: 12px;
+  }
+
+  li {
+    padding: 0.45rem 0.10rem;
+    gap: 0.25rem;
+  }
+
+  .data {
+    font-size: 0.85rem;
+  }
+
+  .descricao {
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+
+  .cardfooter {
+    font-size: 0.85rem;
+    gap: 0.6rem;
+    padding-top: 0.6em;
+  }
+
+  .cardfooter img {
+    width: 18px;
+  }
+}
+@media (max-width: 360px) {
+  .cardheader h3 {
+    font-size: 0.95rem;
+  }
+
+  .descricao {
+    font-size: 0.75rem;
+  }
+
+  .data {
+    font-size: 0.78rem;
+  }
+
+  .cardfooter {
+    flex-direction: row;
+    justify-content: flex-end;
+    font-size: 0.8rem;
+  }
+}
+
 </style>

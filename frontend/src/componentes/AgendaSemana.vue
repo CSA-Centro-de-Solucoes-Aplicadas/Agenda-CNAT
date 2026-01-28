@@ -300,8 +300,9 @@ const proximaSemana = () => {
   max-height: 800px;
   margin: 0 auto;
   display: flex;
+  overflow-x: visible;
+  overflow-y: hidden;
   flex-direction: column;
-  overflow: hidden;
   font-family: sans-serif;
 }
 
@@ -459,8 +460,8 @@ select {
   max-width: 100%;
 
   white-space: normal;      
-  word-break: break-all;  
-  overflow-wrap: anywhere;  
+  word-break: break-word;  
+  overflow-wrap: break-word;  
  
   display: block;
 }
@@ -725,7 +726,6 @@ select {
     gap: 12px;
     padding: 12px;
   }
-
   .nav-semana {
     justify-content: space-between;
   }
@@ -794,7 +794,7 @@ select {
     flex-direction: column;
     gap: 4px;
   }  
-:ZZZZZ
+
 .coluna-dias {
     overflow-y: hidden;
     
@@ -805,8 +805,9 @@ select {
   }
 
   .dia {
-    min-width: 140px;
-    width: 140px;
+    min-width: 180px;
+    width: 180px;
+    
   }
 
   .titulo-evento {
@@ -820,12 +821,39 @@ select {
   .barra-dias {
     overflow-y: hidden;
   }
-
-  .grade {
+  .grade-conteudo {
+    overflow: visible;
+  }
+   
+  .dias-grade {
     overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .grade-conteudo {
+  /* Conteúdo interno precisa ser largo */
+  .barra-dias,
+  .grade {
+    min-width: max-content;
+  }
+
+  /* Chips e dias com mesma largura */
+  .chips,
+  .dias {
+    display: flex;
+    width: max-content;
+  }
+
+  .chip-dia,
+  .dia {
+    min-width: 140px;
+    width: 140px;
+    flex-shrink: 0;
+  }
+
+
+  .barra-dias,
+  .grade {
     overflow: visible;
   }
 }

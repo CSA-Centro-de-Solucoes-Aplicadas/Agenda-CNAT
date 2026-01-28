@@ -32,7 +32,7 @@ onMounted(() => {
     },
     {
       id: 4,
-      nome: 'FERIASSS(CADE AS FERIAS)',
+      nome: 'FERIAS',
       dataInicio: '2026-01-02',
       dataFim: '2026-01-20',
     },

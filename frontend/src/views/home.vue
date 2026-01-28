@@ -163,8 +163,7 @@ const eventos = [
         <div class="adicionarEvento-container">
           <img :src="vetorImg" alt="Vetor" class="adicionarEvento-vetor" />
           <div class="adicionarEvento-texto">
-            <h3>Quer adicionar algum evento ao nosso calendário?</h3>
-            <p>Clique no botão abaixo para cadastrar seu evento no SUAP</p>
+            <h3>Quer solicitar algum evento ao nosso calendário?</h3>
             <a href="https://suap.ifrn.edu.br/" target="_blank" class="btn-solicitar-evento">
               <span class="btn-texto">Solicitar Evento</span>
 
@@ -437,7 +436,7 @@ h3 {
     flex-direction: column;
     height: auto;
     padding: 30px 20px;
-    border-radius: 30px;
+    
   }
 
   .adicionarEvento-vetor {
@@ -474,7 +473,7 @@ h3 {
   }
 
   .adicionar-evento {
-    border-top-right-radius: 30px;
+   
     padding: 10px 10px;
   }
   .adicionar-vetor {
@@ -511,18 +510,19 @@ h3 {
     flex-direction: column;
     height: auto;
     padding: 30px 20px;
-    border-radius: 30px;
+    border-radius: 10px;
     text-align: center;
   }
 
   .adicionarEvento-vetor {
-    max-width: 260px;
+    max-width: 270px;
     width: 100%;
   }
 
   .adicionarEvento-texto {
     max-width: 100%;
     align-items: center;
+     padding: 0px 35px;
   }
 
   .btn-solicitar-evento {
