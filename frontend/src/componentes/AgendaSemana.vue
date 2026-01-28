@@ -10,11 +10,13 @@ type Tipo = 'calendario' | 'lista'
 
 interface Evento {
   titulo: string
-  dataInicio: string
-  dataFim: string
-  inicio: string
-  fim: string
-  categoria: string
+  dataInscricaoInicio: { data: string; hora: string }
+  dataInscricaoFim: { data: string; hora: string }
+  dataEventoInicio: { data: string; hora: string }
+  dataEventoFim: { data: string; hora: string }
+  horaEventoInicio: string
+  horaEventoFim: string
+  categorias: string []
   local: string
 }
 

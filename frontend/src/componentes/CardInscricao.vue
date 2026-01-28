@@ -152,8 +152,8 @@ li:first-child::before {
   content: '•';
   font-size: 2rem;
   position: absolute;
-  left: -26px;
-  top: 2px;
+  left: -23px;
+  top: 6px;
   color: #009218;
 }
 
@@ -161,8 +161,8 @@ li:last-child::before {
   content: '•';
   font-size: 2rem;
   position: absolute;
-  left: -26px;
-  top: 2px;
+  left: -23px;
+  top: 6px;
   color: #c62828;
 }
 

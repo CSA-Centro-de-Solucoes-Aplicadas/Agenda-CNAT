@@ -331,7 +331,12 @@ const swiperConfig = computed(() => {
     width: 8px;
     height: 8px;
   }
+
+  .carousel-scrollbar{
+    display: none;
+  }
 }
+  
 
 /* Garante que clique e arraste funciona em toda a área */
 :deep(.swiper) {

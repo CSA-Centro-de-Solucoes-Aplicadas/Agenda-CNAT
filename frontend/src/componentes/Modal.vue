@@ -7,8 +7,8 @@ interface Evento {
   local: string
   categoria: string
   datas: { data: string; hora: string; descricao: string }[]
-  link: string
-  organizadores: string[]
+  link?: string
+  organizadores?: string[]
   imagem: string
 }
 const props = defineProps<{
@@ -16,7 +16,7 @@ const props = defineProps<{
 }>()
 
 const contatosLimitados = computed(() => {
-  return evento.organizadores.slice(0, 4)
+  return props.evento.organizadores.slice(0, 4)
 })
 
 const temContatos = computed(() => contatosLimitados.value.length > 0)
@@ -24,13 +24,14 @@ const emit = defineEmits(['close'])
 
 const modo = ref('info')
 
-function next() {
-  modo.value = modo.value === 'info' ? 'imagem' : 'info'
-}
+// -- Navegação entre modos desativada por enquanto --
+// function next() {
+//   modo.value = modo.value === 'info' ? 'imagem' : 'info'
+// }
 
-function prev() {
-  modo.value = modo.value === 'info' ? 'imagem' : 'info'
-}
+// function prev() {
+//   modo.value = modo.value === 'info' ? 'imagem' : 'info'
+// }
 </script>
 
 <template>

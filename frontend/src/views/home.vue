@@ -145,7 +145,11 @@ interface Evento {
   titulo: string
   local: string
   categoria: string
-  datas: { data: string; hora: string; descricao: string }[]
+  // datas: { data: string; hora: string; descricao: string }[]
+  dataInicio?: string
+  dataFim?: string
+  horaInicio?: string
+  horaFim?: string
   link?: string
   organizadores?: string[]
   imagem?: string
@@ -505,6 +509,10 @@ h3 {
 }
 
 @media (max-width: 750px) {
+
+  .destaques-default-section{
+    padding-bottom: 0px;
+  }
 
   .default-section {
     padding: 25px 0;

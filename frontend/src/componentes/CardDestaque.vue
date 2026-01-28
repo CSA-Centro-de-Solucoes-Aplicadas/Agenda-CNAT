@@ -2,6 +2,18 @@
 const props = defineProps({
   item: Object
 })
+
+interface Evento {
+  titulo: string
+  descricao?: string
+  dataInscricaoInicio?: string
+  dataInscricaoFim?: string
+  dataEventoInicio?: string
+  dataEventoFim?: string
+  categorias?: string[]
+  local: string
+  colaboradores?: string[]
+}
 import localImg from '@/assets/images/icons/local.svg'
 import calendario_horaImg from'@/assets/images/icons/calendario_hora.svg'
 import '@/assets/images/illustrations/fundodestaque.png'
