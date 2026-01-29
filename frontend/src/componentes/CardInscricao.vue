@@ -11,31 +11,43 @@ interface Evento {
   dataInscricaoFim?: string
   dataEventoInicio?: string
   dataEventoFim?: string
-  categorias?: string[]
+  categorias: string[]
   local: string
+  linkInscricao?: string
   colaboradores?: string[]
-  categoria: string
-  datas: {
-    data: string
-    hora: string
-    descricao: string
-  }[]}
+  }
 
 // Mapear categorias para nomes de arquivos de ícones
-const getIconPath = computed(() => {
-  const categoryMap = {
+const getPrimeiraCategoria = (categorias: string[]) => {
+  return categorias?.[0] ?? 'Geral'
+}
+
+// Definir o ícone
+const getIconPath = (categoria: string) => {
+  const categoryMap: Record<string, string> = {
     'Palestras': 'palestras.svg',
     'Cultura': 'cultura.svg',
     'Esporte': 'esporte.svg',
     'Tecnologia': 'tecnologia.svg',
     'Saúde': 'saude.svg',
   }
-  
-  const fileName = categoryMap[props.evento.categoria] || 'default.svg'
-  return `/src/assets/images/icons/${fileName}`
 
-  function formatData
-})
+  const fileName = categoryMap[categoria] || 'default.svg'
+  return `/src/assets/images/icons/${fileName}`
+}
+
+const separarDataHora = (dataISO?: string) => {
+  if (!dataISO) return { data: '--/--/--', hora: '--:--' }
+
+  const dataObj = new Date(dataISO);
+  const dataFormatada = dataObj.toLocaleDateString('pt-BR');
+  const horaFormatada = dataObj.toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  return { data: dataFormatada, hora: horaFormatada };
+}
 </script>
 <template>
   <div class="cardevento">
@@ -49,23 +61,23 @@ const getIconPath = computed(() => {
       <ul class="timeline">
         <li>
           <p class="data">
-            {{ props.evento.dataInscricaoInicio }} <br />
-            {{ props.evento.dataInscricaoFim }}
+            {{ separarDataHora(props.evento.dataInscricaoInicio).data }} <br />
+            {{ separarDataHora(props.evento.dataInscricaoInicio).hora }}
           </p>
-          <p class="descricao">{{ props.evento.datas[0].descricao }}</p>
+          <p class="descricao">Início das inscrições</p>
         </li>
         <li>
           <p class="data">
-            {{ props.evento.datas[props.evento.datas.length - 1].data }} <br />
-            {{ props.evento.datas[props.evento.datas.length - 1].hora }}
+            {{ separarDataHora(props.evento.dataInscricaoFim).data }} <br />
+            {{ separarDataHora(props.evento.dataInscricaoFim).hora }}
           </p>
-          <p class="descricao">{{ props.evento.datas[props.evento.datas.length - 1].descricao }}</p>
+          <p class="descricao">Fim das inscrições</p>
         </li>
       </ul>
     </div>
     <div class="cardfooter">
-      <p>{{ props.evento.categoria }}</p>
-      <img :src="getIconPath" alt="Ícone da categoria" width="20px"></img>
+      <p>{{ getPrimeiraCategoria(props.evento.categorias) }}</p>
+      <img :src="getIconPath(getPrimeiraCategoria(props.evento.categorias))" alt="Ícone da categoria" width="20px"></img>
     </div>
   </div>
 </template>

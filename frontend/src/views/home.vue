@@ -34,9 +34,59 @@ interface Evento {
   linkInscricao?: string
 }
 
-const props = defineProps<{
-  eventos: Evento[]
-}>()
+// props estaticas so para teste
+const eventos = ref<Evento[]>([
+  {
+    titulo: 'Semana de Tecnologia do IFRN',
+    local: 'Campus Natal-Central',
+    descricao: 'Uma semana repleta de palestras, workshops e atividades voltadas para o universo da tecnologia.',
+    imagem: '',
+    dataEventoInicio: '2024-07-15T09:00:00',
+    dataEventoFim: '2024-07-19T18:00:00',
+    categorias: ['Tecnologia', 'Palestras'],
+    linkInscricao: 'https://suap.ifrn.edu.br/',
+  },
+  {
+    titulo: 'Festival Cultural do IFRN',
+    local: 'Auditório do Campus Natal-Central',
+    descricao: 'Celebração da diversidade cultural com apresentações artísticas, exposições e gastronomia típica.',
+    imagem: '',
+    dataEventoInicio: '2024-08-05T10:00:00',
+    dataEventoFim: '2024-08-07T22:00:00',
+    categorias: ['Cultura'],
+    linkInscricao: 'https://suap.ifrn.edu.br/',
+  },
+  {
+    titulo: 'Torneio de Futsal Intercampi',
+    local: 'Ginásio Poliesportivo do IFRN',
+    descricao: 'Competição esportiva entre os campi do IFRN, promovendo integração e espírito esportivo.',
+    imagem: '',
+    dataEventoInicio: '2024-09-10T14:00:00',
+    dataEventoFim: '2024-09-12T20:00:00',
+    categorias: ['Esporte'],
+    linkInscricao: 'https://suap.ifrn.edu.br/',
+  },
+  {
+    titulo: 'Semana de Saúde e Bem-Estar',
+    local: 'Campus Natal-Central',
+    descricao: 'Atividades e palestras focadas em saúde física e mental, promovendo o bem-estar da comunidade acadêmica.',
+    imagem: '',
+    dataEventoInicio: '2024-10-01T08:00:00',
+    dataEventoFim: '2024-10-05T17:00:00',
+    categorias: ['Saúde'],
+    linkInscricao: 'https://suap.ifrn.edu.br/',
+  },
+  {
+    titulo: 'Palestra sobre Inovação Tecnológica',
+    local: 'Auditório do Campus Natal-Central',
+    descricao: 'Palestra com especialistas discutindo as últimas tendências em inovação tecnológica.',
+    imagem: '',
+    dataEventoInicio: '2024-11-20T15:00:00',
+    dataEventoFim: '2024-11-20T17:00:00',
+    categorias: ['Tecnologia', 'Palestras'],
+    linkInscricao: 'https://suap.ifrn.edu.br/',
+  }
+])
 
 const separarDataHora = (dataISO?: string) => {
   if (!dataISO) return { data: '--/--/--', hora: '--:--' }

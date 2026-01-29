@@ -25,7 +25,7 @@ const eventos = ref<Evento[]>([
     titulo: 'Feira de Ciências',
     dataInscricaoInicio: '2024-12-25T14:30:00.000Z',
     dataInscricaoFim: '2024-06-10T23:59:00.000Z',
-    dataEventoInicio: '2024-06-15T09:00:00.000Z', // Padronizei para ISO para evitar erros
+    dataEventoInicio: '2024-06-15T09:00:00.000Z',
     dataEventoFim: '2024-06-15T18:00:00.000Z',
     categorias: ['Ciência', 'Educação'],
     local: 'Auditório Principal',
