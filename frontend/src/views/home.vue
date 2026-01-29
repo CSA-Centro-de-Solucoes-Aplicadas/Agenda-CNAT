@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
-import logoImg from '@/assets/logo.svg'
 import vetorImg from '@/assets/vetor.png'
-import logoFooter from '@/assets/logoFooter.png'
-import logoIfrn from '@/assets/ifrn.png'
-import XImg from '@/assets/x.png'
-import instagramImg from '@/assets/instagram.png'
-import youtubeImg from '@/assets/youtube.png'
 import Carrossel from '@/componentes/Carrossel.vue'
 import CardDestaque from '@/componentes/CardDestaque.vue'
 import CardInscricao from '@/componentes/CardInscricao.vue'
@@ -14,7 +8,6 @@ import BarradePesquisa from '@/componentes/BarradePesquisa.vue'
 import AgendaSemana from '@/componentes/AgendaSemana.vue'
 import CalendarioAnualVue from '@/componentes/CalendarioAnual.vue'
 import arrowImg from '@/assets/arrow-right.png'
-import { RouterLink } from 'vue-router'
 import Header from '@/componentes/header.vue'
 import Footer from '@/componentes/footer.vue'
 import Modal from '@/componentes/Modal.vue'
@@ -39,7 +32,8 @@ const eventos = ref<Evento[]>([
   {
     titulo: 'Semana de Tecnologia do IFRN',
     local: 'Campus Natal-Central',
-    descricao: 'Uma semana repleta de palestras, workshops e atividades voltadas para o universo da tecnologia.',
+    descricao:
+      'Uma semana repleta de palestras, workshops e atividades voltadas para o universo da tecnologia.',
     imagem: '',
     dataEventoInicio: '2025-07-15T09:00:00',
     dataEventoFim: '2025-07-19T18:00:00',
@@ -52,7 +46,8 @@ const eventos = ref<Evento[]>([
   {
     titulo: 'Festival Cultural do IFRN',
     local: 'Auditório do Campus Natal-Central',
-    descricao: 'Celebração da diversidade cultural com apresentações artísticas, exposições e gastronomia típica.',
+    descricao:
+      'Celebração da diversidade cultural com apresentações artísticas, exposições e gastronomia típica.',
     imagem: '',
     dataEventoInicio: '2025-08-05T10:00:00',
     dataEventoFim: '2025-08-07T22:00:00',
@@ -66,7 +61,8 @@ const eventos = ref<Evento[]>([
   {
     titulo: 'Torneio de Futsal Intercampi',
     local: 'Ginásio Poliesportivo do IFRN',
-    descricao: 'Competição esportiva entre os campi do IFRN, promovendo integração e espírito esportivo.',
+    descricao:
+      'Competição esportiva entre os campi do IFRN, promovendo integração e espírito esportivo.',
     imagem: '',
     dataEventoInicio: '2025-09-10T14:00:00',
     dataEventoFim: '2025-09-12T20:00:00',
@@ -79,7 +75,8 @@ const eventos = ref<Evento[]>([
   {
     titulo: 'Semana de Saúde e Bem-Estar',
     local: 'Campus Natal-Central',
-    descricao: 'Atividades e palestras focadas em saúde física e mental, promovendo o bem-estar da comunidade acadêmica.',
+    descricao:
+      'Atividades e palestras focadas em saúde física e mental, promovendo o bem-estar da comunidade acadêmica.',
     imagem: '',
     dataEventoInicio: '2025-10-01T08:00:00',
     dataEventoFim: '2025-10-05T17:00:00',
@@ -92,7 +89,8 @@ const eventos = ref<Evento[]>([
   {
     titulo: 'Palestra sobre Inovação Tecnológica',
     local: 'Auditório do Campus Natal-Central',
-    descricao: 'Palestra com especialistas discutindo as últimas tendências em inovação tecnológica.',
+    descricao:
+      'Palestra com especialistas discutindo as últimas tendências em inovação tecnológica.',
     imagem: '',
     dataEventoInicio: '2025-11-20T15:00:00',
     dataEventoFim: '2025-11-20T17:00:00',
@@ -104,18 +102,18 @@ const eventos = ref<Evento[]>([
   }
 ])
 
-const separarDataHora = (dataISO?: string) => {
-  if (!dataISO) return { data: '--/--/--', hora: '--:--' }
+// const separarDataHora = (dataISO?: string) => {
+//   if (!dataISO) return { data: '--/--/--', hora: '--:--' }
 
-  const dataObj = new Date(dataISO);
-  const dataFormatada = dataObj.toLocaleDateString('pt-BR');
-  const horaFormatada = dataObj.toLocaleTimeString('pt-BR', {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+//   const dataObj = new Date(dataISO)
+//   const dataFormatada = dataObj.toLocaleDateString('pt-BR')
+//   const horaFormatada = dataObj.toLocaleTimeString('pt-BR', {
+//     hour: '2-digit',
+//     minute: '2-digit',
+//   })
 
-  return { data: dataFormatada, hora: horaFormatada };
-}
+//   return { data: dataFormatada, hora: horaFormatada }
+// }
 
 // lógica para abrir modal
 const ShowModal = ref(false)
@@ -133,7 +131,7 @@ onMounted(() => {
   document.body.style.overflow = 'auto'
 })
 
-function AbrirModal(eventoClicado : Evento) {
+function AbrirModal(eventoClicado: Evento) {
   EventoSelecionado.value = eventoClicado
   ShowModal.value = true
 }
@@ -145,7 +143,7 @@ function FecharModal() {
 
 <template>
   <div class="page">
-    <Header/>
+    <Header />
     <main class="main-content">
       <BarradePesquisa class="barra-pesquisa" />
       <section class="destaques-default-section">
@@ -185,22 +183,28 @@ function FecharModal() {
         </div>
       </section>
     </main>
-    <Footer/>
+    <Footer />
+    <Teleport to="body">
+      <Transition name="fade">
+        <Modal
+          v-if="ShowModal && EventoSelecionado"
+          :eventoSelecionado="EventoSelecionado"
+          @close="FecharModal"
+        />
+      </Transition>
+    </Teleport>
   </div>
-  <Teleport to="body">
-    <Transition name="fade">
-      <Modal v-if="ShowModal && EventoSelecionado" :eventoSelecionado="EventoSelecionado" @close="FecharModal" />
-    </Transition>
-  </Teleport>
 </template>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
 /* modal */
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.3s ease;
 }
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 h3 {
@@ -233,7 +237,6 @@ h3 {
 }
 
 .inscricoes {
-
   max-width: 1440px;
   width: 100%;
   margin: 0 auto;
@@ -363,7 +366,7 @@ h3 {
   max-width: 1440px;
   margin: 0 auto;
   width: 100%;
-  padding: 30px ;
+  padding: 30px;
 }
 
 .inscricoes-content h3 {
@@ -401,7 +404,6 @@ h3 {
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
 }
 
-
 .barra-pesquisa {
   display: flex;
   margin: auto;
@@ -409,7 +411,6 @@ h3 {
   display: block;
 }
 @media (max-width: 1024px) {
-
   .adicionarEvento-container {
     padding: 0 24px;
     justify-content: flex-start;
@@ -431,12 +432,11 @@ h3 {
   .adicionarEvento-texto h3 {
     font-size: 24px;
   }
-}
 
   .content-container {
     padding: 0 40px;
   }
-
+}
 @media (max-width: 900px) {
   .content-container {
     padding: 0 20px;
@@ -450,7 +450,6 @@ h3 {
     flex-direction: column;
     height: auto;
     padding: 30px 20px;
-    
   }
 
   .adicionarEvento-vetor {
@@ -469,8 +468,7 @@ h3 {
 }
 
 @media (max-width: 750px) {
-
-  .destaques-default-section{
+  .destaques-default-section {
     padding-bottom: 0px;
   }
 
@@ -491,7 +489,6 @@ h3 {
   }
 
   .adicionar-evento {
-   
     padding: 10px 10px;
   }
   .adicionar-vetor {
@@ -540,7 +537,7 @@ h3 {
   .adicionarEvento-texto {
     max-width: 100%;
     align-items: center;
-     padding: 0px 35px;
+    padding: 0px 35px;
   }
 
   .btn-solicitar-evento {

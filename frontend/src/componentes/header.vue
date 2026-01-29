@@ -2,18 +2,18 @@
 import logoImg from '@/assets/logo.svg'
 </script>
 <template>
-   <header class="main-header">
-      <div class="header-container">
-        <RouterLink to="/" class="header-logo-container">
-          <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
-        </RouterLink>
-        <ul>
-          <li><a href="#programacao">Programação</a></li>
-          <li><a href="#adicionar-evento">Adicionar Evento</a></li>
-          <li><a href="#inscricoes">Inscrições Abertas</a></li>
-        </ul>
-      </div>
-    </header>
+  <header class="main-header">
+    <div class="header-container">
+      <RouterLink to="/" class="header-logo-container">
+        <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
+      </RouterLink>
+      <ul>
+        <li><a href="#programacao">Programação</a></li>
+        <li><a href="#adicionar-evento">Adicionar Evento</a></li>
+        <li><a href="#inscricoes">Inscrições Abertas</a></li>
+      </ul>
+    </div>
+  </header>
 </template>
 <style scoped>
 .main-header {
@@ -112,33 +112,32 @@ header li a:hover {
   }
 
   @media (max-width: 750px) {
-  header ul {
-    display: none;
-  }
+    header ul {
+      display: none;
+    }
 
-  .main-header {
-    min-height: 60px;
-    max-height: 60px;
-  }
+    .main-header {
+      min-height: 60px;
+      max-height: 60px;
+    }
 
-  .header-container {
-    padding: 0;
-  }
+    .header-container {
+      padding: 0;
+    }
 
-  .header-logo-container {
-    position: static;
-    transform: none;
-    justify-content: left;
-    padding: 10px 8px;
-  }
+    .header-logo-container {
+      position: static;
+      transform: none;
+      justify-content: left;
+      padding: 10px 8px;
+    }
 
-  .header-logo {
-    top: 50px;
-    left: 10px;
-    width: 50%;
-    max-width: 80px;
+    .header-logo {
+      top: 50px;
+      left: 10px;
+      width: 50%;
+      max-width: 80px;
+    }
   }
 }
-}
-
 </style>
