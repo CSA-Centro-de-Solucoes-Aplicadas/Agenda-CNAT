@@ -54,20 +54,19 @@ function removerCategoria(nome: string) {
 }
 
 
-const nomeEvento = ref('')
+const titulo = ref('')
 const imagem = ref<File | null>(null)
 const descricao = ref('')
-const link = ref('')
+const linkInformacoes = ref('')
 
 
 const dataInicioEvento = ref<Date | null>(null)
 const dataFimEvento = ref<Date | null>(null)
-const horarioInicioEvento = ref('')
-const horarioFimEvento = ref('')
 
 
 const dataInicioInscricao = ref<Date | null>(null)
 const dataFimInscricao = ref<Date | null>(null)
+const linkInscricao = ref('')
 
 
 const organizadores = ref<string[]>([''])
@@ -83,21 +82,16 @@ function removerOrganizador(index: number) {
 
 function enviarFormulario() {
   const dados = {
-    nomeEvento: nomeEvento.value,
+    titulo: titulo.value,
     imagem: imagem.value,
     categorias: categoriasSelecionadas.value,
     descricao: descricao.value,
-    link: link.value,
-    periodoEvento: {
-      dataInicio: dataInicioEvento.value,
-      dataFim: dataFimEvento.value,
-      horarioInicio: horarioInicioEvento.value,
-      horarioFim: horarioFimEvento.value,
-    },
-    inscricao: {
-      dataInicio: dataInicioInscricao.value,
-      dataFim: dataFimInscricao.value,
-    },
+    linkInformacoes: linkInformacoes.value,
+    dataInicioEvento: dataInicioEvento.value,
+    dataFimEvento: dataFimEvento.value,
+    dataInicioInscricao: dataInicioInscricao.value,
+    dataFimInscricao: dataFimInscricao.value, 
+    linkInscricao: linkInscricao.value,
     organizadores: organizadores.value.filter(o => o.trim() !== ''),
   }
 
@@ -177,9 +171,10 @@ function enviarFormulario() {
       </section>
 
       <section class="form-section">
-        <h2>2. Data e Horário do Evento</h2>
+        <h2>2. Datas e Horário do Evento</h2>
 
-        <div class="form-group">
+        <div class="datas-in-row">
+          <div class="form-group">
           <label>Data de início *</label>
           <DatePicker
             v-model="dataInicioEvento"
@@ -196,30 +191,37 @@ function enviarFormulario() {
             placeholder="Selecione o dia e horário final"
           />
         </div>
-
+      </div>
+        
       </section>
-
-
-     <section class="form-section">
+      
+      
+      <section class="form-section">
         <h2>2.1 Período de Inscrições</h2>
-
-        <div class="form-group">
-          <label>Data de início </label>
+        <div class="datas-in-row">
+          <div class="form-group">
+          <label>Data de início das inscrições *</label>
           <DatePicker
-            v-model="dataInicioInscricao"
-            :enable-time-picker="true"
-            placeholder="Selecione o dia e horário de início"
+          v-model="dataInicioInscricao"
+          :enable-time-picker="false"
+          placeholder="Dia de início das inscrições"
           />
         </div>
-
         <div class="form-group">
-          <label>Data de fim </label>
+          <label>Data de fim das inscrições *</label>
           <DatePicker
-            v-model="dataFimInscricao"
-            :enable-time-picker="false"
-            placeholder="Selecione o dia e horário final"
+          v-model="dataFimInscricao"
+          :enable-time-picker="false"
+          placeholder="Dia de fim das inscrições"
           />
         </div>
+      </div>
+        
+        <div class="form-group">
+          <label>Link para inscrições</label>
+          <input type="url" />
+        </div>
+        
       </section>
 
 
@@ -297,6 +299,12 @@ h1 {
   display: flex;
   flex-direction: column;
   margin-bottom: 18px;
+}
+
+.datas-in-row {
+  display: flex;
+  flex-direction: row;
+  gap: 100px;
 }
 
 .form-group input,
@@ -538,4 +546,118 @@ h1 {
   cursor: pointer;
 }
 
+
+footer {
+  background-color: #02402e;
+  color: #ffffff;
+  font-size: 14px;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.footer-content {
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  padding: 40px 20px 30px;
+  gap: 20px;
+}
+
+.footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin: 10px 4px;
+}
+
+.footer-logo {
+  width: 220px;
+}
+
+.logo-if {
+  width: 220px;
+}
+
+.footer-right {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  gap: 6px;
+}
+
+.footer-right p {
+  margin: 10px 4px;
+  font-size: 20px;
+}
+
+.social {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.social img {
+  width: 38px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.social img:hover {
+  transform: scale(1.1);
+  opacity: 0.8;
+}
+
+.copy {
+  text-align: center;
+  font-size: 12px;
+  padding: 15px 20px;
+  background-color: #012118;
+  width: 100%;
+  opacity: 0.85;
+}
+
+/* Space before footer */
+main section:last-child {
+  margin-bottom: 6rem;
+}
+
+@media screen and (max-width: 750px) {
+  .datas-in-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+  header ul {
+    display: none;
+  }
+
+  .main-header {
+    min-height: 60px;
+    max-height: 60px;
+  }
+
+  .header-container {
+    padding: 0;
+  }
+
+  .header-logo-container {
+    position: static;
+    transform: none;
+    justify-content: left;
+    padding: 10px 8px;
+  }
+
+  .header-logo {
+    top: 50px;
+    left: 10px;
+    width: 50%;
+    max-width: 80px;
+  }
+}
 </style>
