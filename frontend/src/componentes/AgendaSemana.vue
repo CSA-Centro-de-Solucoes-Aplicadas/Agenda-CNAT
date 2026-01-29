@@ -15,7 +15,7 @@ interface Evento {
   dataInscricaoInicio?: string
   dataInscricaoFim?: string
   dataEventoInicio?: string
-  dataEventoFim: string 
+  dataEventoFim: string
   categorias: string[]
   local: string
 }
@@ -23,19 +23,19 @@ interface Evento {
 const eventos = ref<Evento[]>([
   {
     titulo: 'Feira de Ciências',
-    dataInscricaoInicio: '2024-12-25T14:30:00.000Z',
-    dataInscricaoFim: '2024-06-10T23:59:00.000Z',
-    dataEventoInicio: '2024-06-15T09:00:00.000Z',
-    dataEventoFim: '2024-06-15T18:00:00.000Z',
+    dataInscricaoInicio: '2026-12-25T14:30:00.000Z',
+    dataInscricaoFim: '2026-01-10T23:59:00.000Z',
+    dataEventoInicio: '2026-01-15T09:00:00.000Z',
+    dataEventoFim: '2026-01-15T18:00:00.000Z',
     categorias: ['Ciência', 'Educação'],
     local: 'Auditório Principal',
   },
   {
     titulo: 'Oficina de Robótica',
-    dataInscricaoInicio: '2024-06-05T08:00:00.000Z',
-    dataInscricaoFim: '2024-06-20T18:00:00.000Z',
-    dataEventoInicio: '2024-06-25T14:00:00.000Z',
-    dataEventoFim: '2024-06-25T16:00:00.000Z',
+    dataInscricaoInicio: '2026-01-05T08:00:00.000Z',
+    dataInscricaoFim: '2026-01-20T18:00:00.000Z',
+    dataEventoInicio: '2026-01-25T14:00:00.000Z',
+    dataEventoFim: '2026-01-29T16:00:00.000Z',
     categorias: ['Tecnologia', 'Educação'],
     local: 'Laboratório de Informática',
   },
@@ -48,46 +48,38 @@ const tipoVisualizacao = ref<Tipo>('calendario')
 const categoriaSelecionada = ref('Todas')
 const dataBaseAgenda = ref(new Date(hoje))
 
-// --- FUNÇÕES DE DATA ---
-
 const separarDataHora = (dataISO?: string) => {
   if (!dataISO) return { data: '--/--/--', hora: '--:--' }
-  
-  const dataObj = new Date(dataISO);
-  const dataFormatada = dataObj.toLocaleDateString('pt-BR');
+
+  const dataObj = new Date(dataISO)
+  const dataFormatada = dataObj.toLocaleDateString('pt-BR')
   const horaFormatada = dataObj.toLocaleTimeString('pt-BR', {
     hour: '2-digit',
-    minute: '2-digit'
-  });
+    minute: '2-digit',
+  })
 
-  return { data: dataFormatada, hora: horaFormatada };
+  return { data: dataFormatada, hora: horaFormatada }
 }
 
-// Verifica se "dia" está entre "inicio" e "fim" (ignorando hora para o calendário funcionar bem)
 const estaNoIntervalo = (dia: Date, inicioISO?: string, fimISO?: string) => {
   if (!inicioISO || !fimISO) return false
 
-  // Normaliza o dia do calendário para meia-noite
   const d = new Date(dia)
   d.setHours(0, 0, 0, 0)
 
-  // Normaliza o início do evento para meia-noite
   const start = new Date(inicioISO)
   start.setHours(0, 0, 0, 0)
 
-  // Normaliza o fim do evento para o final do dia
   const end = new Date(fimISO)
   end.setHours(23, 59, 59, 999)
 
   return d.getTime() >= start.getTime() && d.getTime() <= end.getTime()
 }
 
-// --- COMPUTEDS E LÓGICA DE NAVEGAÇÃO ---
-
 const diasSemana = computed(() => {
   const inicio = new Date(dataBaseAgenda.value)
-  // Ajusta para pegar o Domingo da semana atual
-  inicio.setDate(inicio.getDate() - inicio.getDay()) 
+
+  inicio.setDate(inicio.getDate() - inicio.getDay())
 
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date(inicio)
@@ -97,11 +89,9 @@ const diasSemana = computed(() => {
 })
 
 const mesAnoAtual = computed(() => {
-  const base = modoVisualizacao.value === 'hoje'
-      ? hoje
-      : diasSemana.value[0] ?? dataBaseAgenda.value
+  const base =
+    modoVisualizacao.value === 'hoje' ? hoje : (diasSemana.value[0] ?? dataBaseAgenda.value)
 
-  // Capitaliza a primeira letra do mês (pt-BR retorna minúsculo)
   const mes = base.toLocaleDateString('pt-BR', { month: 'long' })
   const mesCapitalizado = mes.charAt(0).toUpperCase() + mes.slice(1)
   const ano = base.getFullYear()
@@ -109,67 +99,56 @@ const mesAnoAtual = computed(() => {
   return `${mesCapitalizado}, ${ano}`
 })
 
-// --- LÓGICA DE CATEGORIAS ---
+//CATEGORIAS
 
 const categorias = computed(() => {
   // flatMap: pega os arrays ['A', 'B'] e ['C', 'A'] e transforma em ['A', 'B', 'C', 'A']
-  const todas = eventos.value.flatMap(e => e.categorias)
+  const todas = eventos.value.flatMap((e) => e.categorias)
   return ['Todas', ...new Set(todas)]
 })
 
 const coresCategorias = computed<Record<string, string>>(() => {
   // Pega categorias únicas (sem 'Todas') para gerar cores
-  const catsUnicas = [...new Set(eventos.value.flatMap(e => e.categorias))]
-  
+  const catsUnicas = [...new Set(eventos.value.flatMap((e) => e.categorias))]
+
   return Object.fromEntries(
     catsUnicas.map((c, i) => {
-      // Se for 'Geral', usamos um tom cinza-azulado, senão usamos a lógica do HSL
-      const cor = c === 'Geral' 
-        ? 'hsl(210, 15%, 60%)' 
-        : `hsl(145, 45%, ${78 - (i % 5) * 6}%)` // o % 5 evita que a cor fique preta se houver muitas cats
-      
+      const cor = c === 'Geral' ? 'hsl(210, 15%, 60%)' : `hsl(145, 45%, ${78 - (i % 5) * 6}%)` // o % 5 evita que a cor fique preta se houver muitas cats
+
       return [c, cor]
     }),
   )
 })
 
-// --- FILTRAGEM DE EVENTOS ---
-
-// Filtra eventos para um dia específico (usado nas células do calendário)
 const eventosFiltrados = (dia: Date) =>
   eventos.value
     .filter((e) => {
-      // Verifica Categoria (Array includes)
-      const matchCategoria = categoriaSelecionada.value === 'Todas' || e.categorias.includes(categoriaSelecionada.value)
-      
-      // Verifica Data
+      const matchCategoria =
+        categoriaSelecionada.value === 'Todas' || e.categorias.includes(categoriaSelecionada.value)
+
       const matchData = estaNoIntervalo(dia, e.dataEventoInicio, e.dataEventoFim)
 
       return matchCategoria && matchData
     })
     .sort((a, b) => {
-      // Sort seguro caso data seja undefined
       return (a.dataEventoInicio || '').localeCompare(b.dataEventoInicio || '')
     })
 
-// Lista geral de eventos visíveis na semana ou dia atual
 const eventosLista = computed(() =>
   eventos.value.filter((e) => {
-    // 1. Filtro de Categoria
-    if (categoriaSelecionada.value !== 'Todas' && !e.categorias.includes(categoriaSelecionada.value)) {
+    if (
+      categoriaSelecionada.value !== 'Todas' &&
+      !e.categorias.includes(categoriaSelecionada.value)
+    ) {
       return false
     }
 
-    // 2. Filtro de Tempo (Hoje ou Semana Visível)
     if (modoVisualizacao.value === 'hoje') {
       return estaNoIntervalo(hoje, e.dataEventoInicio, e.dataEventoFim)
     } else {
-      // Verifica se o evento cai em QUALQUER dia da semana atual
-      return diasSemana.value.some((d) =>
-        estaNoIntervalo(d, e.dataEventoInicio, e.dataEventoFim),
-      )
+      return diasSemana.value.some((d) => estaNoIntervalo(d, e.dataEventoInicio, e.dataEventoFim))
     }
-  })
+  }),
 )
 
 const semanaAnterior = () => {
@@ -192,11 +171,11 @@ const getPrimeiraCategoria = (categorias: string[]) => {
 // Definir o ícone
 const getIconPath = (categoria: string) => {
   const categoryMap: Record<string, string> = {
-    'Palestras': 'palestras.svg',
-    'Cultura': 'cultura.svg',
-    'Esporte': 'esporte.svg',
-    'Tecnologia': 'tecnologia.svg',
-    'Saúde': 'saude.svg',
+    Palestras: 'palestras.svg',
+    Cultura: 'cultura.svg',
+    Esporte: 'esporte.svg',
+    Tecnologia: 'tecnologia.svg',
+    Saúde: 'saude.svg',
   }
 
   const fileName = categoryMap[categoria] || 'default.svg'
@@ -254,78 +233,75 @@ const getIconPath = (categoria: string) => {
         </select>
       </div>
     </header>
+    <div id="scroll">
+      <div class="barra-dias">
+        <div class="chips">
+          <div
+            v-for="dia in modoVisualizacao === 'hoje' ? [hoje] : diasSemana"
+            :key="dia.toDateString()"
+            class="chip-dia"
+            :class="{ hoje: dia.toDateString() === hoje.toDateString() }"
+          >
+            <span class="numero">{{ dia.getDate() }}</span>
+            <span class="semana">
+              {{ dia.toLocaleDateString('pt-BR', { weekday: 'short' }).toUpperCase() }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="conteudo">
+        <div v-if="tipoVisualizacao === 'lista'" class="lista">
+          <div
+            v-for="evento in eventos"
+            :key="evento.titulo + evento.dataEventoInicio + evento.dataEventoFim"
+            class="item-lista"
+          >
+            <div class="badge">{{ evento.titulo }}</div>
 
-    <!-- Dias -->
-      <div class="dias-grade">
-        <div class="barra-dias">
-          <div class="chips">
-            <div
-              v-for="dia in modoVisualizacao === 'hoje' ? [hoje] : diasSemana"
-              :key="dia.toDateString()"
-              class="chip-dia"
-              :class="{ hoje: dia.toDateString() === hoje.toDateString() }"
-            >
-              <span class="numero">{{ dia.getDate() }}</span>
-              <span class="semana">
-                {{ dia.toLocaleDateString('pt-BR', { weekday: 'short' }).toUpperCase() }}
-              </span>
+            <div class="info">
+              <strong
+                >{{ separarDataHora(evento.dataEventoInicio).data }} até
+                {{ separarDataHora(evento.dataEventoFim).data }}</strong
+              >
+              <span>{{ evento.local }}</span>
             </div>
           </div>
         </div>
-        <div class="conteudo">
-    
-          <div v-if="tipoVisualizacao === 'lista'" class="lista">
-            <div
-              v-for="evento in eventos"
-              :key="evento.titulo + evento.dataEventoInicio + evento.dataEventoFim"
-              class="item-lista"
-            >
-              <div class="badge">{{ evento.titulo }}</div>
 
-              <div class="info">
-                <strong>{{ separarDataHora(evento.dataEventoInicio).data }} até {{ separarDataHora(evento.dataEventoFim).data }}</strong>
-                <span>{{ evento.local }}</span>
+        <div v-else class="grade" :class="{ 'modo-hoje': modoVisualizacao === 'hoje' }">
+          <div class="grade-conteudo">
+            <div class="dias">
+              <div
+                v-for="dia in modoVisualizacao === 'hoje' ? [hoje] : diasSemana"
+                :key="dia.toDateString()"
+                class="dia"
+              >
+                <div
+                  v-for="evento in eventosFiltrados(dia)"
+                  :key="evento.titulo + evento.dataEventoInicio"
+                  class="evento-simples"
+                  :style="{ background: coresCategorias[getPrimeiraCategoria(evento.categorias)] }"
+                >
+                  <div class="evento-header">
+                    <strong class="titulo-evento">{{ evento.titulo }}</strong>
+                  </div>
+
+                  <div class="evento-info local-evento">
+                    <img :src="iconLocal" alt="Local" class="icon-info" />
+                    <span>{{ evento.local }}</span>
+                  </div>
+
+                  <div class="evento-info horario-evento">
+                    <img :src="iconHorario" alt="Horário" class="icon-info" />
+                    <span
+                      >{{ separarDataHora(evento.dataEventoInicio).hora }} às
+                      {{ separarDataHora(evento.dataEventoFim).hora }}</span
+                    >
+                  </div>
+                </div>
+                <p v-if="!eventosFiltrados(dia).length" class="dia-vazio">Nenhum evento</p>
               </div>
             </div>
-          </div>
-
-
-          <div v-else class="grade" :class="{ 'modo-hoje': modoVisualizacao === 'hoje' }">
-            <div class="grade-conteudo">
-              <div class="dias">
-                <div
-                  v-for="dia in modoVisualizacao === 'hoje' ? [hoje] : diasSemana"
-                  :key="dia.toDateString()"
-                  class="dia"
-                >
-                  <div
-                    v-for="evento in eventosFiltrados(dia)"
-                    :key="evento.titulo + evento.dataEventoInicio"
-                    class="evento-simples"
-                    :style="{ background: coresCategorias[getPrimeiraCategoria(evento.categorias)] }"
-                  >
-                
-                    <div class="evento-header">
-                      <strong class="titulo-evento">{{ evento.titulo }}</strong>
-                    </div>
-
-
-                    <div class="evento-info local-evento">
-                      <img :src="iconLocal" alt="Local" class="icon-info" />
-                      <span>{{ evento.local }}</span>
-                    </div>
-
-                  
-                    <div class="evento-info horario-evento">
-                      <img :src="iconHorario" alt="Horário" class="icon-info" />
-                      <span>{{ separarDataHora(evento.dataEventoInicio).hora }} às {{ separarDataHora(evento.dataEventoFim).hora }}</span>
-                    </div>
-                  </div>
-              <p v-if="!eventosFiltrados(dia).length" class="dia-vazio">
-                Nenhum evento
-              </p>
-            </div>
-          </div>
           </div>
         </div>
       </div>
@@ -437,28 +413,27 @@ select {
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 .grade {
   display: flex;
   flex: 1;
   overflow-y: auto;
-  overflow-x: hidden;
   border-top: 1px solid #ddd;
 }
 
 .grade-conteudo {
   display: flex;
-  min-width: 100%;
 }
 
 .grade.modo-hoje .dias {
-  background-image: repeating-linear-gradient(to bottom,
-      transparent 0,
-      transparent calc(100px - 1px),
-      #e0e0e0 calc(100px - 1px),
-      #e0e0e0 100px);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(100px - 1px),
+    #e0e0e0 calc(100px - 1px),
+    #e0e0e0 100px
+  );
   background-size: 100% 100px;
   min-width: 1280px;
 }
@@ -471,7 +446,8 @@ select {
 
 .dias {
   display: flex;
-  min-width: 100%;
+  max-width: 180px;
+  width: 100%;
   min-height: calc((23 - 6) * 40px);
   position: relative;
   gap: 10px;
@@ -479,7 +455,6 @@ select {
 
 .dia {
   min-width: 0;
-  flex: 1;
   max-width: 100%;
   padding: 8px 0;
   width: 200px;
@@ -542,7 +517,8 @@ select {
 }
 
 .icon-btn.ativo img {
-  filter: brightness(0) saturate(100%) invert(47%) sepia(96%) saturate(402%) hue-rotate(104deg) brightness(92%) contrast(90%);
+  filter: brightness(0) saturate(100%) invert(47%) sepia(96%) saturate(402%) hue-rotate(104deg)
+    brightness(92%) contrast(90%);
 }
 
 .lista {
@@ -647,7 +623,9 @@ select {
   flex-direction: column;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
   justify-content: flex-start;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
   overflow-wrap: break-word;
   word-break: break-word;
 }
@@ -686,7 +664,9 @@ select {
 
 .grade.modo-hoje .evento-simples:hover {
   transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.4);
 }
 
 .grade.modo-hoje .dia-vazio {
@@ -749,14 +729,12 @@ select {
     overflow-y: hidden;
   }
 
-  .chips,
-  .dias {
-    width: max-content;
-  }
-
   .dia {
     min-width: 140px;
     width: 140px;
+  }
+  .dias {
+    gap: 22px;
   }
 }
 
@@ -860,27 +838,21 @@ select {
     font-size: 10px;
   }
 
-  .barra-dias {
-    overflow-y: hidden;
-  }
-
   .grade-conteudo {
     overflow: visible;
   }
 
-  .dias-grade {
+  #scroll {
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Conteúdo interno precisa ser largo */
   .barra-dias,
   .grade {
     min-width: max-content;
   }
 
-  /* Chips e dias com mesma largura */
   .chips,
   .dias {
     display: flex;
@@ -892,11 +864,6 @@ select {
     min-width: 140px;
     width: 140px;
     flex-shrink: 0;
-  }
-
-  .barra-dias,
-  .grade {
-    overflow: visible;
   }
 }
 
