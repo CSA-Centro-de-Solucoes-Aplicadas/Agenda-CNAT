@@ -15,7 +15,7 @@ interface Evento {
   dataInscricaoInicio?: string
   dataInscricaoFim?: string
   dataEventoInicio?: string
-  dataEventoFim: string
+  dataEventoFim: string 
   categorias: string[]
   local: string
 }
@@ -52,7 +52,7 @@ const dataBaseAgenda = ref(new Date(hoje))
 
 const separarDataHora = (dataISO?: string) => {
   if (!dataISO) return { data: '--/--/--', hora: '--:--' }
-
+  
   const dataObj = new Date(dataISO);
   const dataFormatada = dataObj.toLocaleDateString('pt-BR');
   const horaFormatada = dataObj.toLocaleTimeString('pt-BR', {
@@ -87,7 +87,7 @@ const estaNoIntervalo = (dia: Date, inicioISO?: string, fimISO?: string) => {
 const diasSemana = computed(() => {
   const inicio = new Date(dataBaseAgenda.value)
   // Ajusta para pegar o Domingo da semana atual
-  inicio.setDate(inicio.getDate() - inicio.getDay())
+  inicio.setDate(inicio.getDate() - inicio.getDay()) 
 
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date(inicio)
@@ -98,8 +98,8 @@ const diasSemana = computed(() => {
 
 const mesAnoAtual = computed(() => {
   const base = modoVisualizacao.value === 'hoje'
-    ? hoje
-    : diasSemana.value[0] ?? dataBaseAgenda.value
+      ? hoje
+      : diasSemana.value[0] ?? dataBaseAgenda.value
 
   // Capitaliza a primeira letra do mês (pt-BR retorna minúsculo)
   const mes = base.toLocaleDateString('pt-BR', { month: 'long' })
@@ -120,14 +120,14 @@ const categorias = computed(() => {
 const coresCategorias = computed<Record<string, string>>(() => {
   // Pega categorias únicas (sem 'Todas') para gerar cores
   const catsUnicas = [...new Set(eventos.value.flatMap(e => e.categorias))]
-
+  
   return Object.fromEntries(
     catsUnicas.map((c, i) => {
       // Se for 'Geral', usamos um tom cinza-azulado, senão usamos a lógica do HSL
-      const cor = c === 'Geral'
-        ? 'hsl(210, 15%, 60%)'
+      const cor = c === 'Geral' 
+        ? 'hsl(210, 15%, 60%)' 
         : `hsl(145, 45%, ${78 - (i % 5) * 6}%)` // o % 5 evita que a cor fique preta se houver muitas cats
-
+      
       return [c, cor]
     }),
   )
@@ -141,7 +141,7 @@ const eventosFiltrados = (dia: Date) =>
     .filter((e) => {
       // Verifica Categoria (Array includes)
       const matchCategoria = categoriaSelecionada.value === 'Todas' || e.categorias.includes(categoriaSelecionada.value)
-
+      
       // Verifica Data
       const matchData = estaNoIntervalo(dia, e.dataEventoInicio, e.dataEventoFim)
 
@@ -255,73 +255,77 @@ const getIconPath = (categoria: string) => {
       </div>
     </header>
 
-    <div class="dias-grade">
-      <div class="barra-dias">
-        <div class="chips">
-          <div
-            v-for="dia in modoVisualizacao === 'hoje' ? [hoje] : diasSemana"
-            :key="dia.toDateString()"
-            class="chip-dia"
-            :class="{ hoje: dia.toDateString() === hoje.toDateString() }"
-          >
-            <span class="numero">{{ dia.getDate() }}</span>
-            <span class="semana">
-              {{ dia.toLocaleDateString('pt-BR', { weekday: 'short' }).toUpperCase() }}
-            </span>
-          </div>
-        </div>
-      </div>
-      <div class="conteudo">
-
-        <div v-if="tipoVisualizacao === 'lista'" class="lista">
-          <div
-            v-for="evento in eventos"
-            :key="evento.titulo + evento.dataEventoInicio + evento.dataEventoFim"
-            class="item-lista"
-          >
-            <div class="badge">{{ evento.titulo }}</div>
-
-            <div class="info">
-              <strong>{{ separarDataHora(evento.dataEventoInicio).data }} até {{ separarDataHora(evento.dataEventoFim).data }}</strong>
-              <span>{{ evento.local }}</span>
+    <!-- Dias -->
+      <div class="dias-grade">
+        <div class="barra-dias">
+          <div class="chips">
+            <div
+              v-for="dia in modoVisualizacao === 'hoje' ? [hoje] : diasSemana"
+              :key="dia.toDateString()"
+              class="chip-dia"
+              :class="{ hoje: dia.toDateString() === hoje.toDateString() }"
+            >
+              <span class="numero">{{ dia.getDate() }}</span>
+              <span class="semana">
+                {{ dia.toLocaleDateString('pt-BR', { weekday: 'short' }).toUpperCase() }}
+              </span>
             </div>
           </div>
         </div>
+        <div class="conteudo">
+    
+          <div v-if="tipoVisualizacao === 'lista'" class="lista">
+            <div
+              v-for="evento in eventos"
+              :key="evento.titulo + evento.dataEventoInicio + evento.dataEventoFim"
+              class="item-lista"
+            >
+              <div class="badge">{{ evento.titulo }}</div>
 
-        <div v-else class="grade" :class="{ 'modo-hoje': modoVisualizacao === 'hoje' }">
-          <div class="grade-conteudo">
-            <div class="dias">
-              <div
-                v-for="dia in modoVisualizacao === 'hoje' ? [hoje] : diasSemana"
-                :key="dia.toDateString()"
-                class="dia"
-              >
-                <div
-                  v-for="evento in eventosFiltrados(dia)"
-                  :key="evento.titulo + evento.dataEventoInicio"
-                  class="evento-simples"
-                  :style="{ background: coresCategorias[getPrimeiraCategoria(evento.categorias)]}"
-                >
-
-                  <div class="evento-header">
-                    <strong class="titulo-evento">{{ evento.titulo }}</strong>
-                  </div>
-
-                  <div class="evento-info local-evento">
-                    <img :src="iconLocal" alt="Local" class="icon-info" />
-                    <span>{{ evento.local }}</span>
-                  </div>
-
-                  <div class="evento-info horario-evento">
-                    <img :src="iconHorario" alt="Horário" class="icon-info" />
-                    <span>{{ separarDataHora(evento.dataEventoInicio).hora }} às {{ separarDataHora(evento.dataEventoFim).hora }}</span>
-                  </div>
-                </div>
-                <p v-if="!eventosFiltrados(dia).length" class="dia-vazio">
-                  Nenhum evento
-                </p>
+              <div class="info">
+                <strong>{{ separarDataHora(evento.dataEventoInicio).data }} até {{ separarDataHora(evento.dataEventoFim).data }}</strong>
+                <span>{{ evento.local }}</span>
               </div>
             </div>
+          </div>
+
+
+          <div v-else class="grade" :class="{ 'modo-hoje': modoVisualizacao === 'hoje' }">
+            <div class="grade-conteudo">
+              <div class="dias">
+                <div
+                  v-for="dia in modoVisualizacao === 'hoje' ? [hoje] : diasSemana"
+                  :key="dia.toDateString()"
+                  class="dia"
+                >
+                  <div
+                    v-for="evento in eventosFiltrados(dia)"
+                    :key="evento.titulo + evento.dataEventoInicio"
+                    class="evento-simples"
+                    :style="{ background: coresCategorias[getPrimeiraCategoria(evento.categorias)] }"
+                  >
+                
+                    <div class="evento-header">
+                      <strong class="titulo-evento">{{ evento.titulo }}</strong>
+                    </div>
+
+
+                    <div class="evento-info local-evento">
+                      <img :src="iconLocal" alt="Local" class="icon-info" />
+                      <span>{{ evento.local }}</span>
+                    </div>
+
+                  
+                    <div class="evento-info horario-evento">
+                      <img :src="iconHorario" alt="Horário" class="icon-info" />
+                      <span>{{ separarDataHora(evento.dataEventoInicio).hora }} às {{ separarDataHora(evento.dataEventoFim).hora }}</span>
+                    </div>
+                  </div>
+              <p v-if="!eventosFiltrados(dia).length" class="dia-vazio">
+                Nenhum evento
+              </p>
+            </div>
+          </div>
           </div>
         </div>
       </div>

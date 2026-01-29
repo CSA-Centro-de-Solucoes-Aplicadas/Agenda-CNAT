@@ -1,9 +1,25 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 
-const props = defineProps({
-  item: Object,
-})
+const props = defineProps<{
+  evento: Evento
+}>()
+interface Evento {
+  titulo: string
+  descricao?: string
+  dataInscricaoInicio?: string
+  dataInscricaoFim?: string
+  dataEventoInicio?: string
+  dataEventoFim?: string
+  categorias?: string[]
+  local: string
+  colaboradores?: string[]
+  categoria: string
+  datas: {
+    data: string
+    hora: string
+    descricao: string
+  }[]}
 
 // Mapear categorias para nomes de arquivos de ícones
 const getIconPath = computed(() => {
@@ -15,38 +31,40 @@ const getIconPath = computed(() => {
     'Saúde': 'saude.svg',
   }
   
-  const fileName = categoryMap[props.item.categoria] || 'default.svg'
+  const fileName = categoryMap[props.evento.categoria] || 'default.svg'
   return `/src/assets/images/icons/${fileName}`
+
+  function formatData
 })
 </script>
 <template>
   <div class="cardevento">
     <div class="cardheader">
       <h3>
-        {{ item.titulo }}
+        {{ props.evento.titulo }}
       </h3>
-      <p class="local">{{ item.local }}</p>
+      <p class="local">{{ props.evento.local }}</p>
     </div>
     <div class="cardbody">
       <ul class="timeline">
         <li>
           <p class="data">
-            {{ item.datas[0].data }} <br />
-            {{ item.datas[0].hora }}
+            {{ props.evento.dataInscricaoInicio }} <br />
+            {{ props.evento.dataInscricaoFim }}
           </p>
-          <p class="descricao">{{ item.datas[0].descricao }}</p>
+          <p class="descricao">{{ props.evento.datas[0].descricao }}</p>
         </li>
         <li>
           <p class="data">
-            {{ item.datas[item.datas.length - 1].data }} <br />
-            {{ item.datas[item.datas.length - 1].hora }}
+            {{ props.evento.datas[props.evento.datas.length - 1].data }} <br />
+            {{ props.evento.datas[props.evento.datas.length - 1].hora }}
           </p>
-          <p class="descricao">{{ item.datas[item.datas.length - 1].descricao }}</p>
+          <p class="descricao">{{ props.evento.datas[props.evento.datas.length - 1].descricao }}</p>
         </li>
       </ul>
     </div>
     <div class="cardfooter">
-      <p>{{ item.categoria }}</p>
+      <p>{{ props.evento.categoria }}</p>
       <img :src="getIconPath" alt="Ícone da categoria" width="20px"></img>
     </div>
   </div>
