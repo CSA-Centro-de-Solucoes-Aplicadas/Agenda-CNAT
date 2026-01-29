@@ -18,141 +18,37 @@ import { RouterLink } from 'vue-router'
 import Header from '@/componentes/header.vue'
 import Footer from '@/componentes/footer.vue'
 import Modal from '@/componentes/Modal.vue'
-const eventos = [
-  {
-    titulo: 'Evento alusivo ao dia do professor de geografia',
-    local: 'Miniauditório Central',
-    categoria: 'Palestras',
-    datas: [
-      { data: '20/06', hora: '14:00', descricao: 'Abertura das inscrições' },
-      { data: '20/07', hora: '12:00', descricao: 'Inicio do evento' },
-      { data: '24/06', hora: '23:59', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Esporte',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-]
+
 // interface de evento
 interface Evento {
   titulo: string
   local: string
-  categoria: string
-  // datas: { data: string; hora: string; descricao: string }[]
-  dataInicio?: string
-  dataFim?: string
-  horaInicio?: string
-  horaFim?: string
-  link?: string
+  descricao: string
+  imagem: string
   organizadores?: string[]
-  imagem?: string
+  dataInscricaoInicio?: string
+  dataInscricaoFim?: string
+  dataEventoInicio: string
+  dataEventoFim: string
+  categorias: string[]
+  linkInscricao?: string
+}
+
+const props = defineProps<{
+  eventos: Evento[]
+}>()
+
+const separarDataHora = (dataISO?: string) => {
+  if (!dataISO) return { data: '--/--/--', hora: '--:--' }
+
+  const dataObj = new Date(dataISO);
+  const dataFormatada = dataObj.toLocaleDateString('pt-BR');
+  const horaFormatada = dataObj.toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  return { data: dataFormatada, hora: horaFormatada };
 }
 
 // lógica para abrir modal
@@ -228,12 +124,13 @@ function FecharModal() {
   </div>
   <Teleport to="body">
     <Transition name="fade">
-      <Modal v-if="ShowModal" :evento="EventoSelecionado" @close="FecharModal" />
+      <Modal v-if="ShowModal && EventoSelecionado" :eventoSelecionado="EventoSelecionado" @close="FecharModal" />
     </Transition>
   </Teleport>
 </template>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
 /* modal */
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.3s ease;
@@ -241,8 +138,6 @@ function FecharModal() {
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
 h3 {
   font-size: 32px;
   color: #0b513f;

@@ -5,21 +5,37 @@ import modalBanner from '@/assets/modalbanner.png'
 interface Evento {
   titulo: string
   local: string
-  categoria: string
-  datas: { data: string; hora: string; descricao: string }[]
-  link?: string
+  dataInscricaoInicio?: string
+  dataInscricaoFim?: string
+  dataEventoInicio: string
+  dataEventoFim: string
+  categorias: string[]
+  descricao: string
+  linkInformacao?: string
+  linkInscricao?: string
   organizadores?: string[]
   imagem: string
 }
 const props = defineProps<{
-  evento: Evento
+  eventoSelecionado: Evento
 }>()
 
 const contatosLimitados = computed(() => {
-  return props.evento.organizadores.slice(0, 4)
+  return props.eventoSelecionado.organizadores?.slice(0, 4)
 })
 
-const temContatos = computed(() => contatosLimitados.value.length > 0)
+const separarDataHora = (dataISO?: string) => {
+  if (!dataISO) return { data: '--/--/--', hora: '--:--' }
+
+  const dataObj = new Date(dataISO);
+  const dataFormatada = dataObj.toLocaleDateString('pt-BR');
+  const horaFormatada = dataObj.toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  return { data: dataFormatada, hora: horaFormatada };
+}
 const emit = defineEmits(['close'])
 
 const modo = ref('info')
@@ -44,28 +60,28 @@ const modo = ref('info')
         <button class="close-btn" @click="emit('close')">✕</button>
 
         <div class="left">
-          <h1>{{ evento.titulo }}</h1>
+          <h1>{{ eventoSelecionado.titulo }}</h1>
         <div class="local-row">
           <div class="local">
             <img src="@/assets/localModal.png" alt="">
-            {{ evento.local }}
+            {{ eventoSelecionado.local }}
           </div>
 
         </div>
 
 
           <div class="datas-list">
-            <span>{{ evento.datas[0].data }} até {{ evento.datas[2].data }}</span>
+            <span>{{ separarDataHora(eventoSelecionado.dataEventoInicio).data }} até {{ separarDataHora(eventoSelecionado.dataEventoFim).data }}</span>
             <div class="horario">
-                {{ evento.datas[0].hora }} – {{ evento.datas[1].hora }}
+                {{ separarDataHora(eventoSelecionado.dataEventoInicio).hora }} – {{ separarDataHora(eventoSelecionado.dataEventoFim).hora }}
             </div>
           </div>
 
-          <p class="descricao">{{ evento.descricao }}</p>
+          <p class="descricao">{{ eventoSelecionado.descricao }}</p>
 
           <div class="contatos-box">
             <h2>Organizadores</h2>
-            <div class="contatos-grid" v-if="temContatos">
+            <div class="contatos-grid" v-if="contatosLimitados && contatosLimitados.length > 0">
               <div
                 class="contato-item"
                 v-for="(c, i) in contatosLimitados"
@@ -84,15 +100,15 @@ const modo = ref('info')
           </div>
 
           <div class="footer">
-            <a :href="evento.link" class="mais-info" target="_blank">mais informações</a>
-            <div class="categoria-box">
+            <a :href="eventoSelecionado.linkInformacao" class="mais-info" target="_blank">mais informações</a>
+            <!-- <div class="categoria-box">
               <strong v-for="(p, i) in evento.palestras" :key="i">{{ p }}</strong>
-            </div>
+            </div> -->
           </div>
         </div>
 
         <div class="right">
-          <img :src="evento.imagem" class="side-image" />
+          <img :src="eventoSelecionado.imagem" class="side-image" />
         </div>
       </div>
     </div>

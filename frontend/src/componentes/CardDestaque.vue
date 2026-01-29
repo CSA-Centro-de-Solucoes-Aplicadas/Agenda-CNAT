@@ -1,7 +1,7 @@
-<script setup>
-const props = defineProps({
-  item: Object
-})
+<script setup lang="ts">
+const props = defineProps<{
+  item: Evento
+}>()
 
 interface Evento {
   titulo: string
@@ -28,7 +28,7 @@ import '@/assets/images/illustrations/fundodestaque.png'
     <div class="data">
       <img :src="calendario_horaImg"></img>
       <!-- <img></img> -->
-      <p>{{ item.datas[1].data }}</p>
+      <p>{{ item.dataEventoFim }}</p>
     </div>
   </div>
 </template>
