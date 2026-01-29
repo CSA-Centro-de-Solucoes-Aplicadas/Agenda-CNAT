@@ -20,26 +20,9 @@ interface Evento {
   local: string
 }
 
-const eventos = ref<Evento[]>([
-  {
-    titulo: 'Feira de Ciências',
-    dataInscricaoInicio: '2024-12-25T14:30:00.000Z',
-    dataInscricaoFim: '2024-06-10T23:59:00.000Z',
-    dataEventoInicio: '2024-06-15T09:00:00.000Z',
-    dataEventoFim: '2024-06-15T18:00:00.000Z',
-    categorias: ['Ciência', 'Educação'],
-    local: 'Auditório Principal',
-  },
-  {
-    titulo: 'Oficina de Robótica',
-    dataInscricaoInicio: '2024-06-05T08:00:00.000Z',
-    dataInscricaoFim: '2024-06-20T18:00:00.000Z',
-    dataEventoInicio: '2024-06-25T14:00:00.000Z',
-    dataEventoFim: '2024-06-25T16:00:00.000Z',
-    categorias: ['Tecnologia', 'Educação'],
-    local: 'Laboratório de Informática',
-  },
-])
+const props = defineProps<{
+  eventos: Evento[],
+}>()
 
 const hoje = new Date()
 
@@ -113,13 +96,13 @@ const mesAnoAtual = computed(() => {
 
 const categorias = computed(() => {
   // flatMap: pega os arrays ['A', 'B'] e ['C', 'A'] e transforma em ['A', 'B', 'C', 'A']
-  const todas = eventos.value.flatMap(e => e.categorias)
+  const todas = props.eventos.flatMap(e => e.categorias)
   return ['Todas', ...new Set(todas)]
 })
 
 const coresCategorias = computed<Record<string, string>>(() => {
   // Pega categorias únicas (sem 'Todas') para gerar cores
-  const catsUnicas = [...new Set(eventos.value.flatMap(e => e.categorias))]
+  const catsUnicas = [...new Set(props.eventos.flatMap(e => e.categorias))]
   
   return Object.fromEntries(
     catsUnicas.map((c, i) => {
@@ -137,7 +120,7 @@ const coresCategorias = computed<Record<string, string>>(() => {
 
 // Filtra eventos para um dia específico (usado nas células do calendário)
 const eventosFiltrados = (dia: Date) =>
-  eventos.value
+  props.eventos
     .filter((e) => {
       // Verifica Categoria (Array includes)
       const matchCategoria = categoriaSelecionada.value === 'Todas' || e.categorias.includes(categoriaSelecionada.value)
@@ -154,7 +137,7 @@ const eventosFiltrados = (dia: Date) =>
 
 // Lista geral de eventos visíveis na semana ou dia atual
 const eventosLista = computed(() =>
-  eventos.value.filter((e) => {
+  props.eventos.filter((e) => {
     // 1. Filtro de Categoria
     if (categoriaSelecionada.value !== 'Todas' && !e.categorias.includes(categoriaSelecionada.value)) {
       return false

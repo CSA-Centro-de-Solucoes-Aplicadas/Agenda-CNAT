@@ -41,50 +41,66 @@ const eventos = ref<Evento[]>([
     local: 'Campus Natal-Central',
     descricao: 'Uma semana repleta de palestras, workshops e atividades voltadas para o universo da tecnologia.',
     imagem: '',
-    dataEventoInicio: '2024-07-15T09:00:00',
-    dataEventoFim: '2024-07-19T18:00:00',
+    dataEventoInicio: '2025-07-15T09:00:00',
+    dataEventoFim: '2025-07-19T18:00:00',
+    dataInscricaoInicio: '2025-06-01T00:00:00',
+    dataInscricaoFim: '2025-07-10T23:59:59',
     categorias: ['Tecnologia', 'Palestras'],
     linkInscricao: 'https://suap.ifrn.edu.br/',
+    organizadores: ['george@escolar.ifrn.edu.br' ]
   },
   {
     titulo: 'Festival Cultural do IFRN',
     local: 'Auditório do Campus Natal-Central',
     descricao: 'Celebração da diversidade cultural com apresentações artísticas, exposições e gastronomia típica.',
     imagem: '',
-    dataEventoInicio: '2024-08-05T10:00:00',
-    dataEventoFim: '2024-08-07T22:00:00',
+    dataEventoInicio: '2025-08-05T10:00:00',
+    dataEventoFim: '2025-08-07T22:00:00',
+    dataInscricaoInicio: '2025-07-01T00:00:00',
+    dataInscricaoFim: '2025-08-01T23:59:59',
     categorias: ['Cultura'],
     linkInscricao: 'https://suap.ifrn.edu.br/',
+    organizadores: ['george@escolar.ifrn.edu.br', 'amanda@escolar.ifrn.edu.br']
+
   },
   {
     titulo: 'Torneio de Futsal Intercampi',
     local: 'Ginásio Poliesportivo do IFRN',
     descricao: 'Competição esportiva entre os campi do IFRN, promovendo integração e espírito esportivo.',
     imagem: '',
-    dataEventoInicio: '2024-09-10T14:00:00',
-    dataEventoFim: '2024-09-12T20:00:00',
+    dataEventoInicio: '2025-09-10T14:00:00',
+    dataEventoFim: '2025-09-12T20:00:00',
+    dataInscricaoInicio: '2025-08-01T00:00:00',
+    dataInscricaoFim: '2025-09-05T23:59:59',
     categorias: ['Esporte'],
     linkInscricao: 'https://suap.ifrn.edu.br/',
+    organizadores: ['george@escolar.ifrn.edu.br', 'amanda@escolar.ifrn.edu.br']
   },
   {
     titulo: 'Semana de Saúde e Bem-Estar',
     local: 'Campus Natal-Central',
     descricao: 'Atividades e palestras focadas em saúde física e mental, promovendo o bem-estar da comunidade acadêmica.',
     imagem: '',
-    dataEventoInicio: '2024-10-01T08:00:00',
-    dataEventoFim: '2024-10-05T17:00:00',
+    dataEventoInicio: '2025-10-01T08:00:00',
+    dataEventoFim: '2025-10-05T17:00:00',
+    dataInscricaoInicio: '2025-09-01T00:00:00',
+    dataInscricaoFim: '2025-09-25T23:59:59',  
     categorias: ['Saúde'],
     linkInscricao: 'https://suap.ifrn.edu.br/',
+    organizadores: ['amanda@escolar.ifrn.edu.br']
   },
   {
     titulo: 'Palestra sobre Inovação Tecnológica',
     local: 'Auditório do Campus Natal-Central',
     descricao: 'Palestra com especialistas discutindo as últimas tendências em inovação tecnológica.',
     imagem: '',
-    dataEventoInicio: '2024-11-20T15:00:00',
-    dataEventoFim: '2024-11-20T17:00:00',
+    dataEventoInicio: '2025-11-20T15:00:00',
+    dataEventoFim: '2025-11-20T17:00:00',
+    dataInscricaoInicio: '2025-10-15T00:00:00',
+    dataInscricaoFim: '2025-11-15T23:59:59',
     categorias: ['Tecnologia', 'Palestras'],
     linkInscricao: 'https://suap.ifrn.edu.br/',
+    organizadores: ['amanda@escolar.ifrn.edu.br']
   }
 ])
 
@@ -134,14 +150,14 @@ function FecharModal() {
       <BarradePesquisa class="barra-pesquisa" />
       <section class="destaques-default-section">
         <div class="content-container">
-          <Carrossel :itens="eventos" :component="CardDestaque" @select="AbrirModal" />
+          <Carrossel :eventos="eventos" :component="CardDestaque" @select="AbrirModal" />
         </div>
       </section>
 
       <section id="programacao">
         <div class="content-container">
           <h3>Programação</h3>
-          <AgendaSemana></AgendaSemana>
+          <AgendaSemana :eventos="eventos"></AgendaSemana>
           <CalendarioAnualVue></CalendarioAnualVue>
         </div>
       </section>
@@ -165,8 +181,7 @@ function FecharModal() {
       <section id="inscricoes" class="inscricoes">
         <div class="inscricoes-content">
           <h3>Inscrições abertas</h3>
-          <Carrossel :itens="eventos" :component="CardInscricao" />
-        
+          <Carrossel :eventos="eventos" :component="CardInscricao" @select="AbrirModal" />
         </div>
       </section>
     </main>

@@ -11,8 +11,25 @@ interface Evento {
   colaboradores?: string[]
 }
 const props = defineProps<{
-  evento: Evento
+  evento?: Evento,
 }>()
+
+const separarDataHora = (dataISO?: string) => {
+  if (!dataISO) return { data: '--/--/--', hora: '--:--' }
+
+  const dataObj = new Date(dataISO);
+  const dataFormatada = dataObj.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+  });
+  const horaFormatada = dataObj.toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  return { data: dataFormatada, hora: horaFormatada };
+}
+
 
 import localImg from '@/assets/images/icons/local.svg'
 import calendario_horaImg from'@/assets/images/icons/calendario_hora.svg'
@@ -20,15 +37,15 @@ import '@/assets/images/illustrations/fundodestaque.png'
 </script>
 <template>
   <div class="carddestaque">
-    <h3>{{ evento.titulo }}</h3>
+    <h3>{{ evento?.titulo }}</h3>
     <div class="local">
       <img :src="localImg"></img>
-      <p>{{ evento.local }}</p>
+      <p>{{ evento?.local }}</p>
     </div>
     <div class="data">
       <img :src="calendario_horaImg"></img>
       <!-- <img></img> -->
-      <p>{{ evento.dataEventoInicio}}</p>
+      <p>{{ separarDataHora(evento?.dataEventoInicio).data }} às {{ separarDataHora(evento?.dataEventoInicio).hora }}</p>
     </div>
   </div>
 </template>

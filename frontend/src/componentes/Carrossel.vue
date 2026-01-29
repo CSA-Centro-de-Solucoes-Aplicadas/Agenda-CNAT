@@ -15,7 +15,7 @@ const modules = [Scrollbar, Mousewheel, FreeMode, Navigation]
 
 /* ---------- props ---------- */
 const props = defineProps({
-  itens: { type: Array, required: true },
+  eventos: { type: Array, required: true },
   component: { type: Object, required: true },
 })
 /* ---------- device ---------- */
@@ -78,7 +78,7 @@ async function goToSlide(index) {
 
 /* ---------- calculado total de "páginas" visíveis ---------- */
 const totalPages = computed(() => {
-  const remaining = props.itens.length - Math.floor(slidesPerView.value)
+  const remaining = props.eventos.length - Math.floor(slidesPerView.value)
   return Math.max(1, Math.ceil(remaining) + 1)
 })
 
@@ -147,13 +147,13 @@ const swiperConfig = computed(() => {
           'swiper-inscricao': variant === 'inscricao',
         }"
       >
-        <swiper-slide v-for="(item, i) in itens" :key="i">
+        <swiper-slide v-for="(evento, i) in eventos" :key="i">
           <component
             :is="component"
-            :item="item"
+            :evento="evento"
             :class="{ 'card-focus': variant === 'inscricao' }"
             :style="{ cursor: 'pointer' }"
-            @click="emit('select', item)"
+            @click="emit('select', evento)"
           />
         </swiper-slide>
       </swiper>
@@ -162,13 +162,13 @@ const swiperConfig = computed(() => {
     <!-- Scrollbar com índices clicáveis para ambos carrosséis -->
     <div class="carousel-scrollbar">
       <button
-        v-for="i in itens.length"
+        v-for="i in eventos.length"
         :key="i"
         class="scrollbar-index"
         :class="{ active: currentIndex === i - 1 }"
         @click="goToSlide(i - 1)"
         :aria-label="`Ir para card ${i}`"
-        :title="`Card ${i} de ${itens.length}`"
+        :title="`Card ${i} de ${eventos.length}`"
       />
     </div>
 

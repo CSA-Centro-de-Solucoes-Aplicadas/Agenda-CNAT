@@ -2,15 +2,15 @@
 import { computed } from 'vue'
 
 const props = defineProps<{
-  evento: Evento
+  evento: Evento,
 }>()
 interface Evento {
   titulo: string
   descricao?: string
-  dataInscricaoInicio?: string
-  dataInscricaoFim?: string
-  dataEventoInicio?: string
-  dataEventoFim?: string
+  dataInscricaoInicio: string
+  dataInscricaoFim: string
+  dataEventoInicio: string
+  dataEventoFim: string
   categorias: string[]
   local: string
   linkInscricao?: string
@@ -36,6 +36,7 @@ const getIconPath = (categoria: string) => {
   return `/src/assets/images/icons/${fileName}`
 }
 
+// dataISO é uma string no formato ISO 8601
 const separarDataHora = (dataISO?: string) => {
   if (!dataISO) return { data: '--/--/--', hora: '--:--' }
 
@@ -48,14 +49,15 @@ const separarDataHora = (dataISO?: string) => {
 
   return { data: dataFormatada, hora: horaFormatada };
 }
+
 </script>
 <template>
   <div class="cardevento">
     <div class="cardheader">
       <h3>
-        {{ props.evento.titulo }}
+        {{ props.evento?.titulo }}
       </h3>
-      <p class="local">{{ props.evento.local }}</p>
+      <p class="local">{{ props.evento?.local }}</p>
     </div>
     <div class="cardbody">
       <ul class="timeline">
