@@ -10,7 +10,6 @@ const router = createRouter({
     { path: '/', component: Home },
     { path: '/cadastro', component: Cadastro },
     { path: '/eventos', component: Eventos },
-    {path: '/modal', component: Modal}
   ],
 
   scrollBehavior(to) {

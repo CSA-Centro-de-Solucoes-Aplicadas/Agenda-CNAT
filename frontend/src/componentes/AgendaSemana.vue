@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 
-
 import iconLista from '@/assets/iconLista.png'
 import iconCalendario from '@/assets/iconCalendario.png'
 import iconLocal from '@/assets/iconLocal.png'
@@ -20,9 +19,26 @@ interface Evento {
   local: string
 }
 
-const props = defineProps<{
-  eventos: Evento[],
-}>()
+const eventos = ref<Evento[]>([
+  {
+    titulo: 'Feira de Ciências',
+    dataInscricaoInicio: '2026-12-25T14:30:00.000Z',
+    dataInscricaoFim: '2026-01-10T23:59:00.000Z',
+    dataEventoInicio: '2026-01-15T09:00:00.000Z',
+    dataEventoFim: '2026-01-15T18:00:00.000Z',
+    categorias: ['Ciência', 'Educação'],
+    local: 'Auditório Principal',
+  },
+  {
+    titulo: 'Oficina de Robótica',
+    dataInscricaoInicio: '2026-01-05T08:00:00.000Z',
+    dataInscricaoFim: '2026-01-20T18:00:00.000Z',
+    dataEventoInicio: '2026-01-25T14:00:00.000Z',
+    dataEventoFim: '2026-01-29T16:00:00.000Z',
+    categorias: ['Tecnologia', 'Educação'],
+    local: 'Laboratório de Informática',
+  },
+])
 
 const hoje = new Date()
 
@@ -86,14 +102,14 @@ const mesAnoAtual = computed(() => {
 
 const categorias = computed(() => {
   // flatMap: pega os arrays ['A', 'B'] e ['C', 'A'] e transforma em ['A', 'B', 'C', 'A']
-  const todas = props.eventos.flatMap(e => e.categorias)
+  const todas = eventos.value.flatMap((e) => e.categorias)
   return ['Todas', ...new Set(todas)]
 })
 
 const coresCategorias = computed<Record<string, string>>(() => {
   // Pega categorias únicas (sem 'Todas') para gerar cores
-  const catsUnicas = [...new Set(props.eventos.flatMap(e => e.categorias))]
-  
+  const catsUnicas = [...new Set(eventos.value.flatMap((e) => e.categorias))]
+
   return Object.fromEntries(
     catsUnicas.map((c, i) => {
       const cor = c === 'Geral' ? 'hsl(210, 15%, 60%)' : `hsl(145, 45%, ${78 - (i % 5) * 6}%)` // o % 5 evita que a cor fique preta se houver muitas cats
@@ -104,7 +120,7 @@ const coresCategorias = computed<Record<string, string>>(() => {
 })
 
 const eventosFiltrados = (dia: Date) =>
-  props.eventos
+  eventos.value
     .filter((e) => {
       const matchCategoria =
         categoriaSelecionada.value === 'Todas' || e.categorias.includes(categoriaSelecionada.value)
@@ -118,9 +134,11 @@ const eventosFiltrados = (dia: Date) =>
     })
 
 const eventosLista = computed(() =>
-  props.eventos.filter((e) => {
-    
-    if (categoriaSelecionada.value !== 'Todas' && !e.categorias.includes(categoriaSelecionada.value)) {
+  eventos.value.filter((e) => {
+    if (
+      categoriaSelecionada.value !== 'Todas' &&
+      !e.categorias.includes(categoriaSelecionada.value)
+    ) {
       return false
     }
 
@@ -149,7 +167,6 @@ const getPrimeiraCategoria = (categorias: string[]) => {
   return categorias?.[0] ?? 'Geral'
 }
 
-// Definir o ícone
 const getIconPath = (categoria: string) => {
   const categoryMap: Record<string, string> = {
     Palestras: 'palestras.svg',
@@ -299,15 +316,14 @@ const getIconPath = (categoria: string) => {
   max-height: 800px;
   margin: 0 auto;
   display: flex;
-  overflow: hidden;
+  overflow-x: visible;
+  overflow-y: hidden;
   flex-direction: column;
   font-family: sans-serif;
 }
 
 .topo {
   background: #f0f0f0;
-   position: sticky;
-  top: 0;
   padding: 12px 16px;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -366,7 +382,7 @@ select {
 
 .chips {
   display: flex;
-  gap: 19px;
+  gap: 14px;
   margin-left: 20px;
   flex: 1;
 }
@@ -391,7 +407,7 @@ select {
 }
 
 .conteudo {
-  padding: 0px 16px 20px;
+  padding: 0 16px 16px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -399,6 +415,8 @@ select {
 
 .grade {
   display: flex;
+  flex: 1;
+  overflow-y: auto;
   border-top: 1px solid #ddd;
 }
 
@@ -426,17 +444,18 @@ select {
 
 .dias {
   display: flex;
-  width: max-content;
+  max-width: 180px;
+  width: 100%;
   min-height: calc((23 - 6) * 40px);
   position: relative;
-  gap: 17px;
+  gap: 10px;
 }
 
 .dia {
-  min-width: 175px;
+  min-width: 0;
   max-width: 100%;
   padding: 8px 0;
-  width:  178px;
+  width: 200px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -596,6 +615,7 @@ select {
   box-sizing: border-box;
   min-height: 120px;
   height: auto;
+  overflow: hidden;
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -659,20 +679,8 @@ select {
   opacity: 0.6;
   padding: 8px 30px;
 }
-#scroll {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
 
 @media (max-width: 1250px) {
-
-  .topo {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: #f0f0f0;
-}
-
   .toggle-wrapper {
     width: 100%;
     justify-content: center;
@@ -723,9 +731,6 @@ select {
     min-width: 140px;
     width: 140px;
   }
-  .dias {
-    gap: 22px;
-  }
 }
 
 @media (max-width: 768px) {
@@ -733,7 +738,6 @@ select {
     grid-template-columns: 1fr;
     gap: 12px;
     padding: 12px;
-
   }
 
   .nav-semana {
@@ -766,8 +770,8 @@ select {
   }
 
   .chips {
-    gap: 19px;
-    margin-left: 25px;
+    gap: 10px;
+    margin-left: 12px;
   }
 
   .chip-dia {
@@ -810,6 +814,10 @@ select {
     overflow-y: hidden;
   }
 
+  .chips,
+  .dias {
+    width: max-content;
+  }
 
   .dia {
     min-width: 180px;
@@ -825,17 +833,19 @@ select {
     font-size: 10px;
   }
 
+  .grade-conteudo {
+    overflow: visible;
+  }
 
   #scroll {
     overflow-x: auto;
     overflow-y: hidden;
-    flex: 1;
     -webkit-overflow-scrolling: touch;
   }
 
   .barra-dias,
   .grade {
-    min-width: 100%;
+    min-width: max-content;
   }
 
   .chips,

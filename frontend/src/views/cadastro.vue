@@ -1,17 +1,9 @@
 <script setup lang="ts">
-import logoImg from '@/assets/logo.svg'
-import logoFooter from '@/assets/logoFooter.png'
-import logoIfrn from '@/assets/ifrn.png'
-import XImg from '@/assets/x.png'
-import instagramImg from '@/assets/instagram.png'
-import youtubeImg from '@/assets/youtube.png'
 import { VueDatePicker as DatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
-import { ref } from 'vue' 
-import footer from '@/componentes/footer.vue'
+import { ref } from 'vue'
 import Footer from '@/componentes/footer.vue'
-import Header from '@/componentes/header.vue'
-
+import headerAdm from '@/componentes/headerAdm.vue'
 const todasCategorias = [
   'Tecnologia',
   'Ensino',
@@ -49,25 +41,20 @@ function adicionarCategoriaManual() {
 }
 
 function removerCategoria(nome: string) {
-  categoriasSelecionadas.value =
-    categoriasSelecionadas.value.filter(c => c !== nome)
+  categoriasSelecionadas.value = categoriasSelecionadas.value.filter((c) => c !== nome)
 }
-
 
 const titulo = ref('')
 const imagem = ref<File | null>(null)
 const descricao = ref('')
 const linkInformacoes = ref('')
 
-
 const dataInicioEvento = ref<Date | null>(null)
 const dataFimEvento = ref<Date | null>(null)
-
 
 const dataInicioInscricao = ref<Date | null>(null)
 const dataFimInscricao = ref<Date | null>(null)
 const linkInscricao = ref('')
-
 
 const organizadores = ref<string[]>([''])
 
@@ -78,7 +65,10 @@ function adicionarOrganizador() {
 function removerOrganizador(index: number) {
   organizadores.value.splice(index, 1)
 }
-
+function onImagemSelecionada(event: Event) {
+  const target = event.target as HTMLInputElement
+  imagem.value = target.files ? target.files[0] : null
+}
 
 function enviarFormulario() {
   const dados = {
@@ -90,174 +80,186 @@ function enviarFormulario() {
     dataInicioEvento: dataInicioEvento.value,
     dataFimEvento: dataFimEvento.value,
     dataInicioInscricao: dataInicioInscricao.value,
-    dataFimInscricao: dataFimInscricao.value, 
+    dataFimInscricao: dataFimInscricao.value,
     linkInscricao: linkInscricao.value,
-    organizadores: organizadores.value.filter(o => o.trim() !== ''),
+    organizadores: organizadores.value.filter((o) => o.trim() !== ''),
   }
 
   console.log('ENVIADO COM SUCESSO:', dados)
 }
 </script>
 
-
 <template>
   <div class="page">
-    <Header />
+    <headerAdm />
 
     <main class="main-content">
       <h1>Adicionar Evento</h1>
-      <!-- Section 1 -->
-      <section class="form-section">
-        <h2>1. Informações do Evento</h2>
 
-        <div class="form-group">
-          <label>Nome do Evento*</label>
-          <input type="text" required />
-        </div>
+      <form @submit.prevent="enviarFormulario">
+        <!-- 1. Informações do Evento -->
+        <section class="form-section">
+          <fieldset>
+            <legend>1. Informações do Evento</legend>
 
-        <div class="form-group">
-          <label>Imagem de divulgação*</label>
-          <input type="file" required />
-        </div>
-
-        <div class="form-group">
-          <div class="cat-header">
-            <span class="cat-label">Categorias</span>
-
-            <button type="button" class="cat-icon-btn" @click="toggleCategorias">
-              <span class="arrow">⌄</span>
-            </button>
-          </div>
-
-          <!-- LISTA DROPDOWN -->
-          <div v-if="categoriasAbertas" class="cat-dropdown">
-
-             <input
-                type="text"
-                v-model="novaCategoria"
-                placeholder="Adicionar categoria..."
-                class="cat-input"
-                @keyup.enter="adicionarCategoriaManual"
-                :disabled="categoriasSelecionadas.length >= 2" required
-              />
-
-            <div
-              class="cat-option"
-              v-for="cat in todasCategorias"
-              :key="cat"
-              @click="selecionarCategoria(cat)"
-              :class="{ disabled: categoriasSelecionadas.length >= 2 }"
-            >
-              {{ cat }}
+            <div class="form-group">
+              <label for="titulo">Nome do Evento *</label>
+              <input id="titulo" type="text" v-model="titulo" required />
             </div>
-          </div>
 
-          <div class="cat-tags">
-            <span v-for="cat in categoriasSelecionadas" :key="cat" class="tag">
-              {{ cat }}
-              <button class="remove-tag" @click="removerCategoria(cat)">✖</button>
-            </span>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Descrição</label>
-          <textarea></textarea required>
-        </div>
-        <div class="form-group">
-          <label>Link para mais informações</label>
-          <input type="url" />
-        </div>
-      </section>
-
-      <section class="form-section">
-        <h2>2. Datas e Horário do Evento</h2>
-
-        <div class="datas-in-row">
-          <div class="form-group">
-          <label>Data de início *</label>
-          <DatePicker
-            v-model="dataInicioEvento"
-            :enable-time-picker="true"
-            placeholder="Selecione o dia e horário de início"
-          />
-        </div>
-
-        <div class="form-group">
-          <label>Data de fim *</label>
-          <DatePicker
-            v-model="dataFimEvento"
-            :enable-time-picker="false"
-            placeholder="Selecione o dia e horário final"
-          />
-        </div>
-      </div>
-        
-      </section>
-      
-      
-      <section class="form-section">
-        <h2>2.1 Período de Inscrições</h2>
-        <div class="datas-in-row">
-          <div class="form-group">
-          <label>Data de início das inscrições *</label>
-          <DatePicker
-          v-model="dataInicioInscricao"
-          :enable-time-picker="false"
-          placeholder="Dia de início das inscrições"
-          />
-        </div>
-        <div class="form-group">
-          <label>Data de fim das inscrições *</label>
-          <DatePicker
-          v-model="dataFimInscricao"
-          :enable-time-picker="false"
-          placeholder="Dia de fim das inscrições"
-          />
-        </div>
-      </div>
-        
-        <div class="form-group">
-          <label>Link para inscrições</label>
-          <input type="url" />
-        </div>
-        
-      </section>
-
-
-      <section class="form-section">
-        <h2>3. Informações dos organizadores</h2>
-          <div class="organizadores-section">
-            <div
-              v-for="(email, index) in organizadores"
-              :key="index"
-              class="organizador-field"
-            >
+            <div class="form-group">
+              <label for="imagem">Imagem de divulgação *</label>
               <input
-                type="email"
-                v-model="organizadores[index]"
-                placeholder="Email do organizador"
+                id="imagem"
+                type="file"
+                accept="image/*"
+                required
+                @change="onImagemSelecionada"
               />
+            </div>
 
-              <button
-                v-if="organizadores.length > 1"
-                @click="removerOrganizador(index)"
-                class="remove-field"
-              >
-                ✖
+            <!-- Categorias -->
+            <div class="form-group">
+              <div class="cat-header">
+                <span class="cat-label">Categorias *</span>
+
+                <button type="button" class="cat-icon-btn" @click="toggleCategorias">
+                  <span class="arrow">⌄</span>
+                </button>
+              </div>
+
+              <div v-if="categoriasAbertas" class="cat-dropdown">
+                <input
+                  type="text"
+                  v-model="novaCategoria"
+                  placeholder="Adicionar categoria..."
+                  class="cat-input"
+                  @keyup.enter="adicionarCategoriaManual"
+                  :disabled="categoriasSelecionadas.length >= 2"
+                />
+
+                <div
+                  v-for="cat in todasCategorias"
+                  :key="cat"
+                  class="cat-option"
+                  :class="{ disabled: categoriasSelecionadas.length >= 2 }"
+                  @click="selecionarCategoria(cat)"
+                >
+                  {{ cat }}
+                </div>
+              </div>
+
+              <div class="cat-tags">
+                <span v-for="cat in categoriasSelecionadas" :key="cat" class="tag">
+                  {{ cat }}
+                  <button type="button" class="remove-tag" @click="removerCategoria(cat)">
+                    ✖
+                  </button>
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="descricao">Descrição *</label>
+              <textarea id="descricao" v-model="descricao" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="info">Link para mais informações</label>
+              <input id="info" type="url" v-model="linkInformacoes" />
+            </div>
+          </fieldset>
+        </section>
+
+        <!-- 2. Datas do Evento -->
+        <section class="form-section">
+          <fieldset>
+            <legend>2. Datas e Horário do Evento</legend>
+
+            <div class="datas-in-row">
+              <div class="form-group">
+                <label>Data de início *</label>
+                <DatePicker
+                  v-model="dataInicioEvento"
+                  :enable-time-picker="true"
+                  placeholder="Selecione o dia e horário"
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Data de fim *</label>
+                <DatePicker
+                  v-model="dataFimEvento"
+                  :enable-time-picker="true"
+                  placeholder="Selecione o dia e horário"
+                />
+              </div>
+            </div>
+          </fieldset>
+        </section>
+
+        <!-- 2.1 Período de Inscrições -->
+        <section class="form-section">
+          <fieldset>
+            <legend>2.1 Período de Inscrições</legend>
+
+            <div class="datas-in-row">
+              <div class="form-group">
+                <label>Início das inscrições</label>
+                <DatePicker v-model="dataInicioInscricao" placeholder="Data inicial" />
+              </div>
+
+              <div class="form-group">
+                <label>Fim das inscrições</label>
+                <DatePicker v-model="dataFimInscricao" placeholder="Data final" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="inscricao">Link para inscrições</label>
+              <input id="inscricao" type="url" v-model="linkInscricao" />
+            </div>
+          </fieldset>
+        </section>
+
+        <!-- 3. Organizadores -->
+        <section class="form-section">
+          <fieldset>
+            <legend>3. Informações dos organizadores</legend>
+
+            <div class="organizadores-section">
+              <div v-for="(email, index) in organizadores" :key="index" class="organizador-field">
+                <input
+                  type="email"
+                  v-model="organizadores[index]"
+                  placeholder="Email do organizador"
+                />
+
+                <button
+                  v-if="organizadores.length > 1"
+                  type="button"
+                  class="remove-field"
+                  @click="removerOrganizador(index)"
+                >
+                  ✖
+                </button>
+              </div>
+
+              <button type="button" class="add-field" @click="adicionarOrganizador">
+                + Adicionar organizador
               </button>
             </div>
+          </fieldset>
+        </section>
 
-            <button @click="adicionarOrganizador" class="add-field">
-              + Adicionar organizador
-            </button>
-          </div>
-      </section>
-      <div class="submit-container">
-         <button class="submit-btn" >Confirmar</button>
-      </div>
+        <!-- Enviar -->
+        <div class="submit-container">
+          <button type="submit" class="submit-btn">Confirmar</button>
+        </div>
+      </form>
     </main>
-    <Footer/>
+
+    <Footer />
   </div>
 </template>
 
@@ -278,7 +280,6 @@ function enviarFormulario() {
   flex-direction: column;
   gap: 40px;
 }
-
 
 h1 {
   color: #0a4635;
@@ -398,7 +399,6 @@ h1 {
   pointer-events: none;
 }
 
-
 .tag {
   background: #c8f5de;
   padding: 6px 12px;
@@ -429,7 +429,7 @@ h1 {
 .lista-dias-container {
   margin-top: 10px;
   display: grid;
-  grid-template-columns: repeat(2, 1fr); 
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px 20px;
   width: 100%;
 }
@@ -448,7 +448,6 @@ h1 {
 .remove-day:hover {
   color: #ff8080;
 }
-
 
 .dia-item {
   background: #e6fff4;
@@ -531,7 +530,6 @@ h1 {
   border-color: #89cdaa;
 }
 
-
 .submit-container {
   display: flex;
   justify-content: flex-end;
@@ -545,7 +543,6 @@ h1 {
   border: none;
   cursor: pointer;
 }
-
 
 footer {
   background-color: #02402e;
@@ -621,6 +618,16 @@ footer {
   background-color: #012118;
   width: 100%;
   opacity: 0.85;
+}
+fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+legend {
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #1b473a;
 }
 
 /* Space before footer */
