@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 
-// Seus imports de imagem (mantidos)
+
 import iconLista from '@/assets/iconLista.png'
 import iconCalendario from '@/assets/iconCalendario.png'
 import iconLocal from '@/assets/iconLocal.png'
@@ -119,7 +119,7 @@ const eventosFiltrados = (dia: Date) =>
 
 const eventosLista = computed(() =>
   props.eventos.filter((e) => {
-    // 1. Filtro de Categoria
+    
     if (categoriaSelecionada.value !== 'Todas' && !e.categorias.includes(categoriaSelecionada.value)) {
       return false
     }
@@ -299,14 +299,15 @@ const getIconPath = (categoria: string) => {
   max-height: 800px;
   margin: 0 auto;
   display: flex;
-  overflow-x: visible;
-  overflow-y: hidden;
+  overflow: hidden;
   flex-direction: column;
   font-family: sans-serif;
 }
 
 .topo {
   background: #f0f0f0;
+   position: sticky;
+  top: 0;
   padding: 12px 16px;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -365,7 +366,7 @@ select {
 
 .chips {
   display: flex;
-  gap: 14px;
+  gap: 19px;
   margin-left: 20px;
   flex: 1;
 }
@@ -390,7 +391,7 @@ select {
 }
 
 .conteudo {
-  padding: 0 16px 16px;
+  padding: 0px 16px 20px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -398,8 +399,6 @@ select {
 
 .grade {
   display: flex;
-  flex: 1;
-  overflow-y: auto;
   border-top: 1px solid #ddd;
 }
 
@@ -427,18 +426,17 @@ select {
 
 .dias {
   display: flex;
-  max-width: 180px;
-  width: 100%;
+  width: max-content;
   min-height: calc((23 - 6) * 40px);
   position: relative;
-  gap: 10px;
+  gap: 17px;
 }
 
 .dia {
-  min-width: 0;
+  min-width: 175px;
   max-width: 100%;
   padding: 8px 0;
-  width: 200px;
+  width:  178px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -598,7 +596,6 @@ select {
   box-sizing: border-box;
   min-height: 120px;
   height: auto;
-  overflow: hidden;
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -662,8 +659,20 @@ select {
   opacity: 0.6;
   padding: 8px 30px;
 }
+#scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 
 @media (max-width: 1250px) {
+
+  .topo {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #f0f0f0;
+}
+
   .toggle-wrapper {
     width: 100%;
     justify-content: center;
@@ -724,6 +733,7 @@ select {
     grid-template-columns: 1fr;
     gap: 12px;
     padding: 12px;
+
   }
 
   .nav-semana {
@@ -756,8 +766,8 @@ select {
   }
 
   .chips {
-    gap: 10px;
-    margin-left: 12px;
+    gap: 19px;
+    margin-left: 25px;
   }
 
   .chip-dia {
@@ -800,10 +810,6 @@ select {
     overflow-y: hidden;
   }
 
-  .chips,
-  .dias {
-    width: max-content;
-  }
 
   .dia {
     min-width: 180px;
@@ -819,19 +825,17 @@ select {
     font-size: 10px;
   }
 
-  .grade-conteudo {
-    overflow: visible;
-  }
 
   #scroll {
     overflow-x: auto;
     overflow-y: hidden;
+    flex: 1;
     -webkit-overflow-scrolling: touch;
   }
 
   .barra-dias,
   .grade {
-    min-width: max-content;
+    min-width: 100%;
   }
 
   .chips,

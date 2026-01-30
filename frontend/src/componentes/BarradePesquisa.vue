@@ -206,11 +206,65 @@ input {
   opacity: 0.6;
 }
 
-@media(max-width: 600px) {
+@media (max-width: 600px) {
   .barra-pesquisa {
     max-width: 100%;
-    padding: 30px 30px 0 30px;
-    font-size: 1rem;
+    padding: 20px 16px 0;
+  }
+
+  .campo {
+    padding: 12px 14px;
+    border-radius: 30px;
+    gap: 10px;
+  }
+
+  input {
+    font-size: 16px; 
+    text-align: left;
+  }
+
+  .icone {
+    width: 22px;
+    height: 22px;
+  }
+
+
+  .dropdown-categorias {
+    top: 38px;
+    right: 0;
+    min-width: 140px;
+    border-radius: 14px;
+  }
+
+  .categoria-item {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+
+  .lista {
+    margin-top: 10px;
+    border-radius: 18px;
+    max-height: 260px;
+  }
+
+  .item {
+    padding: 12px 14px;
+    font-size: 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .item small {
+    font-size: 12px;
+  }
+
+  .vazio {
+    margin-top: 8px;
+    font-size: 13px;
+    text-align: center;
   }
 }
+
 </style>

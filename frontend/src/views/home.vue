@@ -487,13 +487,6 @@ h3 {
   .content-container {
     padding: 0 16px;
   }
-
-  .adicionar-evento {
-    padding: 10px 10px;
-  }
-  .adicionar-vetor {
-    width: 60%;
-  }
   .inscricoes {
     min-height: 300px;
     border-bottom-right-radius: 30px;
@@ -521,53 +514,50 @@ h3 {
     display: none;
   }
 
+ .adicionar-evento {
+    padding: 24px 12px;
+  }
+
   .adicionarEvento-container {
     flex-direction: column;
+    gap: 16px; 
+    padding: 32px 20px 36px;
     height: auto;
-    padding: 30px 20px;
-    border-radius: 10px;
+    border-radius: 20px;
     text-align: center;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   }
 
   .adicionarEvento-vetor {
-    max-width: 270px;
+    max-width: 300px; 
     width: 100%;
+    margin-bottom: -6px; 
   }
 
   .adicionarEvento-texto {
     max-width: 100%;
     align-items: center;
-    padding: 0px 35px;
-  }
-
-  .btn-solicitar-evento {
-    margin-top: 12px;
+    padding: 0 16px;
+    gap: 12px;
   }
 
   .adicionarEvento-texto h3 {
-    font-size: 16px;
-    line-height: 1.25;
-    margin: 10px;
-  }
-
-  .adicionarEvento-texto p {
-    font-size: 10px;
-    line-height: 1.35;
+    font-size: 18px;
+    line-height: 1.3;
     margin: 0;
-    color: #4a4a4a;
+    text-align: center;
   }
 
   .btn-solicitar-evento {
-    margin-top: 8px;
-
-    width: fit-content;
-    font-size: 0.65rem;
-    padding: 0.25rem 1rem;
+    margin-top: 14px;
+    padding: 0.7rem 1.8rem;
+    font-size: 0.95rem;
+    border-radius: 999px;
   }
 
   .btn-icon img {
-    width: 22px;
-    height: 22px;
+    width: 26px;
+    height: 26px;
   }
 }
 </style>

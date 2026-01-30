@@ -128,7 +128,7 @@ header li a:hover {
     .header-logo-container {
       position: static;
       transform: none;
-      justify-content: left;
+      justify-content: center;
       padding: 10px 8px;
     }
 
