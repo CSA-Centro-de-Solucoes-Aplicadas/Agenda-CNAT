@@ -426,29 +426,6 @@ h1 {
   align-items: center;
   width: 100%;
 }
-.lista-dias-container {
-  margin-top: 10px;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); 
-  gap: 12px 20px;
-  width: 100%;
-}
-
-.remove-day {
-  border: none;
-  color: #900;
-  background-color: rgb(252, 232, 232);
-  font-weight: bold;
-  border-radius: 15px;
-  padding: 4px 7px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.remove-day:hover {
-  color: #ff8080;
-}
-
 
 .dia-item {
   background: #e6fff4;

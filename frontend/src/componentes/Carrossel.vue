@@ -78,6 +78,9 @@ async function goToSlide(index) {
 
 /* ---------- calculado total de "páginas" visíveis ---------- */
 const totalPages = computed(() => {
+  if (variant.value === 'inscricao') {
+    return props.eventos.length
+  }
   const remaining = props.eventos.length - Math.floor(slidesPerView.value)
   return Math.max(1, Math.ceil(remaining) + 1)
 })
@@ -162,13 +165,13 @@ const swiperConfig = computed(() => {
     <!-- Scrollbar com índices clicáveis para ambos carrosséis -->
     <div class="carousel-scrollbar">
       <button
-        v-for="i in eventos.length"
+        v-for="i in totalPages.value"
         :key="i"
         class="scrollbar-index"
         :class="{ active: currentIndex === i - 1 }"
         @click="goToSlide(i - 1)"
         :aria-label="`Ir para card ${i}`"
-        :title="`Card ${i} de ${eventos.length}`"
+        :title="`Card ${i} de ${totalPages.value}`"
       />
     </div>
 
