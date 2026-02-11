@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import iconLista from '@/assets/iconLista.png'
 import iconCalendario from '@/assets/iconCalendario.png'
 import iconLocal from '@/assets/iconLocal.png'
 import iconHorario from '@/assets/iconHorario.png'
+import { fetchEventos, type PayloadEvento } from '@/services/api'
 
 type Modo = 'hoje' | 'semana'
 type Tipo = 'calendario' | 'lista'
@@ -25,44 +26,39 @@ const tipoVisualizacao = ref<Tipo>('calendario')
 const categoriaSelecionada = ref('Todas')
 const dataBaseAgenda = ref(new Date(hoje))
 
-const eventos = ref<Evento[]>([
-  {
-    titulo: 'Arraiá Junino da melhor idade',
-    dataInicio: '15-12-2025',
-    dataFim: '21-12-2025',
-    inicio: '07:00',
-    fim: '11:00',
-    categoria: 'Cultura',
-    local: 'Ginásio',
-  },
-  {
-    titulo: 'Winfo',
-    dataInicio: '15-12-2025',
-    dataFim: '18-12-2025',
-    inicio: '06:00',
-    fim: '11:00',
-    categoria: 'Tecnologia',
-    local: 'Biblioteca Sebastião Fernandes',
-  },
-   {
-    titulo: 'Jogos Internos',
-    dataInicio: '23-12-2025',
-    dataFim: '25-12-2025',
-    inicio: '06:00',
-    fim: '11:00',
-    categoria: 'Esportes',
-    local: 'IFRN',
-  },
-   {
-    titulo: 'Wtads',
-    dataInicio: '15-12-2025',
-    dataFim: '15-12-2025',
-    inicio: '08:00',
-    fim: '11:00',
-    categoria: 'Tecnologia',
-    local: 'Mini auditório bloco C',
-  },
-])
+const eventos = ref<Evento[]>([])
+
+// Carrega os eventos da API e converte para o formato local
+onMounted(async () => {
+  try {
+    const res = await fetchEventos({ limit: 200, where: { visivel: { equals: true } } })
+    eventos.value = res.docs.map(apiToLocal)
+  } catch (err) {
+    console.error('Erro ao carregar eventos da agenda:', err)
+  }
+})
+
+function apiToLocal(ev: PayloadEvento): Evento {
+  const fmtLocal = (iso?: string | null): string => {
+    if (!iso) return ''
+    const d = new Date(iso)
+    return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`
+  }
+  const fmtTime = (iso?: string | null): string => {
+    if (!iso) return '00:00'
+    const d = new Date(iso)
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+  }
+  return {
+    titulo: ev.titulo,
+    dataInicio: fmtLocal(ev.dataEventoInicio),
+    dataFim: fmtLocal(ev.dataEventoFinal || ev.dataEventoInicio),
+    inicio: fmtTime(ev.dataEventoInicio),
+    fim: fmtTime(ev.dataEventoFinal),
+    categoria: ev.categorias?.[0]?.nome || 'Geral',
+    local: ev.local || '',
+  }
+}
 
 const toDate = (d: string): Date => {
   const partes = d.split('-')

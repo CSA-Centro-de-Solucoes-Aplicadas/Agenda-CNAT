@@ -1,22 +1,40 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
+
+// Import all category icons statically
+import palestrasIcon from '@/assets/images/icons/palestras.svg'
+import culturaIcon from '@/assets/images/icons/cultura.svg'
+import esporteIcon from '@/assets/images/icons/esporte.svg'
+import tecnologiaIcon from '@/assets/images/icons/tecnologia.svg'
+import saudeIcon from '@/assets/images/icons/saude.svg'
+import ensinoIcon from '@/assets/images/icons/ensino.svg'
+import pesquisaIcon from '@/assets/images/icons/pesquisa.svg'
+import gestaoIcon from '@/assets/images/icons/gestao.svg'
+import recursosNaturaisIcon from '@/assets/images/icons/recursos_naturais.svg'
+import defaultIcon from '@/assets/images/icons/default.svg'
 
 const props = defineProps({
   item: Object,
 })
 
-// Mapear categorias para nomes de arquivos de ícones
+const categoryIconMap: Record<string, string> = {
+  'Palestras': palestrasIcon,
+  'Palestra': palestrasIcon,
+  'Cultura': culturaIcon,
+  'Arte e Cultura': culturaIcon,
+  'Esporte': esporteIcon,
+  'Esportes': esporteIcon,
+  'Tecnologia': tecnologiaIcon,
+  'Saúde': saudeIcon,
+  'Ensino': ensinoIcon,
+  'Pesquisa e Extensão': pesquisaIcon,
+  'Gestão': gestaoIcon,
+  'Recursos naturais': recursosNaturaisIcon,
+}
+
 const getIconPath = computed(() => {
-  const categoryMap = {
-    'Palestras': 'palestras.svg',
-    'Cultura': 'cultura.svg',
-    'Esporte': 'esporte.svg',
-    'Tecnologia': 'tecnologia.svg',
-    'Saúde': 'saude.svg',
-  }
-  
-  const fileName = categoryMap[props.item.categoria] || 'default.svg'
-  return `/src/assets/images/icons/${fileName}`
+  const cat = props.item?.categoria || ''
+  return categoryIconMap[cat] || defaultIcon
 })
 </script>
 <template>

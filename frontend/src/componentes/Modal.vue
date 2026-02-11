@@ -1,35 +1,46 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import modalBanner from '@/assets/modalbanner.png'
+import modalBannerDefault from '@/assets/modalbanner.png'
+import { getMediaUrl, type PayloadEvento } from '@/services/api'
 
-const evento = {
-  local: 'Biblioteca Central',
-  nome: 'Cinebiblio',
-  descricao: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-  datas: { inicio: '23/06', fim: '27/06' },
-  horario: { inicio: '18:30', fim: '21:00' },
-  organizadores: ['email1@ifrn.edu.br', 'email2@ifrn.edu.br', 'email3@ifrn.edu.br'],
-  palestras: ['Palestra'],
-  link: 'https://ifrn.edu.br/evento',
-  imagem: modalBanner,
-}
+const props = defineProps<{
+  evento: PayloadEvento
+}>()
 
-const contatosLimitados = computed(() => {
-  return evento.organizadores.slice(0, 4)
-})
-
-const temContatos = computed(() => contatosLimitados.value.length > 0)
 const emit = defineEmits(['close'])
 
-const modo = ref('info')
-
-function next() {
-  modo.value = modo.value === 'info' ? 'imagem' : 'info'
+// Helpers de formatação
+function fmtDate(iso?: string | null): string {
+  if (!iso) return '—'
+  return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
 }
 
-function prev() {
-  modo.value = modo.value === 'info' ? 'imagem' : 'info'
+function fmtTime(iso?: string | null): string {
+  if (!iso) return ''
+  return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
 }
+
+// Dados derivados do prop
+const nome = computed(() => props.evento.titulo)
+const local = computed(() => props.evento.local || '—')
+const descricao = computed(() => props.evento.descricao || '')
+const link = computed(() => props.evento.link || '')
+const dataInicio = computed(() => fmtDate(props.evento.dataEventoInicio))
+const dataFim = computed(() => fmtDate(props.evento.dataEventoFinal))
+const horarioInicio = computed(() => fmtTime(props.evento.dataEventoInicio))
+const horarioFim = computed(() => fmtTime(props.evento.dataEventoFinal))
+const categorias = computed(() =>
+  props.evento.categorias?.map((c) => c.nome).filter(Boolean) || []
+)
+const organizadores = computed(() =>
+  props.evento.organizadores?.map((o) => o.email).filter(Boolean) || []
+)
+const contatosLimitados = computed(() => organizadores.value.slice(0, 4))
+const temContatos = computed(() => contatosLimitados.value.length > 0)
+
+const imagemUrl = computed(() => {
+  return getMediaUrl(props.evento.imagem) || modalBannerDefault
+})
 </script>
 
 <template>
@@ -43,24 +54,24 @@ function prev() {
       <button class="close-btn" @click="emit('close')">✕</button>
 
       <div class="left">
-        <h1>{{ evento.nome }}</h1>
+        <h1>{{ nome }}</h1>
       <div class="local-row">
         <div class="local">
           <img src="@/assets/localModal.png" alt="">
-          {{ evento.local }}
+          {{ local }}
         </div>
 
       </div>
 
 
         <div class="datas-list">
-          <span>{{ evento.datas.inicio }} até {{ evento.datas.fim }}</span>
+          <span>{{ dataInicio }} até {{ dataFim }}</span>
            <div class="horario">
-               {{ evento.horario.inicio }} – {{ evento.horario.fim }}
+               {{ horarioInicio }} – {{ horarioFim }}
            </div>
         </div>
 
-        <p class="descricao">{{ evento.descricao }}</p>
+        <p class="descricao">{{ descricao }}</p>
 
         <div class="contatos-box">
           <h2>Organizadores</h2>
@@ -83,15 +94,15 @@ function prev() {
         </div>
 
         <div class="footer">
-          <a :href="evento.link" class="mais-info" target="_blank">mais informações</a>
+          <a v-if="link" :href="link" class="mais-info" target="_blank">mais informações</a>
           <div class="categoria-box">
-            <strong v-for="(p, i) in evento.palestras" :key="i">{{ p }}</strong>
+            <strong v-for="(p, i) in categorias" :key="i">{{ p }}</strong>
           </div>
         </div>
       </div>
 
       <div class="right">
-        <img :src="evento.imagem" class="side-image" />
+        <img :src="imagemUrl" class="side-image" />
       </div>
     </div>
   </div>

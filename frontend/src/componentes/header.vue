@@ -16,6 +16,7 @@ import logoImg from '@/assets/logo.svg'
     </header>
 </template>
 <style scoped>
+
 .main-header {
   width: 100%;
   background-color: #8aeec3;
@@ -25,6 +26,7 @@ import logoImg from '@/assets/logo.svg'
   min-height: 100px;
   max-height: 100px;
 }
+
 .header-logo-container {
   position: absolute;
   top: 15px;

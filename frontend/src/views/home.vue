@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, onMounted, computed } from 'vue'
 import logoImg from '@/assets/logo.svg'
 import vetorImg from '@/assets/vetor.png'
 import logoFooter from '@/assets/logoFooter.png'
@@ -12,132 +13,92 @@ import CardInscricao from '@/componentes/CardInscricao.vue'
 import BarradePesquisa from '@/componentes/BarradePesquisa.vue'
 import AgendaSemana from '@/componentes/AgendaSemana.vue'
 import CalendarioAnualVue from '@/componentes/CalendarioAnual.vue'
+import Modal from '@/componentes/Modal.vue'
 import arrowImg from '@/assets/arrow-right.png'
 import { RouterLink } from 'vue-router'
 import Header from '@/componentes/header.vue'
 import Footer from '@/componentes/footer.vue'
-const eventos = [
-  {
-    titulo: 'Evento alusivo ao dia do professor de geografia',
-    local: 'Miniauditório Central',
-    categoria: 'Palestras',
-    datas: [
-      { data: '20/06', hora: '14:00', descricao: 'Abertura das inscrições' },
-      { data: '20/07', hora: '12:00', descricao: 'Inicio do evento' },
-      { data: '24/06', hora: '23:59', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Esporte',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-  {
-    titulo: 'CineBiblio',
-    local: 'Biblioteca Central',
-    categoria: 'Cultura',
-    datas: [
-      { data: '06/11', hora: '15:00', descricao: 'Abertura das inscrições' },
-      { data: '10/11', hora: '09:00', descricao: 'Início do evento' },
-      { data: '10/11', hora: '12:00', descricao: 'Período final das inscrições' },
-    ],
-  },
-]
+import { fetchEventos, type PayloadEvento } from '@/services/api'
+
+const eventosApi = ref<PayloadEvento[]>([])
+const loading = ref(true)
+
+// Modal
+const modalAberto = ref(false)
+const eventoSelecionado = ref<PayloadEvento | null>(null)
+
+function abrirModal(item: PayloadEvento) {
+  eventoSelecionado.value = item
+  modalAberto.value = true
+}
+
+function fecharModal() {
+  modalAberto.value = false
+  eventoSelecionado.value = null
+}
+
+onMounted(async () => {
+  try {
+    const res = await fetchEventos({ where: { visivel: { equals: true } } })
+    eventosApi.value = res.docs
+  } catch (err) {
+    console.error('Erro ao carregar eventos:', err)
+  } finally {
+    loading.value = false
+  }
+})
+
+// Formatar os dados da API para o formato esperado pelos cards
+const eventosFormatados = computed(() => {
+  return eventosApi.value.map((ev) => {
+    const fmtDate = (iso?: string | null) => {
+      if (!iso) return ''
+      return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+    }
+    const fmtTime = (iso?: string | null) => {
+      if (!iso) return ''
+      return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    }
+
+    return {
+      ...ev,
+      titulo: ev.titulo,
+      local: ev.local || '',
+      categoria: ev.categorias?.[0]?.nome || '',
+      imagem: ev.imagem,
+      datas: [
+        {
+          data: fmtDate(ev.dataInscricaoInicio),
+          hora: fmtTime(ev.dataInscricaoInicio),
+          descricao: 'Abertura das inscrições',
+        },
+        {
+          data: fmtDate(ev.dataEventoInicio),
+          hora: fmtTime(ev.dataEventoInicio),
+          descricao: 'Início do evento',
+        },
+        {
+          data: fmtDate(ev.dataInscricaoFinal),
+          hora: fmtTime(ev.dataInscricaoFinal),
+          descricao: 'Período final das inscrições',
+        },
+      ],
+    }
+  })
+})
+
+// Eventos com inscrição aberta
+const eventosInscricao = computed(() => {
+  const agora = new Date()
+  return eventosFormatados.value.filter((ev) => {
+    if (ev.dataInscricaoInicio && ev.dataInscricaoFinal) {
+      const ini = new Date(ev.dataInscricaoInicio)
+      const fim = new Date(ev.dataInscricaoFinal)
+      return agora >= ini && agora <= fim
+    }
+    return true // mostra se não tiver datas de inscrição definidas
+  })
+})
 </script>
 
 <template>
@@ -147,7 +108,8 @@ const eventos = [
       <BarradePesquisa class="barra-pesquisa" />
       <section class="destaques-default-section">
         <div class="content-container">
-          <Carrossel :itens="eventos" :component="CardDestaque" />
+          <Carrossel v-if="eventosFormatados.length" :itens="eventosFormatados" :component="CardDestaque" @select="abrirModal" />
+          <p v-else-if="!loading" style="text-align:center; color:#888; padding:2rem;">Nenhum evento em destaque.</p>
         </div>
       </section>
 
@@ -178,11 +140,17 @@ const eventos = [
       <section id="inscricoes" class="inscricoes">
         <div class="inscricoes-content">
           <h3>Inscrições abertas</h3>
-          <Carrossel :itens="eventos" :component="CardInscricao" />
-        
+          <Carrossel v-if="eventosInscricao.length" :itens="eventosInscricao" :component="CardInscricao" @select="abrirModal" />
+          <p v-else-if="!loading" style="text-align:center; color:#fff; padding:2rem;">Nenhuma inscrição aberta no momento.</p>
         </div>
       </section>
     </main>
+
+    <!-- Modal de detalhes do evento -->
+    <div v-if="modalAberto && eventoSelecionado" class="modal-overlay" @click.self="fecharModal">
+      <Modal :evento="eventoSelecionado" @close="fecharModal" />
+    </div>
+
     <Footer/>
   </div>
 </template>
@@ -394,6 +362,17 @@ h3 {
   width: 100%;
   display: block;
 }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
 @media (max-width: 1024px) {
 
   .adicionarEvento-container {

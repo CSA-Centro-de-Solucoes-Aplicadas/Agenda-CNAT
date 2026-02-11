@@ -7,10 +7,12 @@ import instagramImg from '@/assets/instagram.png'
 import youtubeImg from '@/assets/youtube.png'
 import { VueDatePicker as DatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
-import { ref } from 'vue' 
+import { ref } from 'vue'
 import footer from '@/componentes/footer.vue'
 import Footer from '@/componentes/footer.vue'
 import Header from '@/componentes/header.vue'
+import { uploadMedia, type PayloadEvento } from '@/services/api'
+import api from '@/services/api'
 
 const todasCategorias = [
   'Tecnologia',
@@ -62,8 +64,6 @@ const link = ref('')
 
 const dataInicioEvento = ref<Date | null>(null)
 const dataFimEvento = ref<Date | null>(null)
-const horarioInicioEvento = ref('')
-const horarioFimEvento = ref('')
 
 
 const dataInicioInscricao = ref<Date | null>(null)
@@ -71,6 +71,10 @@ const dataFimInscricao = ref<Date | null>(null)
 
 
 const organizadores = ref<string[]>([''])
+
+const enviando = ref(false)
+const sucesso = ref(false)
+const erro = ref('')
 
 function adicionarOrganizador() {
   organizadores.value.push('')
@@ -80,28 +84,60 @@ function removerOrganizador(index: number) {
   organizadores.value.splice(index, 1)
 }
 
+function onImagemChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  imagem.value = target.files?.[0] || null
+}
 
-function enviarFormulario() {
-  const dados = {
-    nomeEvento: nomeEvento.value,
-    imagem: imagem.value,
-    categorias: categoriasSelecionadas.value,
-    descricao: descricao.value,
-    link: link.value,
-    periodoEvento: {
-      dataInicio: dataInicioEvento.value,
-      dataFim: dataFimEvento.value,
-      horarioInicio: horarioInicioEvento.value,
-      horarioFim: horarioFimEvento.value,
-    },
-    inscricao: {
-      dataInicio: dataInicioInscricao.value,
-      dataFim: dataFimInscricao.value,
-    },
-    organizadores: organizadores.value.filter(o => o.trim() !== ''),
+async function enviarFormulario() {
+  if (enviando.value) return
+  enviando.value = true
+  sucesso.value = false
+  erro.value = ''
+
+  try {
+    // Upload da imagem se houver
+    let imagemId: number | undefined
+    if (imagem.value) {
+      const media = await uploadMedia(imagem.value, nomeEvento.value)
+      imagemId = media.id
+    }
+
+    const body: Record<string, unknown> = {
+      titulo: nomeEvento.value,
+      descricao: descricao.value,
+      link: link.value,
+      dataEventoInicio: dataInicioEvento.value?.toISOString() || null,
+      dataEventoFinal: dataFimEvento.value?.toISOString() || null,
+      dataInscricaoInicio: dataInicioInscricao.value?.toISOString() || null,
+      dataInscricaoFinal: dataFimInscricao.value?.toISOString() || null,
+      categorias: categoriasSelecionadas.value.map(nome => ({ nome })),
+      organizadores: organizadores.value.filter(o => o.trim() !== '').map(email => ({ email })),
+      visivel: true,
+    }
+
+    if (imagemId) body.imagem = imagemId
+
+    await api.post('/eventos', body)
+
+    sucesso.value = true
+    // Reset do formulário
+    nomeEvento.value = ''
+    imagem.value = null
+    descricao.value = ''
+    link.value = ''
+    dataInicioEvento.value = null
+    dataFimEvento.value = null
+    dataInicioInscricao.value = null
+    dataFimInscricao.value = null
+    categoriasSelecionadas.value = []
+    organizadores.value = ['']
+  } catch (e: any) {
+    console.error('Erro ao cadastrar evento:', e)
+    erro.value = e?.response?.data?.errors?.[0]?.message || 'Erro ao cadastrar evento. Verifique os dados.'
+  } finally {
+    enviando.value = false
   }
-
-  console.log('ENVIADO COM SUCESSO:', dados)
 }
 </script>
 
@@ -112,18 +148,26 @@ function enviarFormulario() {
 
     <main class="main-content">
       <h1>Adicionar Evento</h1>
+
+      <div v-if="sucesso" class="msg-sucesso">
+        ✅ Evento cadastrado com sucesso!
+      </div>
+      <div v-if="erro" class="msg-erro">
+        ❌ {{ erro }}
+      </div>
+
       <!-- Section 1 -->
       <section class="form-section">
         <h2>1. Informações do Evento</h2>
 
         <div class="form-group">
           <label>Nome do Evento*</label>
-          <input type="text" required />
+          <input type="text" v-model="nomeEvento" required />
         </div>
 
         <div class="form-group">
           <label>Imagem de divulgação*</label>
-          <input type="file" required />
+          <input type="file" accept="image/*" @change="onImagemChange" required />
         </div>
 
         <div class="form-group">
@@ -168,11 +212,11 @@ function enviarFormulario() {
 
         <div class="form-group">
           <label>Descrição</label>
-          <textarea></textarea required>
+          <textarea v-model="descricao" required></textarea>
         </div>
         <div class="form-group">
           <label>Link para mais informações</label>
-          <input type="url" />
+          <input type="url" v-model="link" />
         </div>
       </section>
 
@@ -252,7 +296,9 @@ function enviarFormulario() {
           </div>
       </section>
       <div class="submit-container">
-         <button class="submit-btn" >Confirmar</button>
+         <button class="submit-btn" @click="enviarFormulario" :disabled="enviando">
+           {{ enviando ? 'Enviando...' : 'Confirmar' }}
+         </button>
       </div>
     </main>
     <Footer/>
@@ -281,6 +327,25 @@ function enviarFormulario() {
 h1 {
   color: #0a4635;
 }
+
+.msg-sucesso {
+  background: #d4edda;
+  color: #155724;
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  border: 1px solid #c3e6cb;
+}
+
+.msg-erro {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  border: 1px solid #f5c6cb;
+}
+
 .form-section {
   width: 100%;
   background: white;

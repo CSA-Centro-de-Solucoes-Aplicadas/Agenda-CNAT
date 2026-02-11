@@ -1,22 +1,40 @@
 <script setup>
+import { computed } from 'vue'
+import { getMediaUrl } from '@/services/api'
+import fundoDestaqueDefault from '@/assets/images/illustrations/fundodestaque.png'
+
 const props = defineProps({
   item: Object
 })
 import localImg from '@/assets/images/icons/local.svg'
-import calendario_horaImg from'@/assets/images/icons/calendario_hora.svg'
-import '@/assets/images/illustrations/fundodestaque.png'
+import calendario_horaImg from '@/assets/images/icons/calendario_hora.svg'
+
+const backgroundImage = computed(() => {
+  const url = getMediaUrl(props.item?.imagem)
+  return url || fundoDestaqueDefault
+})
+
+const dataFormatada = computed(() => {
+  if (props.item?.dataEventoInicio) {
+    return new Date(props.item.dataEventoInicio).toLocaleDateString('pt-BR', {
+      day: '2-digit', month: '2-digit'
+    })
+  }
+  // fallback para formato antigo
+  if (props.item?.datas?.[1]?.data) return props.item.datas[1].data
+  return ''
+})
 </script>
 <template>
-  <div class="carddestaque">
+  <div class="carddestaque" :style="{ backgroundImage: `url(${backgroundImage})` }">
     <h3>{{ item.titulo }}</h3>
     <div class="local">
-      <img :src="localImg"></img>
+      <img :src="localImg">
       <p>{{ item.local }}</p>
     </div>
     <div class="data">
-      <img :src="calendario_horaImg"></img>
-      <!-- <img></img> -->
-      <p>{{ item.datas[1].data }}</p>
+      <img :src="calendario_horaImg">
+      <p>{{ dataFormatada }}</p>
     </div>
   </div>
 </template>
@@ -25,7 +43,6 @@ import '@/assets/images/illustrations/fundodestaque.png'
   aspect-ratio: 260 / 510; 
   width: 100%;           
   max-width: 260px; 
-  background-image:url(@/assets/images/illustrations/fundodestaque.png);
   background-size: cover;
   background-position: center;
   border-radius: 20px;

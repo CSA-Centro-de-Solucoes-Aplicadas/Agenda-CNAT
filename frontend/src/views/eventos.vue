@@ -7,172 +7,169 @@ import XImg from '@/assets/x.png'
 import instagramImg from '@/assets/instagram.png'
 import youtubeImg from '@/assets/youtube.png'
 import BarradePesquisa from '@/componentes/BarradePesquisa.vue'
-// const API_URL = ' '
-
-// onMounted(async () => {
-//   const res = await fetch(API_URL)
-//   eventos.value = await res.json()
-// })
-
-interface Evento {
-  id: number
-  titulo: string
-  data: string
-  local: string
-}
+import { VueDatePicker as DatePicker } from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
+import {
+  fetchEventos,
+  deleteEvento as apiDeleteEvento,
+  updateEvento,
+  uploadMedia,
+  type PayloadEvento,
+} from '@/services/api'
 
 const isAdmin = ref(true)
 
-const eventos = ref<Evento[]>([
-  { id: 1, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  {
-    id: 2,
-    titulo: 'Arraiá Junino da Melhor Idade',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 3,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  { id: 4, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  {
-    id: 5,
-    titulo: 'Arraiá Junino da Melhor Idade',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 6,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  { id: 7, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  {
-    id: 8,
-    titulo: 'Arraiá Junino da Melhor Idade',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 9,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  { id: 10, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  {
-    id: 11,
-    titulo: 'Arraiá Junino da Melhor Idade',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 12,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 13,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  { id: 14, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  {
-    id: 15,
-    titulo: 'Arraiá Junino da Melhor Idade',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 16,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 17,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  { id: 18, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  {
-    id: 19,
-    titulo: 'Arraiá Junino da Melhor Idade',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 20,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-])
+const eventos = ref<PayloadEvento[]>([])
+const loading = ref(true)
 
-// async function excluirEvento(id: number) {
-//   const confirmar = confirm('Tem certeza que deseja excluir este evento?')
-//   if (!confirmar) return
+onMounted(async () => {
+  try {
+    const res = await fetchEventos()
+    eventos.value = res.docs
+  } catch (err) {
+    console.error('Erro ao carregar eventos:', err)
+  } finally {
+    loading.value = false
+  }
+})
 
-//   await fetch(`${API_URL}/${id}`, {
-//     method: 'DELETE'
-//   })
-
-//   eventos.value = eventos.value.filter(e => e.id !== id)
-// }
-
+// ── Modal de edição ────────────────────────────
 const modalAberto = ref(false)
-const eventoEditando = ref<Evento | null>(null)
+const salvando = ref(false)
 
-function abrirEdicao(evento: Evento) {
-  eventoEditando.value = { ...evento }
+// Campos do formulário de edição
+const editId = ref<number | null>(null)
+const editTitulo = ref('')
+const editDescricao = ref('')
+const editLocal = ref('')
+const editLink = ref('')
+const editDataEventoInicio = ref<Date | null>(null)
+const editDataEventoFinal = ref<Date | null>(null)
+const editDataInscricaoInicio = ref<Date | null>(null)
+const editDataInscricaoFinal = ref<Date | null>(null)
+const editImagem = ref<File | null>(null)
+const editOrganizadores = ref<string[]>([''])
+const editCategorias = ref<string[]>([])
+const editCategoriasAbertas = ref(false)
+const editNovaCategoria = ref('')
+
+const todasCategorias = [
+  'Tecnologia',
+  'Ensino',
+  'Pesquisa e Extensão',
+  'Arte e Cultura',
+  'Esporte',
+  'Gestão',
+  'Recursos naturais',
+  'Palestra',
+]
+
+function toggleEditCategorias() {
+  editCategoriasAbertas.value = !editCategoriasAbertas.value
+}
+
+function selecionarEditCategoria(nome: string) {
+  if (editCategorias.value.length >= 2) return
+  if (!editCategorias.value.includes(nome)) {
+    editCategorias.value.push(nome)
+  }
+}
+
+function adicionarEditCategoriaManual() {
+  const nome = editNovaCategoria.value.trim()
+  if (!nome || editCategorias.value.length >= 2 || editCategorias.value.includes(nome)) return
+  editCategorias.value.push(nome)
+  editNovaCategoria.value = ''
+}
+
+function removerEditCategoria(nome: string) {
+  editCategorias.value = editCategorias.value.filter((c) => c !== nome)
+}
+
+function adicionarEditOrganizador() {
+  editOrganizadores.value.push('')
+}
+
+function removerEditOrganizador(index: number) {
+  editOrganizadores.value.splice(index, 1)
+}
+
+function abrirEdicao(evento: PayloadEvento) {
+  editId.value = evento.id
+  editTitulo.value = evento.titulo || ''
+  editDescricao.value = evento.descricao || ''
+  editLocal.value = evento.local || ''
+  editLink.value = evento.link || ''
+  editDataEventoInicio.value = evento.dataEventoInicio ? new Date(evento.dataEventoInicio) : null
+  editDataEventoFinal.value = evento.dataEventoFinal ? new Date(evento.dataEventoFinal) : null
+  editDataInscricaoInicio.value = evento.dataInscricaoInicio ? new Date(evento.dataInscricaoInicio) : null
+  editDataInscricaoFinal.value = evento.dataInscricaoFinal ? new Date(evento.dataInscricaoFinal) : null
+  editImagem.value = null
+  editOrganizadores.value = evento.organizadores?.length
+    ? evento.organizadores.map((o) => o.email || '')
+    : ['']
+  editCategorias.value = evento.categorias?.map((c) => c.nome || '').filter(Boolean) || []
+  editCategoriasAbertas.value = false
+  editNovaCategoria.value = ''
   modalAberto.value = true
 }
 
-// async function salvarEdicao() {
-//   if (!eventoEditando.value) return
+async function salvarEdicao() {
+  if (!editId.value || salvando.value) return
+  salvando.value = true
 
-//   await fetch(`${API_URL}/${eventoEditando.value.id}`, {
-//     method: 'PUT',
-//     headers: {
-//       'Content-Type': 'application/json'
-//     },
-//     body: JSON.stringify(eventoEditando.value)
-//   })
+  try {
+    let imagemId: number | undefined
+    if (editImagem.value) {
+      const media = await uploadMedia(editImagem.value, editTitulo.value)
+      imagemId = media.id
+    }
 
-//   const index = eventos.value.findIndex(
-//     e => e.id === eventoEditando.value!.id
-//   )
+    const body: Record<string, unknown> = {
+      titulo: editTitulo.value,
+      descricao: editDescricao.value,
+      local: editLocal.value,
+      link: editLink.value,
+      dataEventoInicio: editDataEventoInicio.value?.toISOString() || null,
+      dataEventoFinal: editDataEventoFinal.value?.toISOString() || null,
+      dataInscricaoInicio: editDataInscricaoInicio.value?.toISOString() || null,
+      dataInscricaoFinal: editDataInscricaoFinal.value?.toISOString() || null,
+      categorias: editCategorias.value.map((nome) => ({ nome })),
+      organizadores: editOrganizadores.value.filter((e) => e.trim()).map((email) => ({ email })),
+    }
 
-//   if (index !== -1) {
-//     eventos.value[index] = { ...eventoEditando.value }
-//   }
+    if (imagemId) body.imagem = imagemId
 
-//   modalAberto.value = false
-// }
+    const updated = await updateEvento(editId.value, body)
 
-function salvarEdicao() {
-  if (!eventoEditando.value) return
+    const index = eventos.value.findIndex((e) => e.id === editId.value)
+    if (index !== -1) eventos.value[index] = updated
 
-  const index = eventos.value.findIndex((e) => e.id === eventoEditando.value!.id)
-
-  if (index !== -1) {
-    eventos.value[index] = { ...eventoEditando.value }
+    modalAberto.value = false
+  } catch (err) {
+    console.error('Erro ao salvar evento:', err)
+    alert('Erro ao salvar evento. Verifique o console.')
+  } finally {
+    salvando.value = false
   }
-
-  modalAberto.value = false
 }
-function excluirEvento(id: number) {
+
+async function excluirEvento(id: number) {
   const confirmar = confirm('Tem certeza que deseja excluir este evento?')
   if (!confirmar) return
 
-  eventos.value = eventos.value.filter((evento) => evento.id !== id)
+  try {
+    await apiDeleteEvento(id)
+    eventos.value = eventos.value.filter((evento) => evento.id !== id)
+  } catch (err) {
+    console.error('Erro ao excluir evento:', err)
+    alert('Erro ao excluir evento.')
+  }
+}
+
+function formatarData(iso?: string | null): string {
+  if (!iso) return '—'
+  return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
 }
 </script>
 
@@ -209,7 +206,9 @@ function excluirEvento(id: number) {
       <section class="eventos-wrapper">
         <h2>Visualização dos eventos</h2>
 
-        <div class="eventos-list">
+        <p v-if="loading" class="loading-text">Carregando eventos...</p>
+
+        <div class="eventos-list" v-else>
           <div
             class="evento-linha"
             v-for="evento in eventos"
@@ -221,14 +220,17 @@ function excluirEvento(id: number) {
             </div>
 
             <div class="evento-data">
-              {{ evento.data }}
+              {{ formatarData(evento.dataEventoInicio) }}
+              <template v-if="evento.dataEventoFinal">
+                — {{ formatarData(evento.dataEventoFinal) }}
+              </template>
             </div>
 
             <div class="evento-local">
-              {{ evento.local }}
+              {{ evento.local || '—' }}
             </div>
-            <button v-if="isAdmin" class="evento-acao" @click.stop="excluirEvento(evento.id)">
-              🗑
+            <button v-if="isAdmin" class="evento-acao" @click.stop="excluirEvento(evento.id)" title="Excluir evento">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
             </button>
           </div>
 
@@ -237,28 +239,154 @@ function excluirEvento(id: number) {
       </section>
     </main>
 
-    <div v-if="modalAberto" class="modal-backdrop">
-      <div class="modal">
+    <!-- ── Modal de Edição Completo ── -->
+    <div v-if="modalAberto" class="modal-backdrop" @click.self="modalAberto = false">
+      <div class="modal-edit">
+        <button class="modal-close" @click="modalAberto = false">✕</button>
         <h3>Editar Evento</h3>
 
-        <label>
-          Título
-          <input v-model="eventoEditando!.titulo" />
-        </label>
+        <div class="modal-scroll">
+          <!-- Seção 1 -->
+          <section class="form-section">
+            <h4>1. Informações do Evento</h4>
 
-        <label>
-          Data
-          <input v-model="eventoEditando!.data" />
-        </label>
+            <div class="form-group">
+              <label>Nome do Evento *</label>
+              <input type="text" v-model="editTitulo" required />
+            </div>
 
-        <label>
-          Local
-          <input v-model="eventoEditando!.local" />
-        </label>
+            <div class="form-group">
+              <label>Imagem de divulgação (substituir)</label>
+              <input type="file" accept="image/*" @change="(e: Event) => editImagem = (e.target as HTMLInputElement).files?.[0] || null" />
+            </div>
+
+            <div class="form-group">
+              <div class="cat-header">
+                <span class="cat-label">Categorias</span>
+                <button type="button" class="cat-icon-btn" @click="toggleEditCategorias">
+                  <span class="arrow">⌄</span>
+                </button>
+              </div>
+
+              <div v-if="editCategoriasAbertas" class="cat-dropdown">
+                <input
+                  type="text"
+                  v-model="editNovaCategoria"
+                  placeholder="Adicionar categoria..."
+                  class="cat-input"
+                  @keyup.enter="adicionarEditCategoriaManual"
+                  :disabled="editCategorias.length >= 2"
+                />
+                <div
+                  class="cat-option"
+                  v-for="cat in todasCategorias"
+                  :key="cat"
+                  @click="selecionarEditCategoria(cat)"
+                  :class="{ disabled: editCategorias.length >= 2 }"
+                >
+                  {{ cat }}
+                </div>
+              </div>
+
+              <div class="cat-tags">
+                <span v-for="cat in editCategorias" :key="cat" class="tag">
+                  {{ cat }}
+                  <button class="remove-tag" @click="removerEditCategoria(cat)">✖</button>
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Descrição</label>
+              <textarea v-model="editDescricao" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Link para mais informações</label>
+              <input type="url" v-model="editLink" />
+            </div>
+          </section>
+
+          <!-- Seção 2 -->
+          <section class="form-section">
+            <h4>2. Data e Horário do Evento</h4>
+
+            <div class="form-group">
+              <label>Data de início *</label>
+              <DatePicker
+                v-model="editDataEventoInicio"
+                :enable-time-picker="true"
+                placeholder="Selecione o dia e horário de início"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Data de fim *</label>
+              <DatePicker
+                v-model="editDataEventoFinal"
+                :enable-time-picker="false"
+                placeholder="Selecione o dia e horário final"
+              />
+            </div>
+          </section>
+
+          <!-- Seção 2.1 -->
+          <section class="form-section">
+            <h4>2.1 Período de Inscrições</h4>
+
+            <div class="form-group">
+              <label>Data de início</label>
+              <DatePicker
+                v-model="editDataInscricaoInicio"
+                :enable-time-picker="true"
+                placeholder="Selecione o dia e horário de início"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Data de fim</label>
+              <DatePicker
+                v-model="editDataInscricaoFinal"
+                :enable-time-picker="false"
+                placeholder="Selecione o dia e horário final"
+              />
+            </div>
+          </section>
+
+          <!-- Seção 3 -->
+          <section class="form-section">
+            <h4>3. Organizadores</h4>
+            <div class="organizadores-section">
+              <div
+                v-for="(email, index) in editOrganizadores"
+                :key="index"
+                class="organizador-field"
+              >
+                <input
+                  type="email"
+                  v-model="editOrganizadores[index]"
+                  placeholder="Email do organizador"
+                />
+                <button
+                  v-if="editOrganizadores.length > 1"
+                  @click="removerEditOrganizador(index)"
+                  class="remove-field"
+                >
+                  ✖
+                </button>
+              </div>
+              <button @click="adicionarEditOrganizador" class="add-field">
+                + Adicionar organizador
+              </button>
+            </div>
+          </section>
+        </div>
 
         <div class="modal-actions">
-          <button @click="modalAberto = false">Cancelar</button>
-          <button class="btn-salvar" @click="salvarEdicao">Salvar</button>
+          <button @click="modalAberto = false" class="btn-cancelar">Cancelar</button>
+          <button class="btn-salvar" @click="salvarEdicao" :disabled="salvando">
+            {{ salvando ? 'Salvando...' : 'Salvar' }}
+          </button>
         </div>
       </div>
     </div>
@@ -473,14 +601,29 @@ header li a:hover {
   white-space: nowrap;
 }
 
-/* BOTÃO */
+/* BOTÃO DE EXCLUSÃO */
 .evento-acao {
   margin-left: auto;
   border: none;
   background: transparent;
   cursor: pointer;
-  font-size: 1rem;
   color: #c0392b;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+
+.evento-acao:hover {
+  background: #fde8e8;
+  color: #922020;
+}
+
+.evento-acao svg {
+  width: 22px;
+  height: 22px;
 }
 
 /* SCROLL */
@@ -526,6 +669,12 @@ header li a:hover {
   background: #bbb;
   border-radius: 10px;
 }
+.loading-text {
+  text-align: center;
+  color: #888;
+  padding: 2rem;
+}
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -536,41 +685,282 @@ header li a:hover {
   z-index: 999;
 }
 
-.modal {
-  background: #fff;
-  padding: 1.5rem;
-  border-radius: 10px;
-  width: 400px;
+.modal-edit {
+  background: #f4f4f4;
+  width: 680px;
+  max-width: 95vw;
+  max-height: 90vh;
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  position: relative;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
 }
 
-.modal label {
+.modal-edit > h3 {
+  padding: 20px 24px 0;
+  color: #0a4635;
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #e8e8e8;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.modal-close:hover {
+  background: #d0d0d0;
+}
+
+.modal-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 24px;
   display: flex;
   flex-direction: column;
+  gap: 20px;
+}
+
+.modal-edit .form-section {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px #0001;
+}
+
+.modal-edit .form-section h4 {
+  margin-bottom: 14px;
+  color: #1b473a;
+  font-size: 1rem;
+}
+
+.modal-edit .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+
+.modal-edit .form-group label {
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.modal-edit .form-group input,
+.modal-edit .form-group textarea {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+}
+
+.modal-edit .form-group textarea {
+  resize: vertical;
+}
+
+/* Categorias no modal */
+.modal-edit .cat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.modal-edit .cat-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.modal-edit .cat-icon-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f3f3;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.modal-edit .arrow {
+  font-size: 22px;
+  color: #444;
+  font-weight: bold;
+  transform: translateY(-5px);
+}
+
+.modal-edit .cat-dropdown {
+  margin-top: 4px;
+  background: white;
+  border: 1px solid #b6e8d2;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px #0002;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 250px;
+}
+
+.modal-edit .cat-option {
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
   font-size: 0.85rem;
 }
 
-.modal input {
-  padding: 0.4rem;
+.modal-edit .cat-option:hover {
+  background: #d8f7ea;
+}
+
+.modal-edit .cat-input {
+  padding: 6px 8px;
   border-radius: 6px;
   border: 1px solid #ccc;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+}
+
+.modal-edit .disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.modal-edit .cat-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.modal-edit .tag {
+  background: #c8f5de;
+  padding: 5px 10px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+.modal-edit .remove-tag {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: #0a8f5a;
+}
+
+.modal-edit .remove-tag:hover {
+  color: red;
+}
+
+/* Organizadores no modal */
+.modal-edit .organizadores-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.modal-edit .organizador-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-edit .organizador-field input {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 0.85rem;
+}
+
+.modal-edit .remove-field {
+  background: #ffe5e5;
+  border: 1px solid #ffb3b3;
+  color: #a00;
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.modal-edit .remove-field:hover {
+  background: #ffd2d2;
+  color: #700;
+}
+
+.modal-edit .add-field {
+  align-self: flex-start;
+  background: #c8f5de;
+  border: 1px solid #9bd9b9;
+  padding: 6px 14px;
+  border-radius: 8px;
+  color: #0b5c3e;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.modal-edit .add-field:hover {
+  background: #b2f0d1;
 }
 
 .modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 0.5rem;
+  gap: 0.6rem;
+  padding: 14px 24px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.btn-cancelar {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-cancelar:hover {
+  background: #f0f0f0;
 }
 
 .btn-salvar {
   background: #4caf84;
   border: none;
-  padding: 0.4rem 0.8rem;
+  padding: 8px 22px;
   color: #fff;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.btn-salvar:hover {
+  background: #3d9970;
+}
+
+.btn-salvar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 footer {
