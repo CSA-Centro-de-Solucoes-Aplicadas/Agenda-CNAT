@@ -170,6 +170,14 @@ export interface Evento {
   id: number;
   titulo: string;
   descricao?: string | null;
+  /**
+   * Imagem de divulgação do evento
+   */
+  imagem?: (number | null) | Media;
+  /**
+   * Link para mais informações sobre o evento
+   */
+  link?: string | null;
   dataInscricaoInicio?: string | null;
   dataInscricaoFinal?: string | null;
   dataEventoInicio?: string | null;
@@ -181,6 +189,12 @@ export interface Evento {
       }[]
     | null;
   local?: string | null;
+  organizadores?:
+    | {
+        email?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   colaboradores?: (number | User)[] | null;
   visivel?: boolean | null;
   updatedAt: string;
@@ -312,6 +326,8 @@ export interface MediaSelect<T extends boolean = true> {
 export interface EventosSelect<T extends boolean = true> {
   titulo?: T;
   descricao?: T;
+  imagem?: T;
+  link?: T;
   dataInscricaoInicio?: T;
   dataInscricaoFinal?: T;
   dataEventoInicio?: T;
@@ -323,6 +339,12 @@ export interface EventosSelect<T extends boolean = true> {
         id?: T;
       };
   local?: T;
+  organizadores?:
+    | T
+    | {
+        email?: T;
+        id?: T;
+      };
   colaboradores?: T;
   visivel?: T;
   updatedAt?: T;
