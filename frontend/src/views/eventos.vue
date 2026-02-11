@@ -6,6 +6,9 @@ import XImg from '@/assets/x.png'
 import instagramImg from '@/assets/instagram.png'
 import youtubeImg from '@/assets/youtube.png'
 import headerAdm from '@/componentes/headerAdm.vue'
+import { VueDatePicker as DatePicker } from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
+import ModalEditar from '@/componentes/ModalEditar.vue'
 // const API_URL = ' '
 
 // onMounted(async () => {
@@ -16,104 +19,67 @@ import headerAdm from '@/componentes/headerAdm.vue'
 interface Evento {
   id: number
   titulo: string
-  data: string
   local: string
+  descricao: string
+  imagem: string
+  organizadores?: string[]
+  dataInscricaoInicio?: string
+  dataInscricaoFim?: string
+  dataEventoInicio: string
+  dataEventoFim: string
+  categorias: string[]
+  linkInscricao?: string
+}
+// formatar datas
+const separarDataHora = (dataISO?: string) => {
+  if (!dataISO) return { data: '--/--/--', hora: '--:--' }
+
+  const dataObj = new Date(dataISO)
+  const dataFormatada = dataObj.toLocaleDateString('pt-BR')
+  const horaFormatada = dataObj.toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+
+  return { data: dataFormatada, hora: horaFormatada }
 }
 
-const isAdmin = ref(true)
+// funções para organizadores
+function adicionarOrganizador() {
+  organizadores.value.push('')
+}
 
+function removerOrganizador(index: number) {
+  organizadores.value.splice(index, 1)
+}
+
+// atributos
+const titulo = ref('')
+const imagem = ref<File | null>(null)
+const descricao = ref('')
+const linkInformacao = ref('')
+const dataInicioEvento = ref<Date | null>(null)
+const dataFimEvento = ref<Date | null>(null)
+const dataInicioInscricao = ref<Date | null>(null)
+const dataFimInscricao = ref<Date | null>(null)
+const organizadores = ref<string[]>([''])
+
+const isAdmin = ref(true)
 const eventos = ref<Evento[]>([
-  { id: 1, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
   {
-    id: 2,
-    titulo: 'Arraiá Junino da Melhor Idade',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 3,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  { id: 4, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  {
-    id: 5,
-    titulo: 'Arraiá Junino da Melhor Idade',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 6,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  { id: 7, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  {
-    id: 8,
-    titulo: 'Arraiá Junino da Melhor Idade',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 9,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  { id: 10, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  {
-    id: 11,
-    titulo: 'Arraiá Junino da Melhor Idade',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 12,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 13,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  { id: 14, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  {
-    id: 15,
-    titulo: 'Arraiá Junino da Melhor Idade',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 16,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 17,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  { id: 18, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  {
-    id: 19,
-    titulo: 'Arraiá Junino da Melhor Idade',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 20,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-])
+    id: 1,
+    titulo: 'Workshop de Vue.js',
+    local: 'Auditório Principal',
+    descricao: 'Aprenda os fundamentos do Vue.js neste workshop interativo.',
+    imagem: '/src/assets/images/eventos/vue_workshop.png',
+    dataInscricaoInicio: '2024-07-01T08:00:00Z',
+    dataInscricaoFim: '2024-07-10T23:59:59Z',
+    dataEventoInicio: '2024-07-15T09:00:00Z',
+    dataEventoFim: '2024-07-15T17:00:00Z',
+    categorias: ['Tecnologia'],
+    linkInscricao: 'https://example.com/inscricao-vue',
+    organizadores: ['Prof. João Silva']
+  }])
 
 // async function excluirEvento(id: number) {
 //   const confirmar = confirm('Tem certeza que deseja excluir este evento?')
@@ -195,7 +161,7 @@ function excluirEvento(id: number) {
             </div>
 
             <div class="evento-data">
-              {{ evento.data }}
+              {{ separarDataHora(evento.dataEventoInicio).data }}
             </div>
 
             <div class="evento-local">
@@ -212,29 +178,11 @@ function excluirEvento(id: number) {
     </main>
 
     <div v-if="modalAberto" class="modal-backdrop">
-      <div class="modal">
-        <h3>Editar Evento</h3>
-
-        <label>
-          Título
-          <input v-model="eventoEditando!.titulo" />
-        </label>
-
-        <label>
-          Data
-          <input v-model="eventoEditando!.data" />
-        </label>
-
-        <label>
-          Local
-          <input v-model="eventoEditando!.local" />
-        </label>
-
-        <div class="modal-actions">
-          <button @click="modalAberto = false">Cancelar</button>
-          <button class="btn-salvar" @click="salvarEdicao">Salvar</button>
-        </div>
-      </div>
+      <ModalEditar
+        :eventoSelecionado="eventoEditando"
+        @close="modalAberto = false"
+        @salvar="salvarEdicao"
+      />
     </div>
 
     <footer>
@@ -445,7 +393,7 @@ function excluirEvento(id: number) {
   background: #fff;
   padding: 1.5rem;
   border-radius: 10px;
-  width: 400px;
+  width: 600px;
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
