@@ -78,8 +78,13 @@ async function goToSlide(index) {
 
 /* ---------- calculado total de "páginas" visíveis ---------- */
 const totalPages = computed(() => {
-  const remaining = props.eventos.length - Math.floor(slidesPerView.value)
-  return Math.max(1, Math.ceil(remaining) + 1)
+  if (variant.value === 'destaque') {
+    const remaining = props.eventos.length - Math.floor(slidesPerView.value)
+    return Math.max(1, Math.ceil(remaining) + 1)
+  }
+  else {
+    return props.eventos.length
+  }
 })
 
 /* ---------- Swiper config por variante ---------- */
@@ -131,45 +136,24 @@ const swiperConfig = computed(() => {
 <template>
   <div class="carrossel-wrapper">
     <div class="viewport-container">
-      <swiper
-        :modules="modules"
-        :slides-per-view="slidesPerView"
-        :space-between="variant === 'destaque' ? 12 : 20"
-        :loop="false"
-        :grab-cursor="true"
-        :mousewheel="{ forceToAxis: true }"
-        :free-mode-momentum="variant === 'destaque'"
-        :centered-slides="variant === 'inscricao'"
-        @swiper="(swiper) => { swiperInstance = swiper }"
-        @slide-change="onSlideChange"
-        :class="{
+      <swiper :modules="modules" :slides-per-view="slidesPerView" :space-between="variant === 'destaque' ? 12 : 20"
+        :loop="false" :grab-cursor="true" :mousewheel="{ forceToAxis: true }"
+        :free-mode-momentum="variant === 'destaque'" :centered-slides="variant === 'inscricao'"
+        @swiper="(swiper) => { swiperInstance = swiper }" @slide-change="onSlideChange" :class="{
           'swiper-destaque': variant === 'destaque',
           'swiper-inscricao': variant === 'inscricao',
-        }"
-      >
+        }">
         <swiper-slide v-for="(evento, i) in eventos" :key="i">
-          <component
-            :is="component"
-            :evento="evento"
-            :class="{ 'card-focus': variant === 'inscricao' }"
-            :style="{ cursor: 'pointer' }"
-            @click="emit('select', evento)"
-          />
+          <component :is="component" :evento="evento" :class="{ 'card-focus': variant === 'inscricao' }"
+            :style="{ cursor: 'pointer' }" @click="emit('select', evento)" />
         </swiper-slide>
       </swiper>
     </div>
 
     <!-- Scrollbar com índices clicáveis para ambos carrosséis -->
     <div class="carousel-scrollbar">
-      <button
-        v-for="i in eventos.length"
-        :key="i"
-        class="scrollbar-index"
-        :class="{ active: currentIndex === i - 1 }"
-        @click="goToSlide(i - 1)"
-        :aria-label="`Ir para card ${i}`"
-        :title="`Card ${i} de ${eventos.length}`"
-      />
+      <button v-for="i in totalPages" :key="i" class="scrollbar-index" :class="{ active: currentIndex === i - 1 }"
+        @click="goToSlide(i - 1)" :aria-label="`Ir para card ${i}`" :title="`Card ${i} de ${totalPages}`" />
     </div>
 
     <!-- Índice em pontos apenas para carrossel de destaques -->
@@ -332,11 +316,11 @@ const swiperConfig = computed(() => {
     height: 8px;
   }
 
-  .carousel-scrollbar{
+  .carousel-scrollbar {
     display: none;
   }
 }
-  
+
 
 /* Garante que clique e arraste funciona em toda a área */
 :deep(.swiper) {

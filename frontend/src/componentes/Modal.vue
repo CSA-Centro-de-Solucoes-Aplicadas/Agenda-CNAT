@@ -197,7 +197,7 @@ const modo = ref('info')
 h1 {
   font-size: 36px;
   margin-top: 5px;
-  margin-left: 90px;
+  text-align: center;
   margin-bottom: 5px;
 }
 h2 {
@@ -316,10 +316,10 @@ h2 {
 }
 
 .contatos-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: 12px;
   font-size: 12px;
+  flex-wrap: wrap;
 }
 
 .contato-item {
