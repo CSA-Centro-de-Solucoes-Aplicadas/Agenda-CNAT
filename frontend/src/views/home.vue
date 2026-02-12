@@ -277,9 +277,9 @@ h3 {
 .btn-solicitar-evento {
   margin-top: 1.2rem;
   width: 220px;
-  align-items: center;
   gap: 0.5rem;
   display: flex;
+  align-items: center;
   padding: 0.35rem 1.6rem;
   background-color: #39b87f;
   color: #ffffff;
@@ -302,8 +302,14 @@ h3 {
   white-space: nowrap;
 }
 
+.btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .btn-icon img {
-  width: 34px;
+  width: 28px;
   height: 34px;
   object-fit: contain;
 }

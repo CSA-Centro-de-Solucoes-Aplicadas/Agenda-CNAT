@@ -789,8 +789,13 @@ select {
   opacity: 0.6;
   padding: 8px 30px;
 }
+
+/* TABLET */
 @media (max-width: 1250px) {
- 
+  .topo {
+    padding: 10px 12px;
+  }
+  
   .toggle-wrapper {
     width: 100%;
     justify-content: center;
@@ -798,66 +803,60 @@ select {
 
   .toggle-btn {
     flex: 1;
+    max-width: 150px;
   }
-  .chips {
-    gap: 14px;
-    margin-left: 12px;
   
+  .chips {
+    gap: 10px;
+    margin-left: 12px;
   }
 
   .chip-dia {
-    min-width: 150px;
-    width: 150px;
-    height: 34px;
-    flex-direction: column;
-    gap: 2px;
-    font-size: 9px;
-    border-radius: 12px;
+    min-width: 145px;
+    width: 145px;
   }
 
-  .chip-dia .numero {
-    font-size: 10px;
-    font-weight: bold;
+  .dia {
+    min-width: 145px;
+    width: 145px;
   }
+  
   .item-lista {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
+  
+  .badge {
+    min-width: unset;
+    width: 100%;
+  }
+  
   .info {
     width: 100%;
     font-size: 13px;
     flex-direction: column;
     gap: 4px;
-  }  
- /* .dias, .grade{
-    overflow: visible;
-    
-  } */
-.coluna-dias {
-    overflow-y: hidden;
-  
   }
-  .chips,
-  .dias {
-    width: max-content;
-  }
-
-  .dia {
-    min-width: 140px;
-    width: 140px;
-  }
-
-
 }
+/* MOBILE */
 @media (max-width: 768px) {
+  .agenda {
+    border-radius: 12px;
+    min-height: 520px;
+  }
+  
   .topo {
     grid-template-columns: 1fr;
-    gap: 12px;
-    padding: 12px;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 0;
   }
-  .nav-semana {
+  
+  .nav-semana,
+  .nav-dia {
     justify-content: space-between;
+    width: 100%;
   }
 
   .titulo {
@@ -873,137 +872,225 @@ select {
 
   .toggle-btn {
     flex: 1;
+    font-size: 14px;
   }
 
   .acoes-direita {
     justify-content: space-between;
     margin-left: 0;
-    gap: 12px;
+    gap: 10px;
+    width: 100%;
   }
 
   select {
     flex: 1;
+    font-size: 14px;
   }
+  
+  /* Sistema de scroll horizontal */
+  .dias-grade {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .barra-dias {
+    padding-top: 12px;
+    padding-bottom: 8px;
+    overflow: visible;
+  }
+  
   .chips {
     gap: 10px;
-    margin-left: 12px;
-  
+    margin-left: 8px;
+    margin-right: 8px;
   }
-
+  
   .chip-dia {
     min-width: 140px;
     width: 140px;
     height: 34px;
-    flex-direction: column;
-    gap: 2px;
-    font-size: 9px;
-    border-radius: 12px;
+    font-size: 13px;
+    flex-shrink: 0;
   }
-
+  
   .chip-dia .numero {
-    font-size: 10px;
-    font-weight: bold;
+    font-size: 15px;
   }
+  
+  .chip-dia .semana {
+    font-size: 11px;
+  }
+  
+  .conteudo {
+    padding: 0 10px 12px;
+    min-height: 420px;
+  }
+  
+  .grade {
+    overflow: visible;
+    min-height: 420px;
+  }
+  
+  .grade-conteudo {
+    overflow: visible;
+  }
+  
+  .dias {
+    gap: 8px;
+  }
+  
+  .dia {
+    /* two-per-view: calculate based on viewport minus paddings/gaps */
+    min-width: calc((100vw - 48px) / 2);
+    width: calc((100vw - 48px) / 2);
+    padding: 8px 0;
+    min-height: 320px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+  }
+  
+  /* Cards de eventos no mobile */
+  .evento-simples {
+    min-height: 140px;
+  }
+  
+  .evento-header {
+    padding: 10px 12px;
+  }
+  
+  .titulo-evento {
+    font-size: 15px;
+    line-height: 1.25;
+  }
+  
+  .evento-info {
+    padding: 7px 10px;
+    font-size: 12px;
+    margin: 4px 6px;
+  }
+  
+  .icon-info {
+    width: 13px;
+    height: 13px;
+  }
+  
+  /* Modo hoje no mobile */
+  .grade.modo-hoje .dias {
+    min-width: 100%;
+    background: none;
+  }
+  
+  .grade.modo-hoje .dia {
+    min-width: 100%;
+    width: 100%;
+    padding: 12px;
+  }
+  
+  .grade.modo-hoje .evento-simples {
+    min-height: 180px;
+  }
+  
+  .grade.modo-hoje .evento-header {
+    padding: 14px 12px;
+  }
+  
+  .grade.modo-hoje .titulo-evento {
+    font-size: 18px;
+  }
+  
+  .grade.modo-hoje .categoria-badge {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+  
+  .grade.modo-hoje .evento-info {
+    padding: 10px 14px;
+    font-size: 13px;
+    margin: 0;
+  }
+  
+  .grade.modo-hoje .evento-descricao {
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+  
+  /* Lista no mobile */
   .item-lista {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
+    padding: 12px;
   }
 
   .badge {
     min-width: unset;
     width: 100%;
-    padding: 10px 12px;
+    padding: 12px;
     font-size: 14px;
-    border-radius: 10px;
   }
 
   .info {
     width: 100%;
     font-size: 13px;
     flex-direction: column;
-    gap: 4px;
-  }  
-
-.coluna-dias {
-    overflow-y: hidden;
-    
+    gap: 6px;
   }
-  .chips,
-  .dias {
-    width: max-content;
-  }
-
-  .dia {
-    min-width: 180px;
-    width: 180px;
-    
-  }
-
-  .titulo-evento {
+  
+  .dia-vazio {
     font-size: 12px;
-  }
-
-  .local-evento,
-  .horario-evento {
-    font-size: 10px;
-  }
-  .barra-dias {
-    overflow-y: hidden;
-  }
-  .grade-conteudo {
-    overflow: visible;
-  }
-   
-    /* Container principal com scroll */
-  .agenda {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .barra-dias {
-    overflow-x: visible;
-  }
-  
-  .grade {
-    overflow-x: visible;
-  }
-  
-  .grade-conteudo {
-    overflow-x: visible;
-  }
-
-  /* Chips e dias com mesma largura fixa */
-  .chips {
-    display: flex;
-    gap: 10px;
-    min-width: calc(140px * 7 + 60px); /* 7 dias + gaps */
-  }
-  
-  .dias {
-    display: flex;
-    gap: 10px;
-    min-width: calc(140px * 7 + 60px); /* 7 dias + gaps */
-  }
-
-  .chip-dia,
-  .dia {
-    min-width: 140px;
-    width: 140px;
-    flex-shrink: 0;
+    padding: 12px;
   }
 }
+/* MOBILE PEQUENO */
 @media (max-width: 420px) {
   .titulo {
     font-size: 14px;
   }
-
-  .chip-dia {
-    min-width: 64px;
+  
+  .nav-btn {
+    width: 26px;
+    height: 26px;
+    font-size: 15px;
   }
 
   .toggle-btn {
+    font-size: 13px;
+    height: 36px;
+  }
+  
+  .icon-btn {
+    width: 34px;
+    height: 34px;
+  }
+  
+  .chip-dia {
+    /* align with two-per-view layout */
+    min-width: calc((100vw - 48px) / 2);
+    width: calc((100vw - 48px) / 2);
+    height: 32px;
     font-size: 12px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
+  
+  .chip-dia .numero {
+    font-size: 14px;
+  }
+  
+  .dia {
+    min-width: calc((100vw - 40px) / 2);
+    width: calc((100vw - 40px) / 2);
+    box-sizing: border-box;
+  }
+  
+  .titulo-evento {
+    font-size: 14px;
+  }
+  
+  .evento-info {
+    font-size: 11px;
+    padding: 6px 8px;
   }
 }
 </style>
