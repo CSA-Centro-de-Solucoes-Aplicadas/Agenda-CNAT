@@ -110,6 +110,17 @@ const imagemUrl = computed(() => {
 
 <style scoped>
 
+.story-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+}
+
 .close-btn {
   position: absolute;
   top: 18px;

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { fetchEventos, type PayloadEvento } from '@/services/api'
 
 interface Evento {
   id: number
@@ -9,34 +10,32 @@ interface Evento {
 }
 
 const eventos = ref<Evento[]>([])
+const loading = ref(true)
 
-onMounted(() => {
-  eventos.value = [
-    {
-      id: 1,
-      nome: 'Evento alusivo ao dia do professor de geografia',
-      dataInicio: '2025-12-09',
-      dataFim: '2025-12-11',
-    },
-    {
-      id: 2,
-      nome: 'Palestra de conscientização ambiental 2025.2',
-      dataInicio: '2025-12-11',
-      dataFim: '2025-12-13',
-    },
-    {
-      id: 3,
-      nome: 'Palestra de tecnologia 2025.2',
-      dataInicio: '2025-12-10',
-      dataFim: '2025-12-15',
-    },
-    {
-      id: 4,
-      nome: 'FERIAS',
-      dataInicio: '2026-01-02',
-      dataFim: '2026-01-20',
-    },
-  ]
+// Converte evento da API para formato local
+function apiToLocal(ev: PayloadEvento): Evento {
+  const fmtDate = (iso?: string | null): string => {
+    if (!iso) return ''
+    const d = new Date(iso)
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  }
+  return {
+    id: ev.id,
+    nome: ev.titulo,
+    dataInicio: fmtDate(ev.dataEventoInicio),
+    dataFim: fmtDate(ev.dataEventoFinal || ev.dataEventoInicio),
+  }
+}
+
+onMounted(async () => {
+  try {
+    const res = await fetchEventos({ limit: 200, where: { visivel: { equals: true } } })
+    eventos.value = res.docs.map(apiToLocal)
+  } catch (err) {
+    console.error('Erro ao carregar eventos do calendário:', err)
+  } finally {
+    loading.value = false
+  }
 })
 
 const hoje = new Date()
@@ -121,7 +120,10 @@ function gradientePizza(eventosNoDia: Evento[]) {
 const PALETA_CORES = ['#57c083', '#5c95bb', '#e66070', '#f2a65a', '#9b6bcc']
 
 function criarDataLocal(data: string) {
-  const [ano, mes, dia] = data.split('-').map(Number)
+  const partes = data.split('-').map(Number)
+  const ano = partes[0] ?? 0
+  const mes = partes[1] ?? 1
+  const dia = partes[2] ?? 1
   return new Date(ano, mes - 1, dia)
 }
 

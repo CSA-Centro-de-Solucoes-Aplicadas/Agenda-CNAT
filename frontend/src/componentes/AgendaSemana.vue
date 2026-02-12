@@ -4,6 +4,7 @@ import iconLista from '@/assets/iconLista.png'
 import iconCalendario from '@/assets/iconCalendario.png'
 import iconLocal from '@/assets/iconLocal.png'
 import iconHorario from '@/assets/iconHorario.png'
+import Modal from './Modal.vue'
 import { fetchEventos, type PayloadEvento } from '@/services/api'
 
 type Modo = 'hoje' | 'semana'
@@ -17,6 +18,7 @@ interface Evento {
   fim: string
   categoria: string
   local: string
+  payloadEvento: PayloadEvento
 }
 
 const hoje = new Date()
@@ -25,18 +27,32 @@ const modoVisualizacao = ref<Modo>('semana')
 const tipoVisualizacao = ref<Tipo>('calendario')
 const categoriaSelecionada = ref('Todas')
 const dataBaseAgenda = ref(new Date(hoje))
-
+const dataSelecionada = ref<Date>(new Date(hoje))
 const eventos = ref<Evento[]>([])
+const eventosPayload = ref<PayloadEvento[]>([])
+const eventoSelecionado = ref<PayloadEvento | null>(null)
+const modalAberto = ref(false)
 
 // Carrega os eventos da API e converte para o formato local
 onMounted(async () => {
   try {
     const res = await fetchEventos({ limit: 200, where: { visivel: { equals: true } } })
+    eventosPayload.value = res.docs
     eventos.value = res.docs.map(apiToLocal)
   } catch (err) {
     console.error('Erro ao carregar eventos da agenda:', err)
   }
 })
+
+function abrirModal(evento: Evento) {
+  eventoSelecionado.value = evento.payloadEvento
+  modalAberto.value = true
+}
+
+function fecharModal() {
+  modalAberto.value = false
+  eventoSelecionado.value = null
+}
 
 function apiToLocal(ev: PayloadEvento): Evento {
   const fmtLocal = (iso?: string | null): string => {
@@ -57,6 +73,7 @@ function apiToLocal(ev: PayloadEvento): Evento {
     fim: fmtTime(ev.dataEventoFinal),
     categoria: ev.categorias?.[0]?.nome || 'Geral',
     local: ev.local || '',
+    payloadEvento: ev,
   }
 }
 
@@ -97,10 +114,14 @@ const diasSemana = computed(() => {
   })
 })
 
+const diaAtual = computed(() => {
+  return modoVisualizacao.value === 'hoje' ? dataSelecionada.value : hoje
+})
+
 const mesAnoAtual = computed(() => {
   const base =
     modoVisualizacao.value === 'hoje'
-      ? hoje
+      ? diaAtual.value
       : diasSemana.value[0] ?? dataBaseAgenda.value
 
   const mes = base.toLocaleDateString('pt-BR', { month: 'long' })
@@ -108,6 +129,19 @@ const mesAnoAtual = computed(() => {
 
   return `${mes}, ${ano}`
 })
+
+function alterarDia(dias: number) {
+  const novaData = new Date(dataSelecionada.value)
+  novaData.setDate(novaData.getDate() + dias)
+  dataSelecionada.value = novaData
+}
+
+function onDateChange(event: Event) {
+  const input = event.target as HTMLInputElement
+  if (input.value) {
+    dataSelecionada.value = new Date(input.value + 'T00:00:00')
+  }
+}
 
 
 const categorias = computed(() => [
@@ -137,7 +171,7 @@ const eventosFiltrados = (dia: Date) =>
 const eventosLista = computed(() =>
   eventos.value.filter((e) =>
     modoVisualizacao.value === 'hoje'
-      ? estaNoIntervalo(hoje, e.dataInicio, e.dataFim)
+      ? estaNoIntervalo(diaAtual.value, e.dataInicio, e.dataFim)
       : diasSemana.value.some((d) =>
           estaNoIntervalo(d, e.dataInicio, e.dataFim),
         ),
@@ -160,10 +194,24 @@ const proximaSemana = () => {
 <template>
   <div class="agenda">
     <header class="topo">
-      <div class="nav-semana">
+      <div class="nav-semana" v-if="modoVisualizacao === 'semana'">
         <button class="nav-btn" @click="semanaAnterior">◀</button>
         <h2 class="titulo">{{ mesAnoAtual }}</h2>
         <button class="nav-btn" @click="proximaSemana">▶</button>
+      </div>
+      
+      <div class="nav-dia" v-else>
+        <button class="nav-btn" @click="alterarDia(-1)">◀</button>
+        <div class="date-picker-wrapper">
+          <input 
+            type="date" 
+            :value="dataSelecionada.toISOString().split('T')[0]"
+            @change="onDateChange"
+            class="date-input"
+          />
+          <h2 class="titulo">{{ mesAnoAtual }}</h2>
+        </div>
+        <button class="nav-btn" @click="alterarDia(1)">▶</button>
       </div>
 
       <div class="toggle-wrapper">
@@ -213,7 +261,7 @@ const proximaSemana = () => {
         <div class="barra-dias">
           <div class="chips">
             <div
-              v-for="dia in modoVisualizacao === 'hoje' ? [hoje] : diasSemana"
+              v-for="dia in modoVisualizacao === 'hoje' ? [diaAtual] : diasSemana"
               :key="dia.toDateString()"
               class="chip-dia"
               :class="{ hoje: dia.toDateString() === hoje.toDateString() }"
@@ -247,7 +295,7 @@ const proximaSemana = () => {
             <div class="grade-conteudo">
               <div class="dias">
                 <div
-                  v-for="dia in modoVisualizacao === 'hoje' ? [hoje] : diasSemana"
+                  v-for="dia in modoVisualizacao === 'hoje' ? [diaAtual] : diasSemana"
                   :key="dia.toDateString()"
                   class="dia"
                 >
@@ -256,10 +304,12 @@ const proximaSemana = () => {
                     :key="evento.titulo + evento.inicio"
                     class="evento-simples"
                     :style="{ background: coresCategorias[evento.categoria] }"
+                    @click="abrirModal(evento)"
                   >
                 
                     <div class="evento-header">
                       <strong class="titulo-evento">{{ evento.titulo }}</strong>
+                      <span class="categoria-badge" v-if="modoVisualizacao === 'hoje'">{{ evento.categoria }}</span>
                     </div>
 
 
@@ -273,6 +323,10 @@ const proximaSemana = () => {
                       <img :src="iconHorario" alt="Horário" class="icon-info" />
                       <span>{{ evento.inicio }} às {{ evento.fim }}</span>
                     </div>
+                    
+                    <div v-if="modoVisualizacao === 'hoje' && evento.payloadEvento.descricao" class="evento-descricao">
+                      {{ evento.payloadEvento.descricao.substring(0, 100) }}{{ evento.payloadEvento.descricao.length > 100 ? '...' : '' }}
+                    </div>
                   </div>
               <p v-if="!eventosFiltrados(dia).length" class="dia-vazio">
                 Nenhum evento
@@ -283,6 +337,12 @@ const proximaSemana = () => {
         </div>
       </div>
     </div>
+    
+    <Modal
+      v-if="modalAberto && eventoSelecionado"
+      :evento="eventoSelecionado"
+      @close="fecharModal"
+    />
   </div>
 </template>
 
@@ -293,13 +353,12 @@ const proximaSemana = () => {
   padding: 0px;
   border-radius: 20px;
   max-width: 1400px;
-  max-height: 800px;
   margin: 0 auto;
   display: flex;
-  overflow-x: visible;
-  overflow-y: hidden;
   flex-direction: column;
   font-family: sans-serif;
+  height: auto;
+  min-height: 600px;
 }
 
 .topo {
@@ -315,6 +374,33 @@ const proximaSemana = () => {
 }
 .grade {
   border-top: none;
+}
+
+.nav-dia {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.date-picker-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.date-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+.date-picker-wrapper .titulo {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
 }
 
 .titulo {
@@ -390,14 +476,15 @@ select {
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  min-height: 500px;
+  height: auto;
 }
 
 .grade {
   display: flex;
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
+  height: auto;
+  min-height: 500px;
   border-top: 1px solid #ddd;
 }
 .grade-conteudo {
@@ -420,15 +507,15 @@ select {
 .grade.modo-hoje .dia {
   min-width: 420px;
   padding: 16px;
-  min-height: 600px;
+  min-height: auto;
 }
 
 .dias {
   display: flex;
   min-width: 100%;
-  min-height: calc((23 - 6) * 40px);
   position: relative;
   gap: 10px;
+  align-items: flex-start;
 }
 
 .dia {
@@ -443,10 +530,14 @@ select {
   flex-direction: column;
   gap: 10px;
   box-sizing: border-box;
+  min-height: 400px;
 }
 .evento-header {
   background: rgba(0, 0, 0, 0.12);
   padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .titulo-evento {
@@ -462,11 +553,39 @@ select {
   display: block;
 }
 
+.categoria-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  align-self: flex-start;
+}
+
+.evento-descricao {
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  background: rgba(0, 0, 0, 0.08);
+  color: #fff;
+  opacity: 0.95;
+}
+
 .evento-simples:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px) scale(1.02);
   box-shadow:
-    0 6px 14px rgba(0, 0, 0, 0.12),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+    0 12px 24px rgba(0, 0, 0, 0.25),
+    inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.evento-simples:active {
+  transform: translateY(-2px) scale(0.98);
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.2),
+    inset 0 0 0 2px rgba(255, 255, 255, 0.4);
 }
 
 .acoes-direita {
@@ -588,54 +707,69 @@ select {
 
 .evento-simples {
   padding: 0;
-  border-radius: 12px;
+  border-radius: 16px;
   gap: 0;
   width: 100%;
   max-width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  min-height: 120px;
+  min-height: 140px;
   height: auto;
   overflow: hidden;
   color: #fff;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   justify-content: flex-start;
+  cursor: pointer;
   transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   overflow-wrap: break-word;
   word-break: break-word;
+  position: relative;
 }
 
 
 .grade.modo-hoje .evento-simples {
-  height: 180px;
+  min-height: 200px;
+  height: auto;
   padding:0;
   border-radius: 16px;
-  gap: 6px;
+  gap: 0;
   overflow: hidden;
 }
 .grade.modo-hoje .evento-header {
   padding: 14px 16px;
+  gap: 8px;
 }
 .grade.modo-hoje .titulo-evento {
   font-size: 20px;
   font-weight: 700;
 }
+.grade.modo-hoje .categoria-badge {
+  font-size: 12px;
+  padding: 5px 12px;
+}
 .grade.modo-hoje .evento-info {
   padding: 10px 16px;
   font-size: 15px;
+  margin: 0;
 }
 .grade.modo-hoje .local-evento {
-  font-size: 17px;
+  font-size: 16px;
   opacity: 0.9;
 }
 
 .grade.modo-hoje .horario-evento {
   font-size: 15px;
   font-weight: 600;
+}
+
+.grade.modo-hoje .evento-descricao {
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 .grade.modo-hoje .evento-simples:hover {
   transform: translateY(-4px) scale(1.01);
@@ -821,23 +955,35 @@ select {
     overflow: visible;
   }
    
-  .dias-grade {
+    /* Container principal com scroll */
+  .agenda {
     overflow-x: auto;
-    overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Conteúdo interno precisa ser largo */
-  .barra-dias,
+  .barra-dias {
+    overflow-x: visible;
+  }
+  
   .grade {
-    min-width: max-content;
+    overflow-x: visible;
+  }
+  
+  .grade-conteudo {
+    overflow-x: visible;
   }
 
-  /* Chips e dias com mesma largura */
-  .chips,
+  /* Chips e dias com mesma largura fixa */
+  .chips {
+    display: flex;
+    gap: 10px;
+    min-width: calc(140px * 7 + 60px); /* 7 dias + gaps */
+  }
+  
   .dias {
     display: flex;
-    width: max-content;
+    gap: 10px;
+    min-width: calc(140px * 7 + 60px); /* 7 dias + gaps */
   }
 
   .chip-dia,
@@ -845,12 +991,6 @@ select {
     min-width: 140px;
     width: 140px;
     flex-shrink: 0;
-  }
-
-
-  .barra-dias,
-  .grade {
-    overflow: visible;
   }
 }
 @media (max-width: 420px) {
