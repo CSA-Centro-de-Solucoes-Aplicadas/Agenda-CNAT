@@ -1,0 +1,25 @@
+# Ignore node modules and build artifacts
+node_modules
+node_modules/**
+.pnpm-debug.log
+npm-debug.log
+yarn-error.log
+
+# Next.js build output
+.next
+.next/**
+
+# Local env / DB
+.env
+.db
+*.sqlite3
+
+# Misc
+.vscode
+.DS_Store
+.git
+.git/**
+
+# Docker volumes / caches
+db-data
+node_modules
