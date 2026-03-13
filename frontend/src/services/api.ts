@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const PAYLOAD_URL = 'http://localhost:3000'
+const PAYLOAD_URL = import.meta.env.VITE_PAYLOAD_URL || 'http://localhost:3000'
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true'
 
