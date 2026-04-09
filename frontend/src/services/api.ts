@@ -1,11 +1,28 @@
 import axios from 'axios'
 
-const PAYLOAD_URL = import.meta.env.VITE_PAYLOAD_URL || 'http://localhost:3000'
+const PAYLOAD_URL = import.meta.env.VITE_PAYLOAD_URL || ''
+const PAYLOAD_API_PATH = import.meta.env.VITE_PAYLOAD_API_PATH || '/api'
+
+function trimTrailingSlash(value: string): string {
+  return value.replace(/\/+$/, '')
+}
+
+function ensureLeadingSlash(value: string): string {
+  return value.startsWith('/') ? value : `/${value}`
+}
+
+function buildApiBaseURL(url: string, apiPath: string): string {
+  const normalizedPath = ensureLeadingSlash(trimTrailingSlash(apiPath))
+
+  if (!url.trim()) return normalizedPath
+
+  return `${trimTrailingSlash(url)}${normalizedPath}`
+}
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true'
 
 const api = axios.create({
-  baseURL: `${PAYLOAD_URL}/api`,
+  baseURL: buildApiBaseURL(PAYLOAD_URL, PAYLOAD_API_PATH),
 })
 
 // ── Tipos ──────────────────────────────────────────────
