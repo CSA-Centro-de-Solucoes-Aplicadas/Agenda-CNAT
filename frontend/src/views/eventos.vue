@@ -1,277 +1,149 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import logoFooter from '@/assets/logoFooter.png'
-import logoIfrn from '@/assets/ifrn.png'
-import XImg from '@/assets/x.png'
-import instagramImg from '@/assets/instagram.png'
-import youtubeImg from '@/assets/youtube.png'
-import headerAdm from '@/componentes/headerAdm.vue'
-// const API_URL = ' '
+import { computed, onMounted, ref } from 'vue'
 
-// onMounted(async () => {
-//   const res = await fetch(API_URL)
-//   eventos.value = await res.json()
-// })
+import EventForm from '@/componentes/EventForm.vue'
+import Footer from '@/componentes/footer.vue'
+import HeaderAdm from '@/componentes/headerAdm.vue'
+import { deleteEvent, listCategories, listEvents, updateEvent } from '@/services/events'
+import type { EventPayload, EventRecord } from '@/types/event'
+import { formatDateRange } from '@/utils/date'
 
-interface Evento {
-  id: number
-  titulo: string
-  data: string
-  local: string
-}
+const events = ref<EventRecord[]>([])
+const categorySuggestions = ref<string[]>([])
+const loading = ref(true)
+const saving = ref(false)
+const selectedEvent = ref<EventRecord | null>(null)
+const query = ref('')
+const feedback = ref('')
 
-const isAdmin = ref(true)
+const filteredEvents = computed(() =>
+  events.value.filter((event) => {
+    const search = query.value.trim().toLowerCase()
+    if (!search) return true
+    return (
+      event.titulo.toLowerCase().includes(search) ||
+      event.local.toLowerCase().includes(search) ||
+      event.categorias.some((category) => category.toLowerCase().includes(search))
+    )
+  }),
+)
 
-const eventos = ref<Evento[]>([
-  { id: 1, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  {
-    id: 2,
-    titulo: 'Arraiá Junino da Melhor Idade',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 3,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  { id: 4, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  {
-    id: 5,
-    titulo: 'Arraiá Junino da Melhor Idade',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 6,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  { id: 7, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  {
-    id: 8,
-    titulo: 'Arraiá Junino da Melhor Idade',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 9,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  { id: 10, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  {
-    id: 11,
-    titulo: 'Arraiá Junino da Melhor Idade',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 12,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 13,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  { id: 14, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  {
-    id: 15,
-    titulo: 'Arraiá Junino da Melhor Idade',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 16,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 17,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  { id: 18, titulo: 'Dia do Professor de Geografia', data: '19/09', local: 'Biblioteca Central' },
-  {
-    id: 19,
-    titulo: 'Arraiá Junino da Melhor Idade',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-  {
-    id: 20,
-    titulo: 'Engenharia de Energia com a Solif',
-    data: '18/09 à 25/09',
-    local: 'Miniauditório Central',
-  },
-])
+async function loadPage() {
+  loading.value = true
 
-// async function excluirEvento(id: number) {
-//   const confirmar = confirm('Tem certeza que deseja excluir este evento?')
-//   if (!confirmar) return
-
-//   await fetch(`${API_URL}/${id}`, {
-//     method: 'DELETE'
-//   })
-
-//   eventos.value = eventos.value.filter(e => e.id !== id)
-// }
-
-const modalAberto = ref(false)
-const eventoEditando = ref<Evento | null>(null)
-
-function abrirEdicao(evento: Evento) {
-  eventoEditando.value = { ...evento }
-  modalAberto.value = true
-}
-
-// async function salvarEdicao() {
-//   if (!eventoEditando.value) return
-
-//   await fetch(`${API_URL}/${eventoEditando.value.id}`, {
-//     method: 'PUT',
-//     headers: {
-//       'Content-Type': 'application/json'
-//     },
-//     body: JSON.stringify(eventoEditando.value)
-//   })
-
-//   const index = eventos.value.findIndex(
-//     e => e.id === eventoEditando.value!.id
-//   )
-
-//   if (index !== -1) {
-//     eventos.value[index] = { ...eventoEditando.value }
-//   }
-
-//   modalAberto.value = false
-// }
-
-function salvarEdicao() {
-  if (!eventoEditando.value) return
-
-  const index = eventos.value.findIndex((e) => e.id === eventoEditando.value!.id)
-
-  if (index !== -1) {
-    eventos.value[index] = { ...eventoEditando.value }
+  try {
+    const [eventData, categoryData] = await Promise.all([listEvents(), listCategories()])
+    events.value = eventData
+    categorySuggestions.value = categoryData.map((category) => category.nome)
+  } catch {
+    feedback.value = 'Não foi possível carregar a lista de eventos.'
+  } finally {
+    loading.value = false
   }
-
-  modalAberto.value = false
 }
-function excluirEvento(id: number) {
-  const confirmar = confirm('Tem certeza que deseja excluir este evento?')
-  if (!confirmar) return
 
-  eventos.value = eventos.value.filter((evento) => evento.id !== id)
+onMounted(loadPage)
+
+async function handleSave(payload: EventPayload) {
+  if (!selectedEvent.value) return
+
+  saving.value = true
+  feedback.value = ''
+
+  try {
+    const updated = await updateEvent(selectedEvent.value.id, payload)
+    events.value = events.value.map((event) => (event.id === updated.id ? updated : event))
+    selectedEvent.value = updated
+    feedback.value = 'Evento atualizado com sucesso.'
+  } catch {
+    feedback.value = 'Não foi possível atualizar o evento.'
+  } finally {
+    saving.value = false
+  }
+}
+
+async function handleDelete(eventId: string) {
+  const confirmed = window.confirm('Deseja realmente excluir este evento?')
+  if (!confirmed) return
+
+  try {
+    await deleteEvent(eventId)
+    events.value = events.value.filter((event) => event.id !== eventId)
+    if (selectedEvent.value?.id === eventId) selectedEvent.value = null
+    feedback.value = 'Evento removido com sucesso.'
+  } catch {
+    feedback.value = 'Não foi possível excluir o evento.'
+  }
 }
 </script>
 
 <template>
   <div class="page">
-    <headerAdm />
+    <HeaderAdm />
 
-    <main class="main-content">
-      <section class="eventos-wrapper">
-        <h2>Visualização dos eventos</h2>
-
-        <div class="eventos-list">
-          <div
-            class="evento-linha"
-            v-for="evento in eventos"
-            :key="evento.id"
-            @click="abrirEdicao(evento)"
-          >
-            <div class="evento-titulo">
-              {{ evento.titulo }}
-            </div>
-
-            <div class="evento-data">
-              {{ evento.data }}
-            </div>
-
-            <div class="evento-local">
-              {{ evento.local }}
-            </div>
-            <button v-if="isAdmin" class="evento-acao" @click.stop="excluirEvento(evento.id)">
-              🗑
-            </button>
-          </div>
-
-          <p v-if="eventos.length === 0">Nenhum evento encontrado.</p>
+    <main class="manager-page">
+      <section class="manager-hero">
+        <div>
+          <span class="eyebrow">Painel administrativo</span>
+          <h1>Gerenciar eventos</h1>
+          <p>Selecione um evento para editar seus dados com o mesmo formulário do cadastro.</p>
         </div>
+
+        <input v-model="query" type="search" placeholder="Buscar por título, local ou categoria" />
       </section>
+
+      <p v-if="feedback" class="feedback">{{ feedback }}</p>
+
+      <div class="manager-layout">
+        <section class="event-list">
+          <div v-if="loading" class="list-card">Carregando eventos...</div>
+          <article
+            v-for="event in filteredEvents"
+            :key="event.id"
+            class="list-card"
+            :class="{ active: selectedEvent?.id === event.id }"
+            @click="selectedEvent = event"
+          >
+            <div class="list-card__top">
+              <span>{{ event.categorias[0] || 'Evento' }}</span>
+              <small>{{ formatDateRange(event.dataEventoInicio, event.dataEventoFim) }}</small>
+            </div>
+            <strong>{{ event.titulo }}</strong>
+            <p>{{ event.local }}</p>
+            <div class="list-card__actions">
+              <span>Editar</span>
+              <button type="button" class="delete-button" @click.stop="handleDelete(event.id)">
+                Excluir
+              </button>
+            </div>
+          </article>
+        </section>
+
+        <section class="editor-panel">
+          <div v-if="selectedEvent" class="editor-panel__content">
+            <div class="editor-panel__header">
+              <div>
+                <span class="eyebrow">Edição</span>
+                <h2>{{ selectedEvent.titulo }}</h2>
+              </div>
+            </div>
+
+            <EventForm
+              :initial-value="selectedEvent"
+              :busy="saving"
+              :category-suggestions="categorySuggestions"
+              submit-label="Salvar alterações"
+              @submit="handleSave"
+            />
+          </div>
+          <div v-else class="editor-empty">
+            Selecione um evento da lista para editar seus dados.
+          </div>
+        </section>
+      </div>
     </main>
 
-    <div v-if="modalAberto" class="modal-backdrop">
-      <div class="modal">
-        <h3>Editar Evento</h3>
-
-        <label>
-          Título
-          <input v-model="eventoEditando!.titulo" />
-        </label>
-
-        <label>
-          Data
-          <input v-model="eventoEditando!.data" />
-        </label>
-
-        <label>
-          Local
-          <input v-model="eventoEditando!.local" />
-        </label>
-
-        <div class="modal-actions">
-          <button @click="modalAberto = false">Cancelar</button>
-          <button class="btn-salvar" @click="salvarEdicao">Salvar</button>
-        </div>
-      </div>
-    </div>
-
-    <footer>
-      <div class="footer-content">
-        <div class="footer-left">
-          <img :src="logoFooter" alt="Eventos CNAT" class="footer-logo" />
-          <img :src="logoIfrn" alt="Logo do IFRN" class="logo-if" />
-        </div>
-
-        <div class="footer-right">
-          <div class="social">
-            <a href="https://www.instagram.com/ifrncnat">
-              <img :src="instagramImg" alt="Instagram" />
-            </a>
-            <a href="https://x.com/IFRNCNAT">
-              <img :src="XImg" alt="X" />
-            </a>
-            <a href="https://www.youtube.com/ifrncnat">
-              <img :src="youtubeImg" alt="YouTube" />
-            </a>
-          </div>
-
-          <p>seac.cnat@ifrn.edu.br</p>
-
-          <address>
-            Av. Sen. Salgado Filho, 1559 – Tirol, Natal – RN<br />
-            <strong>CEP:</strong> 59015-000
-          </address>
-        </div>
-      </div>
-
-      <div class="copy">
-        <a href="https://csa.cnat.ifrn.edu.br/">
-          © 2025 - Centro de Soluções Aplicadas. Todos os direitos reservados.
-        </a>
-      </div>
-    </footer>
+    <Footer />
   </div>
 </template>
 
@@ -281,314 +153,156 @@ function excluirEvento(id: number) {
   display: flex;
   flex-direction: column;
 }
-.admin-badge {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: #c0392b;
-  color: #fff;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: bold;
-}
 
-.main-content {
+.manager-page {
   flex: 1;
-  background: #f4f4f4;
-  padding: 2rem 0;
-}
-
-.eventos-wrapper {
-  max-width: 1200px;
-
+  width: min(1440px, calc(100% - 48px));
   margin: 0 auto;
-  background: #fff;
-  border-radius: 10px;
-  padding: 1.5rem 2rem;
+  padding: 36px 0 48px;
+  display: grid;
+  gap: 24px;
 }
 
-.eventos-wrapper h2 {
-  color: #0b5c4b;
-  margin-bottom: 1rem;
+.manager-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 24px;
+  align-items: end;
 }
 
-/* SEARCH */
-.search-bar {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
+.eyebrow {
+  color: #07753e;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
-.search-bar input {
-  flex: 1;
-  padding: 0.6rem 1rem;
-  border-radius: 20px;
-  border: 1px solid #ccc;
-  outline: none;
+.manager-hero h1,
+.editor-panel__header h2 {
+  color: #0b513f;
+  font-size: clamp(2rem, 4vw, 3rem);
 }
 
-.filter-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: none;
-  background: #e5e5e5;
-  cursor: pointer;
+.manager-hero p,
+.feedback {
+  color: rgba(10, 70, 53, 0.78);
 }
 
-/* LISTA */
-.eventos-list {
-  max-height: 85vh;
-  overflow-y: auto;
-  padding-right: 0.5rem;
-}
-
-/* LINHA DO EVENTO */
-.evento-linha {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: #f9f9f9;
-  border-radius: 8px;
-  padding: 0.4rem;
-  margin-bottom: 0.5rem;
-}
-
-/* FAIXA VERDE */
-.evento-titulo {
-  background: #4caf84;
-  color: #fff;
-  padding: 0.45rem 0.8rem;
-  border-radius: 6px;
-  min-width: 260px;
-  max-width: 260px;
-  font-size: 0.8rem;
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* DATA E LOCAL */
-.evento-data,
-.evento-local {
-  font-size: 0.75rem;
-  color: #333;
-  white-space: nowrap;
-}
-
-/* BOTÃO */
-.evento-acao {
-  margin-left: auto;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-size: 1rem;
-  color: #c0392b;
-}
-
-/* SCROLL */
-.eventos-list::-webkit-scrollbar {
-  width: 6px;
-}
-.eventos-list::-webkit-scrollbar-thumb {
-  background: #bbb;
-  border-radius: 10px;
-}
-
-/* TAG VERDE */
-.evento-tag {
-  background: #4caf84;
-  color: #fff;
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* TEXTO */
-.evento-data,
-.evento-local {
-  font-size: 0.8rem;
-  color: #333;
-}
-
-.evento-btn {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-size: 1.1rem;
-}
-
-.eventos-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.eventos-list::-webkit-scrollbar-thumb {
-  background: #bbb;
-  border-radius: 10px;
-}
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-
-.modal {
-  background: #fff;
-  padding: 1.5rem;
-  border-radius: 10px;
-  width: 400px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-
-.modal label {
-  display: flex;
-  flex-direction: column;
-  font-size: 0.85rem;
-}
-
-.modal input {
-  padding: 0.4rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-}
-
-.btn-salvar {
-  background: #4caf84;
-  border: none;
-  padding: 0.4rem 0.8rem;
-  color: #fff;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-footer {
-  background-color: #02402e;
-  color: #ffffff;
-  font-size: 14px;
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.footer-content {
-  max-width: 1440px;
-  margin: 0 auto;
+.manager-hero input {
   width: 100%;
+  min-height: 54px;
+  border: 1px solid rgba(11, 81, 63, 0.12);
+  border-radius: 18px;
+  padding: 0 18px;
+  font: inherit;
+}
+
+.feedback {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  padding: 16px 18px;
+  box-shadow: 0 18px 35px rgba(2, 64, 46, 0.08);
+}
+
+.manager-layout {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.event-list {
+  display: grid;
+  gap: 14px;
+  max-height: 76vh;
+  overflow: auto;
+}
+
+.list-card,
+.editor-panel,
+.editor-empty {
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 18px 35px rgba(2, 64, 46, 0.08);
+}
+
+.list-card {
+  border: 1px solid transparent;
+  padding: 18px;
+  text-align: left;
+  display: grid;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.list-card.active {
+  border-color: rgba(7, 117, 62, 0.28);
+}
+
+.list-card__top,
+.list-card__actions {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  padding: 40px 20px 30px;
+  gap: 12px;
+  align-items: center;
+}
+
+.list-card__top span {
+  color: #07753e;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.list-card strong,
+.list-card p {
+  color: #0b513f;
+}
+
+.list-card p {
+  opacity: 0.76;
+}
+
+.delete-button {
+  border: none;
+  background: rgba(122, 43, 43, 0.1);
+  color: #7a2b2b;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.editor-panel {
+  padding: 24px;
+}
+
+.editor-empty {
+  padding: 26px;
+  color: rgba(10, 70, 53, 0.72);
+}
+
+.editor-panel__content {
+  display: grid;
   gap: 20px;
 }
 
-.footer-left {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin: 10px 4px;
-}
-
-.footer-logo {
-  width: 220px;
-}
-
-.logo-if {
-  width: 220px;
-}
-
-.footer-right {
-  display: flex;
-  flex-direction: column;
-  text-align: right;
-  gap: 6px;
-}
-
-.footer-right p {
-  margin: 10px 4px;
-  font-size: 20px;
-}
-
-.social {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  margin-bottom: 8px;
-}
-
-.social img {
-  width: 38px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.social img:hover {
-  transform: scale(1.1);
-  opacity: 0.8;
-}
-
-.copy {
-  text-align: center;
-  font-size: 12px;
-  padding: 15px 20px;
-  background-color: #012118;
-  width: 100%;
-  opacity: 0.85;
-}
-.copy a {
-  color: inherit;
-  text-decoration: none;
-}
-.copy p {
-  color: #ffffff;
-}
-
-/* Space before footer */
-main section:last-child {
-  margin-bottom: 6rem;
-}
-
 @media (max-width: 1024px) {
-}
-@media (max-width: 900px) {
+  .manager-hero,
+  .manager-layout {
+    grid-template-columns: 1fr;
+  }
 }
 
-@media (max-width: 750px) {
-  h3 {
-    font-size: 20px;
-    text-align: left;
+@media (max-width: 640px) {
+  .manager-page {
+    width: min(100%, calc(100% - 24px));
+    padding-top: 20px;
   }
 
-  .footer-content {
-    flex-direction: column;
-    align-items: left;
-    text-align: left;
-  }
-  .footer-right {
-    text-align: left;
-    align-items: left;
-    margin-top: 20px;
-  }
-  .social {
-    justify-content: left;
+  .editor-panel {
+    padding: 18px;
   }
 }
 </style>

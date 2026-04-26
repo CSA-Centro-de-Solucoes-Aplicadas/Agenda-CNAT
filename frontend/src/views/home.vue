@@ -1,173 +1,190 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+
+import arrowImg from '@/assets/arrow-right.png'
 import vetorImg from '@/assets/vetor.png'
-import Carrossel from '@/componentes/Carrossel.vue'
-import CardDestaque from '@/componentes/CardDestaque.vue'
-import CardInscricao from '@/componentes/CardInscricao.vue'
-import BarradePesquisa from '@/componentes/BarradePesquisa.vue'
 import AgendaSemana from '@/componentes/AgendaSemana.vue'
 import CalendarioAnualVue from '@/componentes/CalendarioAnual.vue'
-import arrowImg from '@/assets/arrow-right.png'
-import Header from '@/componentes/header.vue'
+import CardDestaque from '@/componentes/CardDestaque.vue'
+import CardInscricao from '@/componentes/CardInscricao.vue'
+import Carrossel from '@/componentes/Carrossel.vue'
 import Footer from '@/componentes/footer.vue'
+import Header from '@/componentes/header.vue'
 import Modal from '@/componentes/Modal.vue'
+import type { EventRecord } from '@/types/event'
+import { isRegistrationOpen } from '@/utils/date'
 
-// interface de evento
-interface Evento {
-  titulo: string
-  local: string
-  descricao: string
-  imagem: string
-  organizadores?: string[]
-  dataInscricaoInicio?: string
-  dataInscricaoFim?: string
-  dataEventoInicio: string
-  dataEventoFim: string
-  categorias: string[]
-  linkInscricao?: string
-}
-
-// props estaticas so para teste
-const eventos = ref<Evento[]>([
+const demoEvents: EventRecord[] = [
   {
+    id: '1',
     titulo: 'Semana de Tecnologia do IFRN',
-    local: 'Campus Natal-Central',
     descricao:
-      'Uma semana repleta de palestras, workshops e atividades voltadas para o universo da tecnologia.',
-    imagem: '',
-    dataEventoInicio: '2025-07-15T09:00:00',
-    dataEventoFim: '2025-07-19T18:00:00',
-    dataInscricaoInicio: '2025-06-01T00:00:00',
-    dataInscricaoFim: '2025-07-10T23:59:59',
-    categorias: ['Tecnologia', 'Palestras'],
+      'Uma programação com palestras, oficinas e mostra de projetos para aproximar estudantes, pesquisa e mercado.',
+    local: 'Campus Natal-Central',
+    imagem: null,
+    categorias: ['Tecnologia', 'Inovação'],
+    organizadores: ['george@escolar.ifrn.edu.br', 'amanda@escolar.ifrn.edu.br'],
+    dataInscricaoInicio: '2026-04-15T08:00:00.000Z',
+    dataInscricaoFim: '2026-05-18T23:59:00.000Z',
+    dataEventoInicio: '2026-04-27T09:00:00.000Z',
+    dataEventoFim: '2026-04-27T18:00:00.000Z',
+    linkInformacao: 'https://suap.ifrn.edu.br/',
     linkInscricao: 'https://suap.ifrn.edu.br/',
-    organizadores: ['george@escolar.ifrn.edu.br' ]
   },
   {
-    titulo: 'Festival Cultural do IFRN',
-    local: 'Auditório do Campus Natal-Central',
+    id: '2',
+    titulo: 'Mostra Cultural CNAT',
     descricao:
-      'Celebração da diversidade cultural com apresentações artísticas, exposições e gastronomia típica.',
-    imagem: '',
-    dataEventoInicio: '2025-08-05T10:00:00',
-    dataEventoFim: '2025-08-07T22:00:00',
-    dataInscricaoInicio: '2025-07-01T00:00:00',
-    dataInscricaoFim: '2025-08-01T23:59:59',
+      'Apresentações artísticas, exposições e ocupações criativas com produções da comunidade acadêmica.',
+    local: 'Auditório do CNAT',
+    imagem: null,
     categorias: ['Cultura'],
+    organizadores: ['cultura.cnat@ifrn.edu.br'],
+    dataInscricaoInicio: '2026-04-12T09:00:00.000Z',
+    dataInscricaoFim: '2026-05-02T18:00:00.000Z',
+    dataEventoInicio: '2026-04-28T18:30:00.000Z',
+    dataEventoFim: '2026-04-28T21:30:00.000Z',
+    linkInformacao: 'https://suap.ifrn.edu.br/',
     linkInscricao: 'https://suap.ifrn.edu.br/',
-    organizadores: ['george@escolar.ifrn.edu.br', 'amanda@escolar.ifrn.edu.br']
-
   },
   {
-    titulo: 'Torneio de Futsal Intercampi',
-    local: 'Ginásio Poliesportivo do IFRN',
+    id: '3',
+    titulo: 'Jornada de Pesquisa e Extensão',
     descricao:
-      'Competição esportiva entre os campi do IFRN, promovendo integração e espírito esportivo.',
-    imagem: '',
-    dataEventoInicio: '2025-09-10T14:00:00',
-    dataEventoFim: '2025-09-12T20:00:00',
-    dataInscricaoInicio: '2025-08-01T00:00:00',
-    dataInscricaoFim: '2025-09-05T23:59:59',
+      'Encontro para apresentação de trabalhos, integração entre cursos e socialização de resultados de pesquisa.',
+    local: 'Biblioteca Central',
+    imagem: null,
+    categorias: ['Pesquisa e Extensão'],
+    organizadores: ['pesquisa.cnat@ifrn.edu.br'],
+    dataInscricaoInicio: null,
+    dataInscricaoFim: null,
+    dataEventoInicio: '2026-04-29T14:00:00.000Z',
+    dataEventoFim: '2026-04-29T20:00:00.000Z',
+    linkInformacao: 'https://suap.ifrn.edu.br/',
+    linkInscricao: null,
+  },
+  {
+    id: '4',
+    titulo: 'Campeonato Intercursos de Futsal',
+    descricao:
+      'Competição esportiva entre turmas e cursos com foco em integração e bem-estar estudantil.',
+    local: 'Ginásio Poliesportivo',
+    imagem: null,
     categorias: ['Esporte'],
+    organizadores: ['esporte.cnat@ifrn.edu.br'],
+    dataInscricaoInicio: '2026-04-10T10:00:00.000Z',
+    dataInscricaoFim: '2026-04-30T17:00:00.000Z',
+    dataEventoInicio: '2026-04-30T15:00:00.000Z',
+    dataEventoFim: '2026-04-30T21:00:00.000Z',
+    linkInformacao: 'https://suap.ifrn.edu.br/',
     linkInscricao: 'https://suap.ifrn.edu.br/',
-    organizadores: ['george@escolar.ifrn.edu.br', 'amanda@escolar.ifrn.edu.br']
   },
   {
-    titulo: 'Semana de Saúde e Bem-Estar',
-    local: 'Campus Natal-Central',
+    id: '5',
+    titulo: 'Feira de Profissões e Trilhas Acadêmicas',
     descricao:
-      'Atividades e palestras focadas em saúde física e mental, promovendo o bem-estar da comunidade acadêmica.',
-    imagem: '',
-    dataEventoInicio: '2025-10-01T08:00:00',
-    dataEventoFim: '2025-10-05T17:00:00',
-    dataInscricaoInicio: '2025-09-01T00:00:00',
-    dataInscricaoFim: '2025-09-25T23:59:59',  
-    categorias: ['Saúde'],
-    linkInscricao: 'https://suap.ifrn.edu.br/',
-    organizadores: ['amanda@escolar.ifrn.edu.br']
+      'Momento de orientação para estudantes com estandes, minicursos e conversa com egressos.',
+    local: 'Pátio Central',
+    imagem: null,
+    categorias: ['Ensino'],
+    organizadores: ['ensino.cnat@ifrn.edu.br'],
+    dataInscricaoInicio: null,
+    dataInscricaoFim: null,
+    dataEventoInicio: '2026-05-01T08:00:00.000Z',
+    dataEventoFim: '2026-05-01T17:30:00.000Z',
+    linkInformacao: 'https://suap.ifrn.edu.br/',
+    linkInscricao: null,
   },
   {
-    titulo: 'Palestra sobre Inovação Tecnológica',
-    local: 'Auditório do Campus Natal-Central',
+    id: '6',
+    titulo: 'Oficina de Startups e Protótipos',
     descricao:
-      'Palestra com especialistas discutindo as últimas tendências em inovação tecnológica.',
-    imagem: '',
-    dataEventoInicio: '2025-11-20T15:00:00',
-    dataEventoFim: '2025-11-20T17:00:00',
-    dataInscricaoInicio: '2025-10-15T00:00:00',
-    dataInscricaoFim: '2025-11-15T23:59:59',
-    categorias: ['Tecnologia', 'Palestras'],
+      'Laboratório prático com mentoria para transformar ideias em protótipos e planos de apresentação.',
+    local: 'LabMaker',
+    imagem: null,
+    categorias: ['Tecnologia'],
+    organizadores: ['inovacao.cnat@ifrn.edu.br'],
+    dataInscricaoInicio: '2026-04-18T08:00:00.000Z',
+    dataInscricaoFim: '2026-05-10T12:00:00.000Z',
+    dataEventoInicio: '2026-05-02T13:00:00.000Z',
+    dataEventoFim: '2026-05-02T18:00:00.000Z',
+    linkInformacao: 'https://suap.ifrn.edu.br/',
     linkInscricao: 'https://suap.ifrn.edu.br/',
-    organizadores: ['amanda@escolar.ifrn.edu.br']
-  }
-])
+  },
+]
 
-// const separarDataHora = (dataISO?: string) => {
-//   if (!dataISO) return { data: '--/--/--', hora: '--:--' }
+const events = ref<EventRecord[]>(demoEvents)
+const selectedEvent = ref<EventRecord | null>(null)
+const showModal = ref(false)
 
-//   const dataObj = new Date(dataISO)
-//   const dataFormatada = dataObj.toLocaleDateString('pt-BR')
-//   const horaFormatada = dataObj.toLocaleTimeString('pt-BR', {
-//     hour: '2-digit',
-//     minute: '2-digit',
-//   })
+const highlightedEvents = computed(() => events.value.slice(0, 6))
+const registrationEvents = computed(() =>
+  events.value.filter((event) =>
+    isRegistrationOpen(event.dataInscricaoInicio, event.dataInscricaoFim),
+  ),
+)
 
-//   return { data: dataFormatada, hora: horaFormatada }
-// }
-
-// lógica para abrir modal
-const ShowModal = ref(false)
-const EventoSelecionado = ref<Evento | null>(null)
-
-watch(ShowModal, (novoValor) => {
-  if (novoValor) {
-    document.body.style.overflow = 'hidden'
-  } else {
-    document.body.style.overflow = 'auto'
-  }
+watch(showModal, (isOpen) => {
+  document.body.style.overflow = isOpen ? 'hidden' : 'auto'
 })
 
-onMounted(() => {
-  document.body.style.overflow = 'auto'
-})
-
-function AbrirModal(eventoClicado: Evento) {
-  EventoSelecionado.value = eventoClicado
-  ShowModal.value = true
+function openModal(event: EventRecord) {
+  selectedEvent.value = event
+  showModal.value = true
 }
-function FecharModal() {
-  ShowModal.value = false
-  EventoSelecionado.value = null
+
+function closeModal() {
+  showModal.value = false
+  selectedEvent.value = null
 }
 </script>
 
 <template>
   <div class="page">
-    <Header />
+    <Header :eventos="events" @select="openModal" />
+
     <main class="main-content">
-      <BarradePesquisa class="barra-pesquisa" />
       <section class="destaques-default-section">
         <div class="content-container">
-          <Carrossel :eventos="eventos" :component="CardDestaque" @select="AbrirModal" />
+       
+
+          <div v-if="highlightedEvents.length">
+            <Carrossel :eventos="highlightedEvents" :component="CardDestaque" @select="openModal" />
+          </div>
+          <div v-else class="feedback-card">Nenhum evento cadastrado até o momento.</div>
         </div>
       </section>
 
-      <section id="programacao">
+      <section id="programacao" class="program-section">
         <div class="content-container">
-          <h3>Programação</h3>
-          <AgendaSemana :eventos="eventos"></AgendaSemana>
-          <CalendarioAnualVue></CalendarioAnualVue>
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">Programação</span>
+              
+            </div>
+           
+          </div>
+
+          <AgendaSemana :eventos="events" @select="openModal" />
+          <div class="calendario-shell">
+            <CalendarioAnualVue />
+          </div>
         </div>
       </section>
 
       <section id="adicionar-evento" class="adicionar-evento">
         <div class="adicionarEvento-container">
-          <img :src="vetorImg" alt="Vetor" class="adicionarEvento-vetor" />
-          <div class="adicionarEvento-texto">
-            <h3>Quer solicitar algum evento ao nosso calendário?</h3>
-            <a href="https://suap.ifrn.edu.br/" target="_blank" class="btn-solicitar-evento">
-              <span class="btn-texto">Solicitar Evento</span>
+          <img :src="vetorImg" alt="Ilustração da seção de solicitação de evento" class="adicionarEvento-vetor" />
 
+          <div class="adicionarEvento-texto">
+            <span class="eyebrow">Solicitações</span>
+            <h2>Quer solicitar algum evento ao nosso calendário?</h2>
+            <p>
+              Use o fluxo oficial do IFRN para enviar novos pedidos de publicação e manter a agenda
+              institucional sempre atualizada.
+            </p>
+            <a href="https://suap.ifrn.edu.br/" target="_blank" class="btn-solicitar-evento">
+              <span class="btn-texto">Solicitar evento</span>
               <span class="btn-icon">
                 <img :src="arrowImg" alt="Ir para o SUAP" />
               </span>
@@ -178,386 +195,284 @@ function FecharModal() {
 
       <section id="inscricoes" class="inscricoes">
         <div class="inscricoes-content">
-          <h3>Inscrições abertas</h3>
-          <Carrossel :eventos="eventos" :component="CardInscricao" @select="AbrirModal" />
+          <div class="section-heading section-heading--light">
+            <div>
+              <span class="eyebrow">Inscrições</span>
+              <h2>Inscrições abertas</h2>
+            </div>
+            
+          </div>
+
+          <div v-if="registrationEvents.length">
+            <Carrossel :eventos="registrationEvents" :component="CardInscricao" @select="openModal" />
+          </div>
+          <div v-else class="feedback-card feedback-card--dark">
+            Nenhuma inscrição aberta no momento.
+          </div>
         </div>
       </section>
     </main>
+
     <Footer />
+
     <Teleport to="body">
       <Transition name="fade">
-        <Modal
-          v-if="ShowModal && EventoSelecionado"
-          :eventoSelecionado="EventoSelecionado"
-          @close="FecharModal"
-        />
+        <Modal v-if="showModal && selectedEvent" :eventoSelecionado="selectedEvent" @close="closeModal" />
       </Transition>
     </Teleport>
   </div>
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
-/* modal */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.24s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
 }
-h3 {
-  font-size: 32px;
-  color: #0b513f;
-  margin-top: 0;
-}
+
 .page {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  width: 100%;
+}
+
+.main-content {
+  flex: 1;
+  display: grid;
+  gap: 28px;
+  padding-top: 18px;
 }
 
 .content-container {
-  max-width: 1440px;
+  width: min(1440px, calc(100% - 48px));
   margin: 0 auto;
+}
+.section-heading h2,
+.adicionarEvento-texto h2 {
+  color: #0b513f;
+  font-size: clamp(1.7rem, 4vw, 2.8rem);
+  line-height: 1.02;
+}
+
+.section-heading p,
+.adicionarEvento-texto p {
+  color: rgba(10, 70, 53, 0.74);
+  font-size: 1.02rem;
+  line-height: 1.65;
+}
+
+.eyebrow {
+  color: #07753e;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+  margin-bottom: 18px;
+}
+
+.section-heading h2 {
+  font-size: 2rem;
+}
+
+.section-heading p {
+  max-width: 420px;
+}
+
+.section-heading--light h2,
+.section-heading--light p,
+.section-heading--light .eyebrow {
+  color: #ffffff;
+}
+
+.destaques-default-section,
+.program-section {
   padding: 0;
-  width: 100%;
 }
 
-.content-container h3 {
-  margin-bottom: 40px;
+.feedback-card {
+  border-radius: 24px;
+  padding: 22px;
+  background: #ffffff;
+  color: #0b513f;
+  box-shadow: 0 18px 35px rgba(2, 64, 46, 0.08);
 }
 
-.destaques-default-section {
+.feedback-card--error {
+  color: #7a2b2b;
+}
+
+.feedback-card--dark {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.adicionar-evento {
+  padding: 0;
+}
+
+.adicionarEvento-container {
+  width: min(1440px, calc(100% - 48px));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.1fr);
+  gap: 36px;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 36px;
+  padding: 28px 36px;
+  box-shadow: 0 22px 40px rgba(2, 64, 46, 0.08);
+}
+
+.adicionarEvento-vetor {
   width: 100%;
-  padding: 5rem 0;
-  overflow-x: hidden;
+  max-width: 420px;
+  justify-self: center;
+}
+
+.adicionarEvento-texto {
+  display: grid;
+  gap: 14px;
+}
+
+.adicionarEvento-texto h2 {
+  font-size: 2.4rem;
+}
+
+.btn-solicitar-evento {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  justify-self: start;
+  margin-top: 6px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  text-decoration: none;
+  background: #39b87f;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.btn-icon img {
+  width: 28px;
+  height: 28px;
 }
 
 .inscricoes {
-  max-width: 1440px;
-  width: 100%;
-  margin: 0 auto;
-  overflow-x: hidden;
+  width: min(1440px, calc(100% - 48px));
+  margin: 0 auto 48px;
   border-top-left-radius: 6rem;
   border-bottom-right-radius: 6rem;
-  min-height: 600px;
-  display: flex;
-  flex-direction: column;
+  min-height: 390px;
   background-image: url('@/assets/inscricoesSection.svg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 }
 
-.main-content {
-  flex: 1;
-  width: 100%;
-  overflow-x: hidden;
-}
-
-.adicionar-evento {
-  position: relative;
-  width: 100%;
-  padding: 2rem 0;
-  background-color: #f4f4f4;
-  display: flex;
-  justify-content: center;
-  z-index: 1;
-}
-.adicionar-evento::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 32px;
-  width: 50%;
-  height: 400px;
-  background: #ffffff;
-  z-index: -1;
-}
-
-.adicionarEvento-container {
-  max-width: 1440px;
-  width: 100%;
-  display: flex;
-  position: relative;
-  align-items: center;
-  gap: 2.5rem;
-  background-color: #ffffff;
-  justify-content: left;
-  align-items: center;
-  height: 400px;
-  border-top-right-radius: 220px;
-}
-
-.adicionarEvento-container::after {
-  content: '';
-  position: absolute;
-  right: -620px;
-  top: -70px;
-  width: 800px;
-  height: 500px;
-  background-image: url('@/assets/vetorCirculos.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-  z-index: -1;
-}
-
-.adicionarEvento-vetor {
-  width: 100%;
-  max-width: 32rem;
-}
-
-.adicionarEvento-texto {
-  flex: 1;
-  max-width: 30rem;
-  color: #023826;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-.adicionarEvento-texto p {
-  font-size: 0.95rem;
-  color: #4a4a4a;
-}
-
-.btn-solicitar-evento {
-  margin-top: 1.2rem;
-  width: 220px;
-  align-items: center;
-  gap: 0.5rem;
-  display: flex;
-  padding: 0.35rem 1.6rem;
-  background-color: #39b87f;
-  color: #ffffff;
-  font-weight: 400;
-  font-size: 1.2rem;
-  border-radius: 999px;
-  text-decoration: none;
-  box-shadow: 0 6px 15px rgba(57, 184, 127, 0.35);
-  transition: all 0.25s ease;
-}
-
-.btn-solicitar-evento:hover {
-  background-color: #2fa36e;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 22px rgba(57, 184, 127, 0.45);
-}
-
-.btn-texto {
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.btn-icon img {
-  width: 34px;
-  height: 34px;
-  object-fit: contain;
-}
-
-.btn-solicitar-evento:hover .btn-icon {
-  transform: translateX(4px);
-  transition: transform 0.25s ease;
-}
-
 .inscricoes-content {
-  max-width: 1440px;
-  margin: 0 auto;
-  width: 100%;
-  padding: 30px;
+  padding: 36px;
 }
 
-.inscricoes-content h3 {
-  color: white;
-  font-size: 32px;
-  padding: 30px 0 10px 0;
-  margin: 0;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
-}
-.btn-inscricoes-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-top: 2.5rem;
-}
-
-.btn-inscricoes-suap {
-  padding: 0.9rem 2.2rem;
-  border-radius: 999px;
-
-  background-color: #0b3f2e;
-  color: #ffffff;
-
-  font-size: 0.95rem;
-  font-weight: 400;
-  text-decoration: none;
-  letter-spacing: 0.2px;
-
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
-  transition: all 0.25s ease;
-}
-
-.btn-inscricoes-suap:hover {
-  background-color: #062c20;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
-}
-
-.barra-pesquisa {
-  display: flex;
-  margin: auto;
-  width: 100%;
-  display: block;
-}
 @media (max-width: 1024px) {
   .adicionarEvento-container {
-    padding: 0 24px;
-    justify-content: flex-start;
+    grid-template-columns: 1fr;
   }
 
-  .adicionarEvento-vetor {
-    width: 260px;
-    max-width: none;
-    margin: 0;
-    order: 0;
-  }
-
-  .adicionarEvento-texto {
-    max-width: 420px;
-    text-align: left;
+  .section-heading {
+    flex-direction: column;
     align-items: flex-start;
   }
-
-  .adicionarEvento-texto h3 {
-    font-size: 24px;
-  }
-
-  .content-container {
-    padding: 0 40px;
-  }
 }
-@media (max-width: 900px) {
+
+@media (min-width: 1025px) {
   .content-container {
-    padding: 0 20px;
-  }
-  .adicionar-evento::before,
-  .adicionarEvento-container::after {
-    display: none;
-  }
-
-  .adicionarEvento-container {
-    flex-direction: column;
-    height: auto;
-    padding: 30px 20px;
-  }
-
-  .adicionarEvento-vetor {
-    max-width: 260px;
-    width: 100%;
-  }
-
-  .adicionarEvento-texto {
-    max-width: 100%;
-    align-items: center;
-  }
-
-  .btn-solicitar-evento {
-    width: auto;
+    width: min(1320px, calc(100% - 80px));
   }
 }
 
-@media (max-width: 750px) {
-  .destaques-default-section {
-    padding-bottom: 0px;
-  }
-
-  .default-section {
-    padding: 25px 0;
-  }
-  h3 {
-    font-size: 20px;
-    text-align: left;
-  }
-
-  .content-container h3 {
-    margin-bottom: 40px;
-  }
-
-  .content-container {
-    padding: 0 16px;
-  }
+@media (max-width: 640px) {
+  .content-container,
+  .adicionarEvento-container,
   .inscricoes {
-    min-height: 300px;
-    border-bottom-right-radius: 30px;
-    border-top-left-radius: 30px;
-  }
-  .inscricoes-content h3 {
-    font-size: 22px;
+    width: min(100%, calc(100% - 24px));
   }
 
-  .btn-solicitar-evento {
-    font-size: 1rem;
-    padding: 0.6rem 1.4rem;
+  .section-heading h2,
+  .adicionarEvento-texto h2 {
+    font-size: 1.55rem;
   }
 
-  .btn-icon img {
-    width: 28px;
-    height: 28px;
-  }
-
+  .adicionarEvento-container,
   .inscricoes-content {
-    padding: 20px 10px;
-  }
-  .adicionar-evento::before,
-  .adicionarEvento-container::after {
-    display: none;
+    padding: 20px;
   }
 
- .adicionar-evento {
-    padding: 24px 12px;
+  .inscricoes {
+    border-top-left-radius: 28px;
+    border-bottom-right-radius: 28px;
   }
 
-  .adicionarEvento-container {
-    flex-direction: column;
-    gap: 16px; 
-    padding: 32px 20px 36px;
-    height: auto;
-    border-radius: 20px;
-    text-align: center;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  .main-content {
+    gap: 22px;
+    padding-top: 14px;
   }
 
-  .adicionarEvento-vetor {
-    max-width: 300px; 
-    width: 100%;
-    margin-bottom: -6px; 
-  }
-
-  .adicionarEvento-texto {
-    max-width: 100%;
-    align-items: center;
-    padding: 0 16px;
+  .section-heading {
     gap: 12px;
   }
 
-  .adicionarEvento-texto h3 {
-    font-size: 18px;
-    line-height: 1.3;
-    margin: 0;
-    text-align: center;
+  .adicionarEvento-texto p {
+    display: none;
   }
+}
 
-  .btn-solicitar-evento {
-    margin-top: 14px;
-    padding: 0.7rem 1.8rem;
-    font-size: 0.95rem;
-    border-radius: 999px;
-  }
+.calendario-shell {
+  position: relative;
+  overflow: hidden;
+  margin-top: 18px;
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(138, 238, 195, 0.42), transparent 24%),
+    radial-gradient(circle at 88% 22%, rgba(7, 117, 62, 0.16), transparent 22%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(244, 252, 248, 0.98));
+  box-shadow: 0 24px 42px rgba(2, 64, 46, 0.08);
+}
 
-  .btn-icon img {
-    width: 26px;
-    height: 26px;
-  }
+.calendario-shell::before,
+.calendario-shell::after {
+  content: '';
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  height: 90px;
+  background-repeat: repeat-x;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.calendario-shell::before {
+  top: 0;
+  background:
+    radial-gradient(circle at 20px 48px, transparent 34px, rgba(138, 238, 195, 0.28) 35px, rgba(138, 238, 195, 0.28) 40px, transparent 41px)
+      0 0 / 120px 90px repeat-x;
+}
+
+.calendario-shell::after {
+  bottom: -8px;
+  transform: rotate(180deg);
+  background:
+    radial-gradient(circle at 20px 48px, transparent 34px, rgba(7, 117, 62, 0.1) 35px, rgba(7, 117, 62, 0.1) 40px, transparent 41px)
+      0 0 / 120px 90px repeat-x;
 }
 </style>

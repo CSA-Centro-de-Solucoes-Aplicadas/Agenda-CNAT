@@ -1,880 +1,375 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 
-import iconLista from '@/assets/iconLista.png'
-import iconCalendario from '@/assets/iconCalendario.png'
-import iconLocal from '@/assets/iconLocal.png'
-import iconHorario from '@/assets/iconHorario.png'
+import type { EventRecord } from '@/types/event'
+import { formatDate, formatHour } from '@/utils/date'
 
-type Modo = 'hoje' | 'semana'
-type Tipo = 'calendario' | 'lista'
+type ViewMode = 'semana' | 'lista'
 
-interface Evento {
-  titulo: string
-  dataInscricaoInicio?: string
-  dataInscricaoFim?: string
-  dataEventoInicio?: string
-  dataEventoFim: string
-  categorias: string[]
-  local: string
+const props = defineProps<{
+  eventos: EventRecord[]
+}>()
+
+const emit = defineEmits<{
+  select: [event: EventRecord]
+}>()
+
+const currentWeekStart = ref(getWeekStart(new Date()))
+const selectedCategory = ref('Todas')
+const viewMode = ref<ViewMode>('semana')
+
+function getWeekStart(date: Date) {
+  const base = new Date(date)
+  const day = base.getDay()
+  const diff = day === 0 ? -6 : 1 - day
+  base.setDate(base.getDate() + diff)
+  base.setHours(0, 0, 0, 0)
+  return base
 }
 
-const eventos = ref<Evento[]>([
-  {
-    titulo: 'Feira de Ciências',
-    dataInscricaoInicio: '2026-12-25T14:30:00.000Z',
-    dataInscricaoFim: '2026-01-10T23:59:00.000Z',
-    dataEventoInicio: '2026-01-15T09:00:00.000Z',
-    dataEventoFim: '2026-01-15T18:00:00.000Z',
-    categorias: ['Ciência', 'Educação'],
-    local: 'Auditório Principal',
-  },
-  {
-    titulo: 'Oficina de Robótica',
-    dataInscricaoInicio: '2026-01-05T08:00:00.000Z',
-    dataInscricaoFim: '2026-01-20T18:00:00.000Z',
-    dataEventoInicio: '2026-01-25T14:00:00.000Z',
-    dataEventoFim: '2026-01-29T16:00:00.000Z',
-    categorias: ['Tecnologia', 'Educação'],
-    local: 'Laboratório de Informática',
-  },
-])
-
-const hoje = new Date()
-
-const modoVisualizacao = ref<Modo>('semana')
-const tipoVisualizacao = ref<Tipo>('calendario')
-const categoriaSelecionada = ref('Todas')
-const dataBaseAgenda = ref(new Date(hoje))
-
-const separarDataHora = (dataISO?: string) => {
-  if (!dataISO) return { data: '--/--/--', hora: '--:--' }
-
-  const dataObj = new Date(dataISO)
-  const dataFormatada = dataObj.toLocaleDateString('pt-BR')
-  const horaFormatada = dataObj.toLocaleTimeString('pt-BR', {
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-
-  return { data: dataFormatada, hora: horaFormatada }
-}
-
-const estaNoIntervalo = (dia: Date, inicioISO?: string, fimISO?: string) => {
-  if (!inicioISO || !fimISO) return false
-
-  const d = new Date(dia)
-  d.setHours(0, 0, 0, 0)
-
-  const start = new Date(inicioISO)
-  start.setHours(0, 0, 0, 0)
-
-  const end = new Date(fimISO)
-  end.setHours(23, 59, 59, 999)
-
-  return d.getTime() >= start.getTime() && d.getTime() <= end.getTime()
-}
-
-const diasSemana = computed(() => {
-  const inicio = new Date(dataBaseAgenda.value)
-
-  inicio.setDate(inicio.getDate() - inicio.getDay())
-
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(inicio)
-    d.setDate(inicio.getDate() + i)
-    return d
-  })
-})
-
-const mesAnoAtual = computed(() => {
-  const base =
-    modoVisualizacao.value === 'hoje' ? hoje : (diasSemana.value[0] ?? dataBaseAgenda.value)
-
-  const mes = base.toLocaleDateString('pt-BR', { month: 'long' })
-  const mesCapitalizado = mes.charAt(0).toUpperCase() + mes.slice(1)
-  const ano = base.getFullYear()
-
-  return `${mesCapitalizado}, ${ano}`
-})
-
-//CATEGORIAS
-
-const categorias = computed(() => {
-  // flatMap: pega os arrays ['A', 'B'] e ['C', 'A'] e transforma em ['A', 'B', 'C', 'A']
-  const todas = eventos.value.flatMap((e) => e.categorias)
-  return ['Todas', ...new Set(todas)]
-})
-
-const coresCategorias = computed<Record<string, string>>(() => {
-  // Pega categorias únicas (sem 'Todas') para gerar cores
-  const catsUnicas = [...new Set(eventos.value.flatMap((e) => e.categorias))]
-
-  return Object.fromEntries(
-    catsUnicas.map((c, i) => {
-      const cor = c === 'Geral' ? 'hsl(210, 15%, 60%)' : `hsl(145, 45%, ${78 - (i % 5) * 6}%)` // o % 5 evita que a cor fique preta se houver muitas cats
-
-      return [c, cor]
-    }),
-  )
-})
-
-const eventosFiltrados = (dia: Date) =>
-  eventos.value
-    .filter((e) => {
-      const matchCategoria =
-        categoriaSelecionada.value === 'Todas' || e.categorias.includes(categoriaSelecionada.value)
-
-      const matchData = estaNoIntervalo(dia, e.dataEventoInicio, e.dataEventoFim)
-
-      return matchCategoria && matchData
-    })
-    .sort((a, b) => {
-      return (a.dataEventoInicio || '').localeCompare(b.dataEventoInicio || '')
-    })
-
-const eventosLista = computed(() =>
-  eventos.value.filter((e) => {
-    if (
-      categoriaSelecionada.value !== 'Todas' &&
-      !e.categorias.includes(categoriaSelecionada.value)
-    ) {
-      return false
-    }
-
-    if (modoVisualizacao.value === 'hoje') {
-      return estaNoIntervalo(hoje, e.dataEventoInicio, e.dataEventoFim)
-    } else {
-      return diasSemana.value.some((d) => estaNoIntervalo(d, e.dataEventoInicio, e.dataEventoFim))
-    }
+const weekDays = computed(() =>
+  Array.from({ length: 7 }, (_, index) => {
+    const day = new Date(currentWeekStart.value)
+    day.setDate(currentWeekStart.value.getDate() + index)
+    return day
   }),
 )
 
-const semanaAnterior = () => {
-  const novaData = new Date(dataBaseAgenda.value)
-  novaData.setDate(novaData.getDate() - 7)
-  dataBaseAgenda.value = novaData
+const categories = computed(() => {
+  const allCategories = props.eventos.flatMap((event) => event.categorias)
+  return ['Todas', ...new Set(allCategories)]
+})
+
+const filteredEvents = computed(() =>
+  props.eventos.filter((event) => {
+    if (selectedCategory.value === 'Todas') return true
+    return event.categorias.includes(selectedCategory.value)
+  }),
+)
+
+function eventsForDay(day: Date) {
+  return filteredEvents.value
+    .filter((event) => {
+      const start = new Date(event.dataEventoInicio)
+      return start.toDateString() === day.toDateString()
+    })
+    .sort((a, b) => a.dataEventoInicio.localeCompare(b.dataEventoInicio))
 }
 
-const proximaSemana = () => {
-  const novaData = new Date(dataBaseAgenda.value)
-  novaData.setDate(novaData.getDate() + 7)
-  dataBaseAgenda.value = novaData
+function previousWeek() {
+  const next = new Date(currentWeekStart.value)
+  next.setDate(next.getDate() - 7)
+  currentWeekStart.value = next
 }
 
-// Primeira categoria ou 'Geral' se vazio
-const getPrimeiraCategoria = (categorias: string[]) => {
-  return categorias?.[0] ?? 'Geral'
+function nextWeek() {
+  const next = new Date(currentWeekStart.value)
+  next.setDate(next.getDate() + 7)
+  currentWeekStart.value = next
 }
 
-const getIconPath = (categoria: string) => {
-  const categoryMap: Record<string, string> = {
-    Palestras: 'palestras.svg',
-    Cultura: 'cultura.svg',
-    Esporte: 'esporte.svg',
-    Tecnologia: 'tecnologia.svg',
-    Saúde: 'saude.svg',
-  }
+const weekLabel = computed(() => {
+  const start = weekDays.value[0]
+  const end = weekDays.value[weekDays.value.length - 1]
 
-  const fileName = categoryMap[categoria] || 'default.svg'
-  return `/src/assets/images/icons/${fileName}`
-}
+  if (!start || !end) return 'Semana atual'
+
+  return `${formatDate(start.toISOString())} até ${formatDate(end.toISOString())}`
+})
 </script>
 
 <template>
-  <div class="agenda">
-    <header class="topo">
-      <div class="nav-semana">
-        <button class="nav-btn" @click="semanaAnterior">◀</button>
-        <h2 class="titulo">{{ mesAnoAtual }}</h2>
-        <button class="nav-btn" @click="proximaSemana">▶</button>
+  <section class="agenda">
+    <header class="agenda-toolbar">
+      <div class="toolbar-block">
+        <button type="button" class="nav-button" @click="previousWeek">‹</button>
+        <div>
+          <span class="eyebrow">Programação</span>
+          <h3>{{ weekLabel }}</h3>
+        </div>
+        <button type="button" class="nav-button" @click="nextWeek">›</button>
       </div>
 
-      <div class="toggle-wrapper">
-        <button
-          class="toggle-btn"
-          :class="{ ativo: modoVisualizacao === 'semana' }"
-          @click="modoVisualizacao = 'semana'"
-        >
-          Semana
-        </button>
-        <button
-          class="toggle-btn"
-          :class="{ ativo: modoVisualizacao === 'hoje' }"
-          @click="modoVisualizacao = 'hoje'"
-        >
-          Hoje
-        </button>
-      </div>
-
-      <div class="acoes-direita">
-        <button
-          class="icon-btn"
-          :class="{ ativo: tipoVisualizacao === 'lista' }"
-          @click="tipoVisualizacao = 'lista'"
-        >
-          <img :src="iconLista" alt="Lista" />
-        </button>
-
-        <button
-          class="icon-btn"
-          :class="{ ativo: tipoVisualizacao === 'calendario' }"
-          @click="tipoVisualizacao = 'calendario'"
-        >
-          <img :src="iconCalendario" alt="Calendário" />
-        </button>
-
-        <select v-model="categoriaSelecionada">
-          <option v-for="cat in categorias" :key="cat">
-            {{ cat }}
+      <div class="toolbar-actions">
+        <select v-model="selectedCategory">
+          <option v-for="category in categories" :key="category" :value="category">
+            {{ category }}
           </option>
         </select>
+
+        <div class="segmented">
+          <button type="button" :class="{ active: viewMode === 'semana' }" @click="viewMode = 'semana'">
+            Semana
+          </button>
+          <button type="button" :class="{ active: viewMode === 'lista' }" @click="viewMode = 'lista'">
+            Lista
+          </button>
+        </div>
       </div>
     </header>
-    <div id="scroll">
-      <div class="barra-dias">
-        <div class="chips">
-          <div
-            v-for="dia in modoVisualizacao === 'hoje' ? [hoje] : diasSemana"
-            :key="dia.toDateString()"
-            class="chip-dia"
-            :class="{ hoje: dia.toDateString() === hoje.toDateString() }"
-          >
-            <span class="numero">{{ dia.getDate() }}</span>
-            <span class="semana">
-              {{ dia.toLocaleDateString('pt-BR', { weekday: 'short' }).toUpperCase() }}
-            </span>
-          </div>
-        </div>
-      </div>
-      <div class="conteudo">
-        <div v-if="tipoVisualizacao === 'lista'" class="lista">
-          <div
-            v-for="evento in eventos"
-            :key="evento.titulo + evento.dataEventoInicio + evento.dataEventoFim"
-            class="item-lista"
-          >
-            <div class="badge">{{ evento.titulo }}</div>
 
-            <div class="info">
-              <strong
-                >{{ separarDataHora(evento.dataEventoInicio).data }} até
-                {{ separarDataHora(evento.dataEventoFim).data }}</strong
-              >
-              <span>{{ evento.local }}</span>
-            </div>
-          </div>
-        </div>
+    <div v-if="viewMode === 'semana'" class="week-grid">
+      <article v-for="day in weekDays" :key="day.toISOString()" class="day-column">
+        <header class="day-column__header">
+          <strong>{{ day.getDate() }}</strong>
+          <span>{{ day.toLocaleDateString('pt-BR', { weekday: 'short' }) }}</span>
+        </header>
 
-        <div v-else class="grade" :class="{ 'modo-hoje': modoVisualizacao === 'hoje' }">
-          <div class="grade-conteudo">
-            <div class="dias">
-              <div
-                v-for="dia in modoVisualizacao === 'hoje' ? [hoje] : diasSemana"
-                :key="dia.toDateString()"
-                class="dia"
-              >
-                <div
-                  v-for="evento in eventosFiltrados(dia)"
-                  :key="evento.titulo + evento.dataEventoInicio"
-                  class="evento-simples"
-                  :style="{ background: coresCategorias[getPrimeiraCategoria(evento.categorias)] }"
-                >
-                  <div class="evento-header">
-                    <strong class="titulo-evento">{{ evento.titulo }}</strong>
-                  </div>
+        <button
+          v-for="event in eventsForDay(day)"
+          :key="event.id"
+          type="button"
+          class="agenda-card"
+          @click="emit('select', event)"
+        >
+          <span class="agenda-card__tag">{{ event.categorias[0] || 'Evento' }}</span>
+          <strong>{{ event.titulo }}</strong>
+          <small>{{ event.local }}</small>
+          <small>{{ formatHour(event.dataEventoInicio) }} às {{ formatHour(event.dataEventoFim) }}</small>
+        </button>
 
-                  <div class="evento-info local-evento">
-                    <img :src="iconLocal" alt="Local" class="icon-info" />
-                    <span>{{ evento.local }}</span>
-                  </div>
-
-                  <div class="evento-info horario-evento">
-                    <img :src="iconHorario" alt="Horário" class="icon-info" />
-                    <span
-                      >{{ separarDataHora(evento.dataEventoInicio).hora }} às
-                      {{ separarDataHora(evento.dataEventoFim).hora }}</span
-                    >
-                  </div>
-                </div>
-                <p v-if="!eventosFiltrados(dia).length" class="dia-vazio">Nenhum evento</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+        <p v-if="!eventsForDay(day).length" class="empty-state">Nenhum evento</p>
+      </article>
     </div>
-  </div>
+
+    <div v-else class="list-view">
+      <button
+        v-for="event in filteredEvents"
+        :key="event.id"
+        type="button"
+        class="list-row"
+        @click="emit('select', event)"
+      >
+        <div>
+          <strong>{{ event.titulo }}</strong>
+          <span>{{ event.local }}</span>
+        </div>
+        <small>{{ formatDate(event.dataEventoInicio) }}</small>
+      </button>
+    </div>
+  </section>
 </template>
 
 <style scoped>
 .agenda {
   background: #ffffff;
-  padding: 0px;
-  border-radius: 20px;
-  max-width: 1400px;
-  max-height: 800px;
-  margin: 0 auto;
-  display: flex;
-  overflow: hidden;
-  flex-direction: column;
-  font-family: sans-serif;
-}
-
-.topo {
-  background: #f0f0f0;
-  position: sticky;
-  top: 0;
-  padding: 12px 16px;
+  border-radius: 28px;
+  padding: 24px;
+  box-shadow: 0 18px 35px rgba(2, 64, 46, 0.08);
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  margin: 0;
-  border-radius: 0;
-  border: 2px solid #dad7d7;
+  gap: 20px;
 }
 
-.grade {
-  border-top: none;
-}
-
-.titulo {
-  font-size: 18px;
-  font-weight: bold;
-  text-transform: capitalize;
-}
-
-.toggle-wrapper {
-  display: flex;
-  background: #e0e0e0;
-  border-radius: 10px 20px 10px 10px;
-}
-
-.toggle-btn {
-  width: 110px;
-  height: 36px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-}
-
-.toggle-btn.ativo {
-  background: #00b894;
-  color: #fff;
-  border-radius: 10px 20px 10px 10px;
-}
-
-select {
-  justify-self: end;
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: none;
-}
-
-.barra-dias {
-  padding-top: 19px;
-  display: flex;
-  position: sticky;
-  top: 0;
-  background: #ffffff;
-  z-index: 5;
-  padding-bottom: 8px;
-}
-
-.chips {
-  display: flex;
-  gap: 19px;
-  margin-left: 20px;
-  flex: 1;
-}
-
-.chip-dia {
-  min-width: 175px;
-  height: 36px;
-  background: #ededed;
-  border-radius: 10px 20px 10px 10px;
+.agenda-toolbar,
+.toolbar-block,
+.toolbar-actions {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  flex-shrink: 0;
+  gap: 14px;
 }
 
-.chip-dia.hoje {
-  background: #00b894;
-  color: #fff;
+.agenda-toolbar {
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
-.conteudo {
-  padding: 0 16px 20px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.grade {
-  display: flex;
-  border-top: 1px solid #ddd;
-}
-
-.grade-conteudo {
-  display: flex;
-}
-
-.grade.modo-hoje .dias {
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent calc(100px - 1px),
-    #e0e0e0 calc(100px - 1px),
-    #e0e0e0 100px
-  );
-  background-size: 100% 100px;
-  min-width: 1280px;
-}
-
-.grade.modo-hoje .dia {
-  min-width: 420px;
-  padding: 16px;
-  min-height: 600px;
-}
-
-.dias {
-  display: flex;
-  width: max-content;
-  min-height: calc((23 - 6) * 40px);
-  position: relative;
-  gap: 17px;
-}
-
-.dia {
-  min-width: 175px;
-  max-width: 100%;
-  padding: 8px 0;
-  width: 178px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  box-sizing: border-box;
-}
-
-.evento-header {
-  background: rgba(0, 0, 0, 0.12);
-  padding: 10px 12px;
-}
-
-.titulo-evento {
-  font-size: 18px;
+.eyebrow {
+  color: #07753e;
+  font-size: 0.82rem;
   font-weight: 700;
-  line-height: 1.25;
-  max-width: 100%;
-  white-space: normal;
-  word-break: break-word;
-  overflow-wrap: break-word;
-  display: block;
+  text-transform: uppercase;
 }
 
-.evento-simples:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 6px 14px rgba(0, 0, 0, 0.12),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+.agenda h3 {
+  color: #0b513f;
+  font-size: 1.4rem;
 }
 
-.acoes-direita {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  justify-self: end;
-  margin-left: -15px;
-}
-
-.icon-btn {
+.nav-button,
+.segmented button {
   border: none;
-  background: #e0e0e0;
-  border-radius: 8px;
-  width: 36px;
-  height: 36px;
+  background: rgba(11, 81, 63, 0.08);
+  color: #0b513f;
+  border-radius: 14px;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 0 14px;
+  font: inherit;
+  font-weight: 700;
   cursor: pointer;
 }
 
-.icon-btn img {
-  width: 18px;
-  height: 18px;
-  object-fit: contain;
-  transition: filter 0.2s ease;
+.segmented {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(11, 81, 63, 0.08);
 }
 
-.icon-btn:hover {
-  background: #c8f0e1;
+.segmented .active {
+  background: #07753e;
+  color: #ffffff;
 }
 
-.icon-btn.ativo img {
-  filter: brightness(0) saturate(100%) invert(47%) sepia(96%) saturate(402%) hue-rotate(104deg)
-    brightness(92%) contrast(90%);
+.toolbar-actions select {
+  min-height: 42px;
+  border: 1px solid rgba(11, 81, 63, 0.12);
+  border-radius: 14px;
+  padding: 0 14px;
+  font: inherit;
+  color: #0b513f;
 }
 
-.lista {
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px 16px;
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 14px;
 }
 
-.item-lista {
-  background: #fff;
-  border-radius: 12px;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-}
-
-.info {
-  display: flex;
-  gap: 20px;
-  font-size: 14px;
-  color: #555;
-}
-
-.badge {
-  background: #00b894;
-  color: #fff;
-  padding: 15px 12px;
-  border-radius: 15px;
-  min-width: 380px;
-}
-
-.nav-semana {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.nav-btn {
-  border: none;
-  background: #e0e0e0;
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.nav-btn:hover {
-  background: #c8f0e1;
-}
-
-.evento-info {
-  margin: 5px 6px;
-  padding: 6px 10px;
-  font-size: 12px;
-  display: flex;
-  line-height: 1.2;
-  align-items: center;
+.day-column {
+  min-height: 220px;
+  background: rgba(11, 81, 63, 0.03);
+  border-radius: 20px;
+  padding: 12px;
+  display: grid;
+  align-content: start;
   gap: 8px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  background-clip: padding-box;
 }
 
-.icon-info {
-  width: 14px;
-  height: 14px;
-  display: block;
-  margin-top: -1px;
-  flex-shrink: 0;
+.day-column__header {
+  display: grid;
+  gap: 4px;
+  color: #0b513f;
 }
 
-.evento-info span {
-  line-height: 1;
-  display: block;
-}
-
-.local-evento {
-  background: rgba(76, 220, 93, 0.25);
-}
-
-.horario-evento {
-  background: rgba(8, 152, 39, 0.18);
-}
-
-.evento-simples {
-  padding: 0;
-  border-radius: 12px;
-  gap: 0;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-  min-height: 120px;
-  height: auto;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-  justify-content: flex-start;
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
-  overflow-wrap: break-word;
-  word-break: break-word;
-}
-#scroll {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-.grade.modo-hoje .evento-simples {
-  height: 180px;
-  padding: 0;
+.agenda-card,
+.list-row {
+  border: none;
+  text-align: left;
+  background: linear-gradient(135deg, #0b513f, #0d6c53);
+  color: #ffffff;
   border-radius: 16px;
+  padding: 12px;
+  display: grid;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.agenda-card__tag {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.list-view {
+  display: grid;
+  gap: 12px;
+}
+
+.list-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  background: rgba(11, 81, 63, 0.06);
+  color: #0b513f;
+}
+
+.list-row div {
+  display: grid;
   gap: 6px;
-  overflow: hidden;
 }
 
-.grade.modo-hoje .evento-header {
-  padding: 14px 16px;
+.empty-state {
+  color: rgba(10, 70, 53, 0.65);
+  font-size: 0.92rem;
 }
 
-.grade.modo-hoje .titulo-evento {
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.grade.modo-hoje .evento-info {
-  padding: 10px 16px;
-  font-size: 15px;
-}
-
-.grade.modo-hoje .local-evento {
-  font-size: 17px;
-  opacity: 0.9;
-}
-
-.grade.modo-hoje .horario-evento {
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.grade.modo-hoje .evento-simples:hover {
-  transform: translateY(-4px) scale(1.01);
-  box-shadow:
-    0 12px 28px rgba(0, 0, 0, 0.18),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.4);
-}
-
-.grade.modo-hoje .dia-vazio {
-  font-size: 14px;
-  padding: 20px;
-  opacity: 0.5;
-  text-align: center;
-}
-
-.dia-vazio {
-  font-size: 12px;
-  opacity: 0.6;
-  padding: 8px 30px;
-}
-
-@media (max-width: 1250px) {
-  .topo {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    background: #f0f0f0;
+@media (max-width: 1100px) {
+  .week-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
 
-  .toggle-wrapper {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .toggle-btn {
-    flex: 1;
-  }
-
-  .chips {
+@media (max-width: 640px) {
+  .agenda {
+    padding: 14px;
     gap: 14px;
-    margin-left: 12px;
-  }
-
-  .chip-dia {
-    min-width: 150px;
-    width: 150px;
-    height: 34px;
-    flex-direction: column;
-    gap: 2px;
-    font-size: 9px;
-    border-radius: 12px;
-  }
-
-  .chip-dia .numero {
-    font-size: 10px;
-    font-weight: bold;
-  }
-
-  .item-lista {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .info {
     width: 100%;
-    font-size: 13px;
-    flex-direction: column;
-    gap: 4px;
   }
 
-  .coluna-dias {
-    overflow-y: hidden;
-  }
-
-  .dia {
-    min-width: 140px;
-    width: 140px;
-  }
-  .dias {
-    gap: 22px;
-  }
-}
-
-@media (max-width: 768px) {
-  .topo {
+  .week-grid {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 10px;
+  }
+
+  .day-column {
+    min-height: auto;
+    border-radius: 16px;
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .day-column__header strong {
+    font-size: 1rem;
+  }
+
+  .day-column__header span {
+    font-size: 0.75rem;
+  }
+
+  .agenda-card {
+    border-radius: 14px;
+    padding: 10px;
+    gap: 3px;
+  }
+
+  .agenda-card strong {
+    font-size: 0.84rem;
+    line-height: 1.15;
+  }
+
+  .agenda-card small,
+  .agenda-card__tag,
+  .empty-state {
+    font-size: 0.72rem;
+    line-height: 1.2;
+  }
+
+  .list-row {
+    grid-template-columns: 1fr;
+    border-radius: 14px;
     padding: 12px;
   }
 
-  .nav-semana {
-    justify-content: space-between;
-  }
-
-  .titulo {
-    font-size: 16px;
-    text-align: center;
-    flex: 1;
-  }
-
-  .toggle-wrapper {
+  .toolbar-actions {
     width: 100%;
-    justify-content: center;
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .toggle-btn {
-    flex: 1;
+  .toolbar-block,
+  .agenda-toolbar {
+    align-items: stretch;
   }
 
-  .acoes-direita {
+  .agenda h3 {
+    font-size: 1rem;
+  }
+
+  .toolbar-block {
+    width: 100%;
     justify-content: space-between;
-    margin-left: 0;
-    gap: 12px;
   }
 
-  select {
-    flex: 1;
-  }
-
-  .chips {
-    gap: 19px;
-    margin-left: 25px;
-  }
-
-  .chip-dia {
-    min-width: 140px;
-    width: 140px;
-    height: 34px;
-    flex-direction: column;
-    gap: 2px;
-    font-size: 9px;
-    border-radius: 12px;
-  }
-
-  .chip-dia .numero {
-    font-size: 10px;
-    font-weight: bold;
-  }
-
-  .item-lista {
-    flex-direction: column;
-    align-items: flex-start;
+  .day-column__header {
+    grid-template-columns: auto 1fr;
+    align-items: center;
     gap: 8px;
   }
 
-  .badge {
-    min-width: unset;
-    width: 100%;
-    padding: 10px 12px;
-    font-size: 14px;
-    border-radius: 10px;
-  }
-
-  .info {
-    width: 100%;
-    font-size: 13px;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .coluna-dias {
-    overflow-y: hidden;
-  }
-
-  .dia {
-    min-width: 180px;
-    width: 180px;
-  }
-
-  .titulo-evento {
-    font-size: 12px;
-  }
-
-  .local-evento,
-  .horario-evento {
-    font-size: 10px;
-  }
-
-  #scroll {
-    overflow-x: auto;
-    overflow-y: hidden;
-    flex: 1;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .barra-dias,
-  .grade {
-    min-width: 100%;
-  }
-
-  .chips,
-  .dias {
-    display: flex;
-    width: max-content;
-  }
-
-  .chip-dia,
-  .dia {
-    min-width: 140px;
-    width: 140px;
-    flex-shrink: 0;
-  }
-}
-
-@media (max-width: 420px) {
-  .titulo {
-    font-size: 14px;
-  }
-
-  .chip-dia {
-    min-width: 64px;
-  }
-
-  .toggle-btn {
-    font-size: 12px;
+  .nav-button,
+  .segmented button,
+  .toolbar-actions select {
+    min-height: 38px;
   }
 }
 </style>

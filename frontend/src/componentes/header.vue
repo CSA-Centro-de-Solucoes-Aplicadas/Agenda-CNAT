@@ -1,143 +1,256 @@
-<script setup>
+<script setup lang="ts">
+import { ref } from 'vue'
+
 import logoImg from '@/assets/logo.svg'
+import BarradePesquisa from '@/componentes/BarradePesquisa.vue'
+import type { EventRecord } from '@/types/event'
+
+const props = defineProps<{
+  eventos: EventRecord[]
+}>()
+
+const emit = defineEmits<{
+  select: [event: EventRecord]
+}>()
+
+const mobileMenuOpen = ref(false)
+
+const links = [
+  { label: 'Programação', href: '#programacao' },
+  { label: 'Adicionar Evento', href: '#adicionar-evento' },
+  { label: 'Inscrições Abertas', href: '#inscricoes' },
+]
 </script>
+
 <template>
   <header class="main-header">
+    <div class="header-motion header-motion--one"></div>
+    <div class="header-motion header-motion--two"></div>
+
     <div class="header-container">
+      
       <RouterLink to="/" class="header-logo-container">
         <img :src="logoImg" alt="Logo Eventos CNAT" class="header-logo" />
       </RouterLink>
-      <ul>
-        <li><a href="#programacao">Programação</a></li>
-        <li><a href="#adicionar-evento">Adicionar Evento</a></li>
-        <li><a href="#inscricoes">Inscrições Abertas</a></li>
-      </ul>
+
+      <div class="header-search">
+        <BarradePesquisa :eventos="props.eventos" compact @select="emit('select', $event)" />
+      </div>
+
+      <nav class="desktop-nav">
+        <a v-for="link in links" :key="link.href" :href="link.href">{{ link.label }}</a>
+      </nav>
+
+      <button type="button" class="mobile-trigger" @click="mobileMenuOpen = !mobileMenuOpen">
+        Menu
+      </button>
+      
+    </div>
+
+    <nav v-if="mobileMenuOpen" class="mobile-nav">
+      <a v-for="link in links" :key="link.href" :href="link.href" @click="mobileMenuOpen = false">
+        {{ link.label }}
+      </a>
+    </nav>
+
+    <div class="wave-container">
+      <svg viewBox="0 0 1200 120" preserveAspectRatio="none" class="wave-svg wave-back">
+        <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"></path>
+      </svg>
+      <svg viewBox="0 0 1200 120" preserveAspectRatio="none" class="wave-svg wave-front">
+        <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"></path>
+      </svg>
     </div>
   </header>
 </template>
+
 <style scoped>
 .main-header {
-  width: 100%;
-  background-color: #8aeec3;
-  box-shadow: 2px 1px 5px #b8b8b8;
   position: relative;
-  overflow: hidden;
-  min-height: 100px;
-  max-height: 100px;
-}
-.header-logo-container {
-  position: absolute;
-  top: 15px;
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: 1440px;
-  width: 100%;
-  display: flex;
-  justify-content: flex-start;
-  padding: 0 100px;
-  z-index: 10;
+  z-index: 30;
+  background: linear-gradient(120deg, #8aeec3 0%, #9cf2ca 38%, #86e2b9 100%);
 }
 
-.header-logo {
-  width: 15%;
-  max-width: 180px;
-  height: auto;
-  cursor: pointer;
+.wave-container {
+  position: absolute;
+  top: 99%;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  overflow: hidden;
+  line-height: 0;
+  filter: drop-shadow(0px 10px 15px rgba(2, 64, 46, 0.1));
+}
+
+.wave-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: calc(100% + 1.3px);
+  height: 60px;
+}
+
+.wave-front path {
+  fill: #86e2b9;
+}
+
+.wave-back {
+  transform: scaleX(-1);
+  opacity: 0.6;
+}
+
+.wave-back path {
+  fill: #a4f7d4;
+}
+
+.header-motion {
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: 0.35;
+  filter: blur(10px);
+}
+
+.header-motion--one {
+  top: -24px;
+  right: 8%;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0));
+  animation: driftOne 12s ease-in-out infinite alternate;
+}
+
+.header-motion--two {
+  left: 24%;
+  bottom: -32px;
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(7, 117, 62, 0.22), rgba(7, 117, 62, 0));
+  animation: driftTwo 16s ease-in-out infinite alternate;
 }
 
 .header-container {
-  max-width: 1440px;
+  position: relative;
+  max-width: 1400px;
   margin: 0 auto;
-  width: 100%;
+  padding: 16px 32px;
   display: flex;
   align-items: center;
-  padding: 20px 100px 20px 100px;
-  position: relative;
+  justify-content: space-between;
+  gap: 24px;
 }
 
-header ul {
-  list-style: none;
+.header-logo {
+  width: 176px;
+  height: auto;
+  display: block;
+}
+
+.header-search {
+  flex: 1;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.desktop-nav {
   display: flex;
-  gap: 2.5rem;
-  padding: 1.5rem;
-  z-index: 20;
-  margin-left: auto;
+  align-items: center;
+  gap: 12px;
 }
 
-header li a {
+.desktop-nav a,
+.mobile-nav a {
+  color: #055638;
   text-decoration: none;
-  font-size: 1.2rem;
-  color: #07753e;
-  font-weight: 500;
-  transition: 0.2s;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
-header li a:hover {
-  color: #044632;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+.desktop-nav a {
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.46);
+  backdrop-filter: blur(10px);
+  transition: transform 0.2s ease, background-color 0.2s ease;
 }
-@media (max-width: 1024px) {
-  .header-logo {
-    top: 20px;
-    left: 30px;
-    max-width: 130px;
-  }
-}
-@media (max-width: 900px) {
-  .content-container {
-    padding: 0 20px;
-  }
 
+.desktop-nav a:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.mobile-trigger {
+  display: none;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #055638;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mobile-nav {
+  display: none;
+}
+
+@keyframes driftOne {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(22px, 14px, 0) scale(1.08); }
+}
+
+@keyframes driftTwo {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(-18px, -10px, 0) scale(1.12); }
+}
+
+@media (max-width: 1100px) {
   .header-container {
-    flex-direction: column;
-    align-items: center;
-    padding-top: 70px;
-    gap: 20px;
+    gap: 16px;
+    padding: 14px 20px;
   }
+}
 
-  header ul {
+@media (max-width: 950px) {
+  .header-container {
+    flex-wrap: wrap;
+  }
+  .desktop-nav {
     display: none;
   }
-
-  header li a {
-    font-size: 1rem;
+  .mobile-trigger {
+    display: inline-flex;
+    order: 2;
   }
-
   .header-logo-container {
-    justify-content: left;
+    order: 1;
   }
+  .header-search {
+    order: 3;
+    max-width: 100%;
+    width: 100%;
+    margin-top: 8px;
+  }
+  .mobile-nav {
+    display: grid;
+    gap: 8px;
+    padding: 0 18px 14px;
+  }
+  .mobile-nav a {
+    background: rgba(255, 255, 255, 0.74);
+    border-radius: 14px;
+    padding: 12px 14px;
+  }
+}
 
+@media (max-width: 640px) {
   .header-logo {
-    width: 120px;
+    width: 140px;
   }
-
-  @media (max-width: 750px) {
-    header ul {
-      display: none;
-    }
-
-    .main-header {
-      min-height: 60px;
-      max-height: 60px;
-    }
-
-    .header-container {
-      padding: 0;
-    }
-
-    .header-logo-container {
-      position: static;
-      transform: none;
-      justify-content: center;
-      padding: 10px 8px;
-    }
-
-    .header-logo {
-      top: 50px;
-      left: 10px;
-      width: 50%;
-      max-width: 80px;
-    }
+  .wave-svg {
+    height: 40px;
   }
 }
 </style>

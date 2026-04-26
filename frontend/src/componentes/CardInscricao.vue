@@ -1,352 +1,136 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import type { EventRecord } from '@/types/event'
+import { formatDate, formatHour } from '@/utils/date'
 
 const props = defineProps<{
-  evento: Evento,
+  evento: EventRecord
 }>()
-interface Evento {
-  titulo: string
-  descricao?: string
-  dataInscricaoInicio: string
-  dataInscricaoFim: string
-  dataEventoInicio: string
-  dataEventoFim: string
-  categorias: string[]
-  local: string
-  linkInscricao?: string
-  colaboradores?: string[]
-  }
-
-// Mapear categorias para nomes de arquivos de ícones
-const getPrimeiraCategoria = (categorias: string[]) => {
-  return categorias?.[0] ?? 'Geral'
-}
-
-// Definir o ícone
-const getIconPath = (categoria: string) => {
-  const categoryMap: Record<string, string> = {
-    'Palestras': 'palestras.svg',
-    'Cultura': 'cultura.svg',
-    'Esporte': 'esporte.svg',
-    'Tecnologia': 'tecnologia.svg',
-    'Saúde': 'saude.svg',
-  }
-
-  const fileName = categoryMap[categoria] || 'default.svg'
-  return `/src/assets/images/icons/${fileName}`
-}
-
-// dataISO é uma string no formato ISO 8601
-const separarDataHora = (dataISO?: string) => {
-  if (!dataISO) return { data: '--/--/--', hora: '--:--' }
-
-  const dataObj = new Date(dataISO);
-  const dataFormatada = dataObj.toLocaleDateString('pt-BR');
-  const horaFormatada = dataObj.toLocaleTimeString('pt-BR', {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-
-  return { data: dataFormatada, hora: horaFormatada };
-}
-
 </script>
+
 <template>
-  <div class="cardevento">
-    <div class="cardheader">
-      <h3>
-        {{ props.evento?.titulo }}
-      </h3>
-      <p class="local">{{ props.evento?.local }}</p>
+  <article class="registration-card">
+    <header class="registration-card__header">
+      <div>
+        <span>{{ props.evento.categorias[0] || 'Evento' }}</span>
+        <h3>{{ props.evento.titulo }}</h3>
+      </div>
+      <strong class="status-chip">Inscrições abertas</strong>
+    </header>
+
+    <p class="registration-card__location">{{ props.evento.local }}</p>
+
+    <div class="registration-card__timeline">
+      <article>
+        <small>Abertura</small>
+        <strong>{{ formatDate(props.evento.dataInscricaoInicio) }}</strong>
+        <span>{{ formatHour(props.evento.dataInscricaoInicio) }}</span>
+      </article>
+      <article>
+        <small>Encerramento</small>
+        <strong>{{ formatDate(props.evento.dataInscricaoFim) }}</strong>
+        <span>{{ formatHour(props.evento.dataInscricaoFim) }}</span>
+      </article>
     </div>
-    <div class="cardbody">
-      <ul class="timeline">
-        <li>
-          <p class="data">
-            {{ separarDataHora(props.evento.dataInscricaoInicio).data }} <br />
-            {{ separarDataHora(props.evento.dataInscricaoInicio).hora }}
-          </p>
-          <p class="descricao">Início das inscrições</p>
-        </li>
-        <li>
-          <p class="data">
-            {{ separarDataHora(props.evento.dataInscricaoFim).data }} <br />
-            {{ separarDataHora(props.evento.dataInscricaoFim).hora }}
-          </p>
-          <p class="descricao">Fim das inscrições</p>
-        </li>
-      </ul>
-    </div>
-    <div class="cardfooter">
-      <p>{{ getPrimeiraCategoria(props.evento.categorias) }}</p>
-      <img :src="getIconPath(getPrimeiraCategoria(props.evento.categorias))" alt="Ícone da categoria" width="20px"></img>
-    </div>
-  </div>
+
+    <footer class="registration-card__footer">
+      <span>{{ formatDate(props.evento.dataEventoInicio) }}</span>
+      <small>Ver evento completo</small>
+    </footer>
+  </article>
 </template>
+
 <style scoped>
-* {
-  margin: 0;
+.registration-card {
+  min-height: 280px;
+  border-radius: 24px;
+  padding: 22px;
+  display: grid;
+  gap: 18px;
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  box-shadow: 0 20px 36px rgba(0, 0, 0, 0.12);
 }
-li {
-  padding: 0.5rem 0;
-  position: relative;
+
+.registration-card__header {
   display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-.local {
-  font-size: 0.85rem;
-  color: #575757;
-}
-.descricao {
-  font-size: 0.75rem;
-}
-.data {
-  font-size: 0.68rem;
-  font-weight: normal;
-}
-.cardfooter {
-  justify-content: right;
-  color: white;
-  font-weight: 600;
-  display: flex;
-  align-items: flex-end;
-  width: 100%;
-}
-/* Melhor responsividade e legibilidade */
-.cardevento {
-  background-image: url('@/assets/images/illustrations/CardInscricoes_background.png');
-  background-size: cover;
-  background-position: center;
-  max-width: 420px;
-  width: 100%;
-  border-radius: 16px;
-  padding: 18px 28px 10px 28px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  margin: 0.5rem auto;
-  box-sizing: border-box;
-  transition: box-shadow 0.3s, transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  cursor: grab;
-  font-family: 'Lato', Arial, sans-serif;
-}
-
-.cardevento:active {
-  cursor: grabbing;
-}
-
-.cardheader {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.cardheader h3 {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #0b513f;
-  margin-bottom: 0.25em;
-  line-height: 1.3;
-  word-break: break-word;
-  letter-spacing: -0.3px;
-}
-
-.local {
-  font-size: 1.05rem;
-  color: #666;
-  margin-bottom: 0.3em;
-  font-weight: 500;
-}
-
-.timeline {
-  border-left: 2px solid #000000;
-  margin-left: 8px;
-  padding-left: 16px;
-  list-style-type: none;
-  margin-bottom: 0.8em;
-}
-
-li {
-  padding: 0.6rem 0;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  justify-content: space-between;
+  gap: 16px;
   align-items: flex-start;
-  background: rgba(255, 255, 255, 0.05);
-  padding-left: 8px;
-  border-radius: 4px;
 }
 
-li:first-child::before {
-  content: '•';
-  font-size: 2rem;
-  position: absolute;
-  left: -23px;
-  top: 6px;
-  color: #009218;
-}
-
-li:last-child::before {
-  content: '•';
-  font-size: 2rem;
-  position: absolute;
-  left: -23px;
-  top: 6px;
-  color: #c62828;
-}
-
-.data {
-  font-size: 1.02rem;
+.registration-card__header span {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 0.78rem;
   font-weight: 700;
-  color: #0b513f;
-  margin-bottom: 0.15em;
-  letter-spacing: 0.3px;
+  text-transform: uppercase;
 }
 
-.descricao {
-  font-size: 0.95rem;
-  color: #222;
-  line-height: 1.5;
-  font-weight: 500;
+.registration-card__header h3 {
+  font-size: 1.35rem;
+  line-height: 1.12;
 }
 
-.cardfooter {
-  justify-content: right;
-  color: #fff;
-  font-weight: 600;
+.status-chip {
+  white-space: nowrap;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 0.78rem;
+}
+
+.registration-card__location {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.registration-card__timeline {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.registration-card__timeline article {
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(8, 63, 46, 0.28);
+}
+
+.registration-card__timeline small,
+.registration-card__timeline span {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.registration-card__footer {
   display: flex;
-  align-items: end;
-  width: 100%;
-  font-size: 1.02rem;
-  margin-top: auto;
-  padding-top: 0.8em;
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
-  gap: 0.8em;
-}
-
-.categoria-info {
-  display: flex;
-}
-
-.categoria-texto {
-  margin: 0;
-  color: #fff;
-  font-size: 1.02rem;
-  font-weight: 600;
-}
-
-.categoria-icon {
-  width: 40px;
-  height: 40px;
-  display: flex;
+  justify-content: space-between;
+  gap: 12px;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-.icon-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
-}
+@media (max-width: 640px) {
+  .registration-card {
+    min-height: 244px;
+    padding: 18px;
+    border-radius: 18px;
+  }
 
-@media (max-width: 750px) {
-  .cardevento {
-    background-position: 70% 30%;
-    max-width: 98vw;
-    padding: 16px 6vw 12px 6vw;
-    border-radius: 10px;
-    gap: 0.6rem;
+  .registration-card__header,
+  .registration-card__footer,
+  .registration-card__timeline {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: flex-start;
   }
-  .cardheader h3 {
-    font-size: 1.15rem;
-  }
-  .local {
-    font-size: 0.95rem;
-  }
-  .data {
-    font-size: 0.95rem;
-  }
-  .descricao {
-    font-size: 0.88rem;
-  }
-  .cardfooter {
-    font-size: 0.95rem;
-    gap: 0.8em;
-  }
-  .categoria-icon {
-    width: 32px;
-    height: 32px;
+
+  .registration-card__header h3 {
+    font-size: 1.12rem;
   }
 }
-@media (max-width: 480px) {
-  .cardevento {
-    max-width: 100%;
-    padding: 14px 5vw 12px 5vw;
-    border-radius: 12px;
-    gap: 0.5rem;
-  }
-
-  .cardheader h3 {
-    font-size: 1.05rem;
-    line-height: 1.25;
-  }
-
-  .local {
-    font-size: 0.85rem;
-  }
-
-  .timeline {
-    margin-left: 6px;
-    padding-left: 12px;
-  }
-
-  li {
-    padding: 0.45rem 0.10rem;
-    gap: 0.25rem;
-  }
-
-  .data {
-    font-size: 0.85rem;
-  }
-
-  .descricao {
-    font-size: 0.8rem;
-    line-height: 1.4;
-  }
-
-  .cardfooter {
-    font-size: 0.85rem;
-    gap: 0.6rem;
-    padding-top: 0.6em;
-  }
-
-  .cardfooter img {
-    width: 18px;
-  }
-}
-@media (max-width: 360px) {
-  .cardheader h3 {
-    font-size: 0.95rem;
-  }
-
-  .descricao {
-    font-size: 0.75rem;
-  }
-
-  .data {
-    font-size: 0.78rem;
-  }
-
-  .cardfooter {
-    flex-direction: row;
-    justify-content: flex-end;
-    font-size: 0.8rem;
-  }
-}
-
 </style>

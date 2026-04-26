@@ -1,86 +1,132 @@
-from rest_framework import serializers
 from django.db import transaction
-from .models import Event, Categoria, Organizador
+from rest_framework import serializers
 
-class OrganizadorSerializer(serializers.ModelSerializer):
-    # a classe ContatoSerializer serializa o model Contato
-    class Meta:
-        # a classe Meta informa ao serializer qual model ele está serializando
-        model = Organizador
-        fields = ['id', 'email']
+from .models import Categoria, Event, Organizador
+
 
 class CategoriaSerializer(serializers.ModelSerializer):
-    #  a classe CategoriaSerializer serializa o model Categoria
     class Meta:
-        # a classe Meta informa ao serializer qual model ele está serializando
         model = Categoria
-        fields = ['id', 'nome', 'descricao', 'icone']
+        fields = ['id', 'nome', 'descricao']
+
 
 class EventSerializer(serializers.ModelSerializer):
-    # Representar categorias como lista de IDs (input) e permitir mostrar dados breves do objeto (output)
-    categoria = serializers.PrimaryKeyRelatedField(
-        # PrimaryKeyRelatedFiel é usado para representar relações por suas chaves primárias
-        many=True,
-        # many=True porque é ManyToMany, 
-        queryset=Categoria.objects.all()
+    categorias = serializers.ListField(child=serializers.CharField(), write_only=True, required=False)
+    organizadores = serializers.ListField(
+        child=serializers.EmailField(),
+        write_only=True,
+        required=False,
     )
-    # essa linha acima permite que o campo categoria aceite uma lista de IDs de Categoria ao criar/atualizar um Event
-
-    # contatos: garante que seja uma lista de strings (e-mails) no nível do serializer
-    organizadores = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=Organizador.objects.all(),
-        source='organizadores',
+    imagem = serializers.ImageField(required=False, allow_null=True, write_only=True)
+    dataInscricaoInicio = serializers.DateTimeField(source='dataInscricao', required=False, allow_null=True)
+    dataInscricaoFim = serializers.DateTimeField(
+        source='dataInscricaoFinal',
+        required=False,
+        allow_null=True,
     )
-
-
+    dataEventoFim = serializers.DateTimeField(source='dataEventoFinal')
+    linkInformacao = serializers.URLField(source='link', required=False, allow_blank=True, allow_null=True)
+    imagemUrl = serializers.SerializerMethodField()
+    categoriasNomes = serializers.SerializerMethodField()
+    organizadoresEmails = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
         fields = [
-            'id', 'titulo', 'descricao',
-            'dataInscricao', 'dataInscricaoFinal',
-            'dataEventoInicio', 'dataEventoFinal',
-            'categoria', 'local', 'organizadores', 'link', 'imagem',
+            'id',
+            'titulo',
+            'descricao',
+            'local',
+            'linkInformacao',
+            'linkInscricao',
+            'imagem',
+            'imagemUrl',
+            'dataInscricaoInicio',
+            'dataInscricaoFim',
+            'dataEventoInicio',
+            'dataEventoFim',
+            'categorias',
+            'categoriasNomes',
+            'organizadores',
+            'organizadoresEmails',
         ]
-        read_only_fields = ['id']
+        read_only_fields = ['id', 'imagemUrl', 'categoriasNomes', 'organizadoresEmails']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['categorias'] = representation.pop('categoriasNomes')
+        representation['organizadores'] = representation.pop('organizadoresEmails')
+        representation['imagem'] = representation.pop('imagemUrl')
+        return representation
+
+    def get_imagemUrl(self, obj):
+        if not obj.imagem:
+            return None
+
+        request = self.context.get('request')
+        image_url = obj.imagem.url
+        if request is None:
+            return image_url
+        return request.build_absolute_uri(image_url)
+
+    def get_categoriasNomes(self, obj):
+        return list(obj.categoria.values_list('nome', flat=True))
+
+    def get_organizadoresEmails(self, obj):
+        return list(obj.organizadores.values_list('email', flat=True))
 
     def validate(self, attrs):
-        """
-        Validações de alto nível: aqui você pode chamar validação do model (clean),
-        mas model.clean() espera um objeto instanciado. Vamos fazer validações
-        de consistência básicas e depois deixar model.clean() ser chamado em create/update.
-        """
-        # Exemplos simples (opcionais - já cobertos no model)
-        di = attrs.get('dataInscricao')
-        df = attrs.get('dataInscricaoFinal')
-        ei = attrs.get('dataEventoInicio')
-        ef = attrs.get('dataEventoFinal')
+        data_inscricao_inicio = attrs.get('dataInscricao')
+        data_inscricao_fim = attrs.get('dataInscricaoFinal')
+        data_evento_inicio = attrs.get('dataEventoInicio')
+        data_evento_fim = attrs.get('dataEventoFinal')
 
-        if di and df and df < di:
-            raise serializers.ValidationError("dataInscricaoFinal deve ser posterior a dataInscricao.")
-        if df and ei and df > ei:
-            raise serializers.ValidationError("dataInscricaoFinal deve ser anterior ao início do evento.")
-        if ei and ef and ef < ei:
-            raise serializers.ValidationError("dataEventoFinal deve ser posterior ao início do evento.")
+        if data_inscricao_inicio and data_inscricao_fim and data_inscricao_fim < data_inscricao_inicio:
+            raise serializers.ValidationError(
+                {'dataInscricaoFim': 'A data final de inscrição deve ser posterior à inicial.'}
+            )
+
+        if data_evento_inicio and data_evento_fim and data_evento_fim < data_evento_inicio:
+            raise serializers.ValidationError(
+                {'dataEventoFim': 'A data final do evento deve ser posterior à inicial.'}
+            )
+
+        if data_inscricao_fim and data_evento_inicio and data_inscricao_fim > data_evento_inicio:
+            raise serializers.ValidationError(
+                {'dataInscricaoFim': 'As inscrições devem terminar antes do início do evento.'}
+            )
+
         return attrs
 
+    def _sync_relations(self, event, categorias, organizadores):
+        if categorias is not None:
+            categorias_obj = [
+                Categoria.objects.get_or_create(nome=nome.strip())[0]
+                for nome in categorias
+                if nome.strip()
+            ]
+            event.categoria.set(categorias_obj)
+
+        if organizadores is not None:
+            organizadores_obj = [
+                Organizador.objects.get_or_create(email=email.strip())[0]
+                for email in organizadores
+                if email.strip()
+            ]
+            event.organizadores.set(organizadores_obj)
+
     def create(self, validated_data):
-        categorias = validated_data.pop('categoria', [])
+        categorias = validated_data.pop('categorias', [])
         organizadores = validated_data.pop('organizadores', [])
+
         with transaction.atomic():
             event = Event.objects.create(**validated_data)
-
-            if categorias:
-                event.categoria.set(categorias)
-
-            if organizadores:
-                event.organizadores.set(organizadores)
+            self._sync_relations(event, categorias, organizadores)
 
         return event
 
     def update(self, instance, validated_data):
-        categorias = validated_data.pop('categoria', None)
+        categorias = validated_data.pop('categorias', None)
         organizadores = validated_data.pop('organizadores', None)
 
         for attr, value in validated_data.items():
@@ -88,11 +134,6 @@ class EventSerializer(serializers.ModelSerializer):
 
         with transaction.atomic():
             instance.save()
-
-            if categorias is not None:
-                instance.categoria.set(categorias)
-
-            if organizadores is not None:
-                instance.organizadores.set(organizadores)
+            self._sync_relations(instance, categorias, organizadores)
 
         return instance

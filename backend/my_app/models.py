@@ -56,11 +56,10 @@ class Event(models.Model):
     
     @property
     def inscricao_aberta(self):
-        if not self.inscricao_inicio or not self.inscricao_fim:
+        if not self.dataInscricao or not self.dataInscricaoFinal:
             return False
-        hoje = timezone.now().date()
-        return self.inscricao_inicio <= hoje <= self.inscricao_fim
-        # Retorna True se a inscrição estiver aberta, caso contrário, False
+        agora = timezone.now()
+        return self.dataInscricao <= agora <= self.dataInscricaoFinal
     
     def clean(self):
         # Se tiver data de inscrição início, precisa da final

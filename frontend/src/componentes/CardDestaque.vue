@@ -1,155 +1,162 @@
 <script setup lang="ts">
-interface Evento {
-  titulo: string
-  descricao?: string
-  dataInscricaoInicio?: string
-  dataInscricaoFim?: string
-  dataEventoInicio?: string
-  dataEventoFim?: string
-  categorias?: string[]
-  local: string
-  colaboradores?: string[]
-}
+import type { EventRecord } from '@/types/event'
+import { formatDate } from '@/utils/date'
+
 const props = defineProps<{
-  evento?: Evento,
+  evento: EventRecord
 }>()
-
-const separarDataHora = (dataISO?: string) => {
-  if (!dataISO) return { data: '--/--/--', hora: '--:--' }
-
-  const dataObj = new Date(dataISO);
-  const dataFormatada = dataObj.toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-  });
-  const horaFormatada = dataObj.toLocaleTimeString('pt-BR', {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-
-  return { data: dataFormatada, hora: horaFormatada };
-}
-
-
-import localImg from '@/assets/images/icons/local.svg'
-import calendario_horaImg from'@/assets/images/icons/calendario_hora.svg'
-import '@/assets/images/illustrations/fundodestaque.png'
 </script>
+
 <template>
-  <div class="carddestaque">
-    <h3>{{ evento?.titulo }}</h3>
-    <div class="local">
-      <img :src="localImg"></img>
-      <p>{{ evento?.local }}</p>
+  <article class="highlight-card">
+    <div class="poster-layer" :class="{ 'default-bg': !props.evento.imagem }">
+      <img
+        v-if="props.evento.imagem"
+        :src="props.evento.imagem"
+        :alt="props.evento.titulo"
+        class="highlight-card__image"
+      />
     </div>
-    <div class="data">
-      <img :src="calendario_horaImg"></img>
-      <!-- <img></img> -->
-      <p>{{ separarDataHora(evento?.dataEventoInicio).data }} às {{ separarDataHora(evento?.dataEventoInicio).hora }}</p>
+
+    <div class="highlight-card__content">
+      <h3 class="title">{{ props.evento.titulo }}</h3>
+      
+      <div class="info-list">
+        <div class="info-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          <span>{{ props.evento.local }}</span>
+        </div>
+        
+        <div class="info-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <span>{{ formatDate(props.evento.dataEventoInicio).slice(0, 5) }}</span>
+        </div>
+      </div>
     </div>
-  </div>
+  </article>
 </template>
+
 <style scoped>
-.carddestaque {
-  aspect-ratio: 260 / 510; 
-  width: 100%;           
-  max-width: 260px; 
-  background-image:url(@/assets/images/illustrations/fundodestaque.png);
-  background-size: cover;
-  background-position: center;
-  border-radius: 20px;
+.highlight-card {
   position: relative;
+  aspect-ratio: 16 / 10;
+  min-height: 280px; 
+  border-radius: 24px; /* Bordas mais arredondadas */
+  overflow: hidden;
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 15px;
-  box-sizing: border-box;
-  cursor: grab;
-  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
-              box-shadow 0.3s ease;
+  align-items: flex-end;
+  background-color: #1a1a1a;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  transform: translateZ(0); 
 }
 
-.carddestaque:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+.poster-layer,
+.highlight-card__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
-.carddestaque:active {
-  cursor: grabbing;
+.highlight-card__image {
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+  border: none;
+  transform: scale(1.01);
 }
 
-.carddestaque::after {
+.default-bg {
+  background:
+    linear-gradient(180deg, rgba(16, 42, 34, 0.12), rgba(16, 42, 34, 0.32)),
+    url('@/assets/images/illustrations/fundodestaque.png') center / cover no-repeat;
+}
+
+.highlight-card::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-  border-radius: 20px;
-  z-index: 0;
-}
-.carddestaque > * {
-  position: relative;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.2) 60%, transparent 100%);
   z-index: 1;
+  pointer-events: none;
 }
-p {
-  color: white;
-}
-h3 {
-  color: white;
-}
-.local, .data{
+
+.highlight-card__content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 24px;
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 12px;
+  color: #ffffff;
 }
 
-@media (max-width: 768px) {
-  .carddestaque {
-    max-width: 220px;
-    border-radius: 16px;
-    padding: 12px;
-  }
-
-  h3 {
-    font-size: 16px;
-    line-height: 1.2;
-  }
-
-  p {
-    font-size: 14px;
-  }
-
-  .local,
-  .data {
-    gap: 0.6rem;
-    align-items: center;
-  }
-
-  .local img,
-  .data img {
-    width: 18px;
-    height: 18px;
-  }
+.poster-layer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.12) 38%, rgba(0, 0, 0, 0.5) 100%);
 }
 
-@media (max-width: 480px) {
-  .carddestaque {
-    max-width: 190px;
-    aspect-ratio: 220 / 420;
-    padding: 10px;
-  }
-
-  h3 {
-    font-size: 14px;
-  }
-
-  p {
-    font-size: 13px;
-  }
-
-  .local img,
-  .data img {
-    width: 16px;
-    height: 16px;
-  }
+.title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.info-item svg {
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+
+@media (max-width: 640px) {
+  .highlight-card {
+    aspect-ratio: 4 / 5; 
+    min-height: 380px;  
+    border-radius: 24px; /* Mantém bem arredondado no mobile também */
+  }
+  
+  .highlight-card__content {
+    padding: 24px;
+    gap: 16px; 
+  }
+  
+  .title {
+    font-size: 1.5rem; 
+    -webkit-line-clamp: 3; 
+  }
+
+  .info-item {
+    font-size: 1rem; 
+  }
+}
 </style>

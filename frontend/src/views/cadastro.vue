@@ -1,262 +1,60 @@
 <script setup lang="ts">
-import { VueDatePicker as DatePicker } from '@vuepic/vue-datepicker'
-import '@vuepic/vue-datepicker/dist/main.css'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+
+import EventForm from '@/componentes/EventForm.vue'
 import Footer from '@/componentes/footer.vue'
-import headerAdm from '@/componentes/headerAdm.vue'
-const todasCategorias = [
-  'Tecnologia',
-  'Ensino',
-  'Pesquisa e Extensão',
-  'Arte e Cultura',
-  'Esporte',
-  'Gestão',
-  'Recursos naturais',
-  'Palestra',
-]
+import HeaderAdm from '@/componentes/headerAdm.vue'
+import { createEvent, listCategories } from '@/services/events'
+import type { EventPayload } from '@/types/event'
 
-const categoriasAbertas = ref(false)
-const categoriasSelecionadas = ref<string[]>([])
-const novaCategoria = ref('')
+const busy = ref(false)
+const message = ref('')
+const categorySuggestions = ref<string[]>([])
 
-function toggleCategorias() {
-  categoriasAbertas.value = !categoriasAbertas.value
-}
-
-function selecionarCategoria(nome: string) {
-  if (categoriasSelecionadas.value.length >= 2) return
-  if (!categoriasSelecionadas.value.includes(nome)) {
-    categoriasSelecionadas.value.push(nome)
+onMounted(async () => {
+  try {
+    const categories = await listCategories()
+    categorySuggestions.value = categories.map((category) => category.nome)
+  } catch {
+    categorySuggestions.value = []
   }
-}
+})
 
-function adicionarCategoriaManual() {
-  const nome = novaCategoria.value.trim()
-  if (!nome) return
-  if (categoriasSelecionadas.value.length >= 2) return
-  if (categoriasSelecionadas.value.includes(nome)) return
+async function handleSubmit(payload: EventPayload) {
+  busy.value = true
+  message.value = ''
 
-  categoriasSelecionadas.value.push(nome)
-  novaCategoria.value = ''
-}
-
-function removerCategoria(nome: string) {
-  categoriasSelecionadas.value = categoriasSelecionadas.value.filter((c) => c !== nome)
-}
-
-const titulo = ref('')
-const imagem = ref<File | null>(null)
-const descricao = ref('')
-const linkInformacoes = ref('')
-
-const dataInicioEvento = ref<Date | null>(null)
-const dataFimEvento = ref<Date | null>(null)
-
-const dataInicioInscricao = ref<Date | null>(null)
-const dataFimInscricao = ref<Date | null>(null)
-const linkInscricao = ref('')
-
-const organizadores = ref<string[]>([''])
-
-function adicionarOrganizador() {
-  organizadores.value.push('')
-}
-
-function removerOrganizador(index: number) {
-  organizadores.value.splice(index, 1)
-}
-function onImagemSelecionada(event: Event) {
-  const target = event.target as HTMLInputElement
-  imagem.value = target.files ? target.files[0] : null
-}
-
-function enviarFormulario() {
-  const dados = {
-    titulo: titulo.value,
-    imagem: imagem.value,
-    categorias: categoriasSelecionadas.value,
-    descricao: descricao.value,
-    linkInformacoes: linkInformacoes.value,
-    dataInicioEvento: dataInicioEvento.value,
-    dataFimEvento: dataFimEvento.value,
-    dataInicioInscricao: dataInicioInscricao.value,
-    dataFimInscricao: dataFimInscricao.value,
-    linkInscricao: linkInscricao.value,
-    organizadores: organizadores.value.filter((o) => o.trim() !== ''),
+  try {
+    await createEvent(payload)
+    message.value = 'Evento cadastrado com sucesso.'
+  } catch {
+    message.value = 'Não foi possível cadastrar o evento.'
+  } finally {
+    busy.value = false
   }
-
-  console.log('ENVIADO COM SUCESSO:', dados)
 }
 </script>
 
 <template>
   <div class="page">
-    <headerAdm />
+    <HeaderAdm />
 
-    <main class="main-content">
-      <h1>Adicionar Evento</h1>
+    <main class="admin-page">
+      <section class="page-hero">
+        <span class="eyebrow">Painel administrativo</span>
+        <h1>Cadastrar novo evento</h1>
+      </section>
 
-      <form @submit.prevent="enviarFormulario">
-        <!-- 1. Informações do Evento -->
-        <section class="form-section">
-          <fieldset>
-            <legend>1. Informações do Evento</legend>
+      <section class="form-wrapper">
+        <p v-if="message" class="feedback">{{ message }}</p>
 
-            <div class="form-group">
-              <label for="titulo">Nome do Evento *</label>
-              <input id="titulo" type="text" v-model="titulo" required />
-            </div>
-
-            <div class="form-group">
-              <label for="imagem">Imagem de divulgação *</label>
-              <input
-                id="imagem"
-                type="file"
-                accept="image/*"
-                required
-                @change="onImagemSelecionada"
-              />
-            </div>
-
-            <!-- Categorias -->
-            <div class="form-group">
-              <div class="cat-header">
-                <span class="cat-label">Categorias *</span>
-
-                <button type="button" class="cat-icon-btn" @click="toggleCategorias">
-                  <span class="arrow">⌄</span>
-                </button>
-              </div>
-
-              <div v-if="categoriasAbertas" class="cat-dropdown">
-                <input
-                  type="text"
-                  v-model="novaCategoria"
-                  placeholder="Adicionar categoria..."
-                  class="cat-input"
-                  @keyup.enter="adicionarCategoriaManual"
-                  :disabled="categoriasSelecionadas.length >= 2"
-                />
-
-                <div
-                  v-for="cat in todasCategorias"
-                  :key="cat"
-                  class="cat-option"
-                  :class="{ disabled: categoriasSelecionadas.length >= 2 }"
-                  @click="selecionarCategoria(cat)"
-                >
-                  {{ cat }}
-                </div>
-              </div>
-
-              <div class="cat-tags">
-                <span v-for="cat in categoriasSelecionadas" :key="cat" class="tag">
-                  {{ cat }}
-                  <button type="button" class="remove-tag" @click="removerCategoria(cat)">
-                    ✖
-                  </button>
-                </span>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="descricao">Descrição *</label>
-              <textarea id="descricao" v-model="descricao" required></textarea>
-            </div>
-
-            <div class="form-group">
-              <label for="info">Link para mais informações</label>
-              <input id="info" type="url" v-model="linkInformacoes" />
-            </div>
-          </fieldset>
-        </section>
-
-        <!-- 2. Datas do Evento -->
-        <section class="form-section">
-          <fieldset>
-            <legend>2. Datas e Horário do Evento</legend>
-
-            <div class="datas-in-row">
-              <div class="form-group">
-                <label>Data de início *</label>
-                <DatePicker
-                  v-model="dataInicioEvento"
-                  :enable-time-picker="true"
-                  placeholder="Selecione o dia e horário"
-                />
-              </div>
-
-              <div class="form-group">
-                <label>Data de fim *</label>
-                <DatePicker
-                  v-model="dataFimEvento"
-                  :enable-time-picker="true"
-                  placeholder="Selecione o dia e horário"
-                />
-              </div>
-            </div>
-          </fieldset>
-        </section>
-
-        <!-- 2.1 Período de Inscrições -->
-        <section class="form-section">
-          <fieldset>
-            <legend>2.1 Período de Inscrições</legend>
-
-            <div class="datas-in-row">
-              <div class="form-group">
-                <label>Início das inscrições</label>
-                <DatePicker v-model="dataInicioInscricao" placeholder="Data inicial" />
-              </div>
-
-              <div class="form-group">
-                <label>Fim das inscrições</label>
-                <DatePicker v-model="dataFimInscricao" placeholder="Data final" />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="inscricao">Link para inscrições</label>
-              <input id="inscricao" type="url" v-model="linkInscricao" />
-            </div>
-          </fieldset>
-        </section>
-
-        <!-- 3. Organizadores -->
-        <section class="form-section">
-          <fieldset>
-            <legend>3. Informações dos organizadores</legend>
-
-            <div class="organizadores-section">
-              <div v-for="(email, index) in organizadores" :key="index" class="organizador-field">
-                <input
-                  type="email"
-                  v-model="organizadores[index]"
-                  placeholder="Email do organizador"
-                />
-
-                <button
-                  v-if="organizadores.length > 1"
-                  type="button"
-                  class="remove-field"
-                  @click="removerOrganizador(index)"
-                >
-                  ✖
-                </button>
-              </div>
-
-              <button type="button" class="add-field" @click="adicionarOrganizador">
-                + Adicionar organizador
-              </button>
-            </div>
-          </fieldset>
-        </section>
-
-        <!-- Enviar -->
-        <div class="submit-container">
-          <button type="submit" class="submit-btn">Confirmar</button>
-        </div>
-      </form>
+        <EventForm
+          :busy="busy"
+          :category-suggestions="categorySuggestions"
+          submit-label="Cadastrar evento"
+          @submit="handleSubmit"
+        />
+      </section>
     </main>
 
     <Footer />
@@ -265,406 +63,53 @@ function enviarFormulario() {
 
 <style scoped>
 .page {
-  background: #f4f4f4;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-.main-content {
-  max-width: 1440px;
-  width: 100%;
-  margin: 20px auto;
-  padding: 0 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-}
-
-h1 {
-  color: #0a4635;
-}
-.form-section {
-  width: 100%;
-  background: white;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px #0002;
-}
-
-.form-section h2 {
-  margin-bottom: 20px;
-  color: #1b473a;
-}
-.form-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 18px;
-}
-
-.datas-in-row {
-  display: flex;
-  flex-direction: row;
-  gap: 100px;
-}
-
-.form-group input,
-.form-group textarea {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-.cat-header {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.cat-label {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #000;
-}
-
-.cat-icon-btn {
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: #f3f3f3;
-  border: 1px solid #dcdcdc;
-  border-radius: 8px;
-
-  cursor: pointer;
-  transition: 0.2s;
-  box-shadow: 0 1px 2px #0001;
-}
-
-.cat-icon-btn:hover {
-  background: #e7e7e7;
-  border-color: #c9c9c9;
-  box-shadow: 0 2px 4px #0002;
-}
-
-.arrow {
-  font-size: 25px;
-  color: #444;
-  font-weight: bold;
-  transform: translateY(-7px);
-}
-
-.cat-dropdown {
-  margin-top: 5px;
-  background: white;
-  border: 1px solid #b6e8d2;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px #0002;
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  width: 260px;
-}
-
-.cat-option {
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.cat-option:hover {
-  background: #d8f7ea;
-}
-
-.cat-tags {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 12px;
-}
-.cat-input {
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  margin-bottom: 8px;
-}
-
-.disabled {
-  opacity: 0.4;
-  pointer-events: none;
-}
-
-.tag {
-  background: #c8f5de;
-  padding: 6px 12px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.9rem;
-}
-
-.remove-tag {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  color: #0a8f5a;
-}
-.remove-tag:hover {
-  color: red;
-}
-
-.date-time-row {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  width: 100%;
-}
-.lista-dias-container {
-  margin-top: 10px;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px 20px;
-  width: 100%;
-}
-
-.remove-day {
-  border: none;
-  color: #900;
-  background-color: rgb(252, 232, 232);
-  font-weight: bold;
-  border-radius: 15px;
-  padding: 4px 7px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.remove-day:hover {
-  color: #ff8080;
-}
-
-.dia-item {
-  background: #e6fff4;
-  border: 1px solid #ddf5e9;
-  padding: 12px 15px;
-  border-radius: 10px;
-
-  display: flex;
-  align-items: center;
-  gap: 20px;
-
-  box-shadow: 0 2px 6px #0001;
-}
-
-.dia-label {
-  font-weight: 600;
-  color: #066245;
-  width: 120px;
-}
-
-.time-input {
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  background: #fff;
-  min-width: 120px;
-}
-/*organizadores */
-.organizadores-section {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-top: 10px;
-  width: 100%;
-}
-.organizador-field {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 15px;
-  border-radius: 10px;
-}
-
-.organizador-field input {
+.admin-page {
   flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-}
-
-.remove-field {
-  background: #ffe5e5;
-  border: 1px solid #ffb3b3;
-  color: #a00;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.remove-field:hover {
-  background: #ffd2d2;
-  color: #700;
-}
-
-.add-field {
-  align-self: flex-start;
-  background: #c8f5de;
-  border: 1px solid #9bd9b9;
-  padding: 8px 16px;
-  border-radius: 8px;
-  color: #0b5c3e;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.add-field:hover {
-  background: #b2f0d1;
-  border-color: #89cdaa;
-}
-
-.submit-container {
-  display: flex;
-  justify-content: flex-end;
-}
-.submit-btn {
-  background: #08472e;
-  color: white;
-  padding: 12px 30px;
-  border-radius: 10px;
-  font-size: 1rem;
-  border: none;
-  cursor: pointer;
-}
-
-footer {
-  background-color: #02402e;
-  color: #ffffff;
-  font-size: 14px;
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.footer-content {
-  max-width: 1440px;
+  width: min(1440px, calc(100% - 48px));
   margin: 0 auto;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  padding: 40px 20px 30px;
-  gap: 20px;
+  padding: 36px 0 48px;
+  display: grid;
+  gap: 28px;
 }
 
-.footer-left {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin: 10px 4px;
+.page-hero {
+  display: grid;
+  gap: 14px;
 }
 
-.footer-logo {
-  width: 220px;
+.eyebrow {
+  color: #07753e;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
-.logo-if {
-  width: 220px;
+.page-hero h1 {
+  color: #0b513f;
+  font-size: clamp(2rem, 4vw, 3.2rem);
 }
 
-.footer-right {
-  display: flex;
-  flex-direction: column;
-  text-align: right;
-  gap: 6px;
+.page-hero p,
+.feedback {
+  color: rgba(10, 70, 53, 0.78);
 }
 
-.footer-right p {
-  margin: 10px 4px;
-  font-size: 20px;
+.feedback {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  padding: 16px 18px;
+  box-shadow: 0 18px 35px rgba(2, 64, 46, 0.08);
 }
 
-.social {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  margin-bottom: 8px;
-}
-
-.social img {
-  width: 38px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.social img:hover {
-  transform: scale(1.1);
-  opacity: 0.8;
-}
-
-.copy {
-  text-align: center;
-  font-size: 12px;
-  padding: 15px 20px;
-  background-color: #012118;
-  width: 100%;
-  opacity: 0.85;
-}
-fieldset {
-  border: none;
-  padding: 0;
-  margin: 0;
-}
-legend {
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: #1b473a;
-}
-
-/* Space before footer */
-main section:last-child {
-  margin-bottom: 6rem;
-}
-
-@media screen and (max-width: 750px) {
-  .datas-in-row {
-    flex-direction: column;
-    gap: 10px;
-  }
-  header ul {
-    display: none;
-  }
-
-  .main-header {
-    min-height: 60px;
-    max-height: 60px;
-  }
-
-  .header-container {
-    padding: 0;
-  }
-
-  .header-logo-container {
-    position: static;
-    transform: none;
-    justify-content: left;
-    padding: 10px 8px;
-  }
-
-  .header-logo {
-    top: 50px;
-    left: 10px;
-    width: 50%;
-    max-width: 80px;
+@media (max-width: 640px) {
+  .admin-page {
+    width: min(100%, calc(100% - 24px));
+    padding-top: 20px;
   }
 }
 </style>

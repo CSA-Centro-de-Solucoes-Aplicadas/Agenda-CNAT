@@ -121,7 +121,7 @@ function gradientePizza(eventosNoDia: Evento[]) {
 const PALETA_CORES = ['#57c083', '#5c95bb', '#e66070', '#f2a65a', '#9b6bcc']
 
 function criarDataLocal(data: string) {
-  const [ano, mes, dia] = data.split('-').map(Number)
+  const [ano = 0, mes = 1, dia = 1] = data.split('-').map(Number)
   return new Date(ano, mes - 1, dia)
 }
 
@@ -190,7 +190,7 @@ const meses = computed(() => {
 
 
 function formatarData(data: string) {
-  const [, m, d] = data.split('-')
+  const [, m = '--', d = '--'] = data.split('-')
   return `${d}/${m}`
 }
 </script>
