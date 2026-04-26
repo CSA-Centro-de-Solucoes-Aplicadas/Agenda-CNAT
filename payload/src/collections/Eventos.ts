@@ -25,7 +25,22 @@ export const Eventos: CollectionConfig = {
     },
     {
       name: 'descricao',
-      type: 'text'
+      type: 'text',
+    },
+    {
+      name: 'imagem',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        description: 'Imagem de divulgação do evento',
+      },
+    },
+    {
+      name: 'link',
+      type: 'text',
+      admin: {
+        description: 'Link para mais informações sobre o evento',
+      },
     },
     {
       name: 'dataInscricaoInicio',
@@ -76,6 +91,16 @@ export const Eventos: CollectionConfig = {
     {
       name: 'local',
       type: 'text',
+    },
+    {
+      name: 'organizadores',
+      type: 'array',
+      fields: [
+        {
+          name: 'email',
+          type: 'email',
+        },
+      ],
     },
     {
       name: 'colaboradores',

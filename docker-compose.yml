@@ -1,0 +1,53 @@
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-agenda_db}
+      POSTGRES_USER: ${POSTGRES_USER:-agenda_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-k9Xm2PqL5vJw8Zn4R7bT3yH6cF1gS0dM}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - agenda-net
+
+  payload:
+    build: ./payload
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - PAYLOAD_SECRET=${PAYLOAD_SECRET}
+    depends_on:
+      - postgres
+    networks:
+      - agenda-net
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_PAYLOAD_URL: ${VITE_PAYLOAD_URL:-http://localhost:3000}
+        VITE_PAYLOAD_API_PATH: ${VITE_PAYLOAD_API_PATH:-/api}
+    restart: unless-stopped
+    ports:
+      - '8080:80'
+    env_file:
+      - .env
+    environment:
+      - VITE_PAYLOAD_URL=${VITE_PAYLOAD_URL}
+      - VITE_PAYLOAD_API_PATH=${VITE_PAYLOAD_API_PATH}
+    depends_on:
+      - payload
+    networks:
+      - agenda-net
+
+volumes:
+  db-data:
+
+networks:
+  agenda-net:
+    driver: bridge

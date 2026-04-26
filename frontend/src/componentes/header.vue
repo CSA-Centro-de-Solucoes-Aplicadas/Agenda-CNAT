@@ -65,6 +65,7 @@ const links = [
 </template>
 
 <style scoped>
+
 .main-header {
   position: relative;
   z-index: 30;
