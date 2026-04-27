@@ -76,6 +76,27 @@ const weekLabel = computed(() => {
 
   return `${formatDate(start.toISOString())} até ${formatDate(end.toISOString())}`
 })
+
+// --- NOVO: Paleta de tons de verde e função para resgatar a cor ---
+const greenGradients = [
+  'linear-gradient(135deg, #0b513f, #0d6c53)', // Verde Padrão
+  'linear-gradient(135deg, #086940, #0a8450)', // Verde Vibrante
+  'linear-gradient(135deg, #145a32, #1d8348)', // Verde Floresta
+  'linear-gradient(135deg, #0e6251, #117a65)', // Verde Esmeralda/Teal
+  'linear-gradient(135deg, #1e8449, #27ae60)', // Verde Folha
+]
+
+function getCategoryStyle(category?: string) {
+  if (!category) return { background: greenGradients[0] }
+
+  // Pega o índice da categoria no array (ignora o "Todas" na posição 0)
+  const index = categories.value.indexOf(category)
+
+  // Calcula qual cor usar baseando-se no índice
+  const colorIndex = index > 0 ? (index - 1) % greenGradients.length : 0
+
+  return { background: greenGradients[colorIndex] }
+}
 </script>
 
 <template>
@@ -98,10 +119,18 @@ const weekLabel = computed(() => {
         </select>
 
         <div class="segmented">
-          <button type="button" :class="{ active: viewMode === 'semana' }" @click="viewMode = 'semana'">
+          <button
+            type="button"
+            :class="{ active: viewMode === 'semana' }"
+            @click="viewMode = 'semana'"
+          >
             Semana
           </button>
-          <button type="button" :class="{ active: viewMode === 'lista' }" @click="viewMode = 'lista'">
+          <button
+            type="button"
+            :class="{ active: viewMode === 'lista' }"
+            @click="viewMode = 'lista'"
+          >
             Lista
           </button>
         </div>
@@ -120,12 +149,16 @@ const weekLabel = computed(() => {
           :key="event.id"
           type="button"
           class="agenda-card"
+          :style="getCategoryStyle(event.categorias[0])"
           @click="emit('select', event)"
         >
           <span class="agenda-card__tag">{{ event.categorias[0] || 'Evento' }}</span>
           <strong>{{ event.titulo }}</strong>
           <small>{{ event.local }}</small>
-          <small>{{ formatHour(event.dataEventoInicio) }} às {{ formatHour(event.dataEventoFim) }}</small>
+          <small
+            >{{ formatHour(event.dataEventoInicio) }} às
+            {{ formatHour(event.dataEventoFim) }}</small
+          >
         </button>
 
         <p v-if="!eventsForDay(day).length" class="empty-state">Nenhum evento</p>
@@ -246,13 +279,16 @@ const weekLabel = computed(() => {
 .list-row {
   border: none;
   text-align: left;
-  background: linear-gradient(135deg, #0b513f, #0d6c53);
-  color: #ffffff;
   border-radius: 16px;
   padding: 12px;
   display: grid;
   gap: 4px;
   cursor: pointer;
+}
+
+/* O background do agenda-card agora é gerenciado inline via :style, mantemos apenas a cor da fonte branca */
+.agenda-card {
+  color: #ffffff;
 }
 
 .agenda-card__tag {

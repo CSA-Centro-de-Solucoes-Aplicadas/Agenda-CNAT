@@ -113,7 +113,7 @@ function onImageChange(event: Event) {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0] ?? null
   imageFile.value = file
-  previewUrl.value = file ? URL.createObjectURL(file) : props.initialValue?.imagem ?? null
+  previewUrl.value = file ? URL.createObjectURL(file) : (props.initialValue?.imagem ?? null)
 }
 
 function validateForm() {
@@ -136,7 +136,11 @@ function validateForm() {
     validationErrors.push('A data final do evento deve ser posterior à inicial.')
   }
 
-  if (registrationStart && registrationEnd && new Date(registrationEnd) < new Date(registrationStart)) {
+  if (
+    registrationStart &&
+    registrationEnd &&
+    new Date(registrationEnd) < new Date(registrationStart)
+  ) {
     validationErrors.push('A data final de inscrição deve ser posterior à inicial.')
   }
 
@@ -149,6 +153,14 @@ function validateForm() {
 }
 
 function handleSubmit() {
+  console.log('1. Botão clicado! Iniciando validação...')
+
+  if (!validateForm()) {
+    console.log('2. Validação FALHOU! Revise os campos obrigatórios.')
+    return
+  }
+
+  console.log('3. Validação passou! Emitindo evento para o componente pai...')
   if (!validateForm()) return
 
   emit('submit', {
@@ -360,9 +372,7 @@ function handleSubmit() {
 }
 
 .form-card--hero {
-  background:
-    linear-gradient(135deg, rgba(138, 238, 195, 0.2), rgba(255, 255, 255, 0.95)),
-    #ffffff;
+  background: linear-gradient(135deg, rgba(138, 238, 195, 0.2), rgba(255, 255, 255, 0.95)), #ffffff;
 }
 
 .form-card__header,
@@ -447,7 +457,9 @@ function handleSubmit() {
   padding: 14px 16px;
   font: inherit;
   color: #0a4635;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .field input:focus,
@@ -473,7 +485,10 @@ function handleSubmit() {
   font: inherit;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .inline-button:hover,

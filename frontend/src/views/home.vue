@@ -42,7 +42,7 @@ const demoEvents: EventRecord[] = [
     organizadores: ['cultura.cnat@ifrn.edu.br'],
     dataInscricaoInicio: '2026-04-12T09:00:00.000Z',
     dataInscricaoFim: '2026-05-02T18:00:00.000Z',
-    dataEventoInicio: '2026-04-28T18:30:00.000Z',
+    dataEventoInicio: '2026-04-27T18:30:00.000Z',
     dataEventoFim: '2026-04-28T21:30:00.000Z',
     linkInformacao: 'https://suap.ifrn.edu.br/',
     linkInscricao: 'https://suap.ifrn.edu.br/',
@@ -146,8 +146,6 @@ function closeModal() {
     <main class="main-content">
       <section class="destaques-default-section">
         <div class="content-container">
-       
-
           <div v-if="highlightedEvents.length">
             <Carrossel :eventos="highlightedEvents" :component="CardDestaque" @select="openModal" />
           </div>
@@ -160,9 +158,7 @@ function closeModal() {
           <div class="section-heading">
             <div>
               <span class="eyebrow">Programação</span>
-              
             </div>
-           
           </div>
 
           <AgendaSemana :eventos="events" @select="openModal" />
@@ -174,7 +170,11 @@ function closeModal() {
 
       <section id="adicionar-evento" class="adicionar-evento">
         <div class="adicionarEvento-container">
-          <img :src="vetorImg" alt="Ilustração da seção de solicitação de evento" class="adicionarEvento-vetor" />
+          <img
+            :src="vetorImg"
+            alt="Ilustração da seção de solicitação de evento"
+            class="adicionarEvento-vetor"
+          />
 
           <div class="adicionarEvento-texto">
             <span class="eyebrow">Solicitações</span>
@@ -200,11 +200,14 @@ function closeModal() {
               <span class="eyebrow">Inscrições</span>
               <h2>Inscrições abertas</h2>
             </div>
-            
           </div>
 
           <div v-if="registrationEvents.length">
-            <Carrossel :eventos="registrationEvents" :component="CardInscricao" @select="openModal" />
+            <Carrossel
+              :eventos="registrationEvents"
+              :component="CardInscricao"
+              @select="openModal"
+            />
           </div>
           <div v-else class="feedback-card feedback-card--dark">
             Nenhuma inscrição aberta no momento.
@@ -217,7 +220,11 @@ function closeModal() {
 
     <Teleport to="body">
       <Transition name="fade">
-        <Modal v-if="showModal && selectedEvent" :eventoSelecionado="selectedEvent" @close="closeModal" />
+        <Modal
+          v-if="showModal && selectedEvent"
+          :eventoSelecionado="selectedEvent"
+          @close="closeModal"
+        />
       </Transition>
     </Teleport>
   </div>
@@ -463,16 +470,26 @@ function closeModal() {
 
 .calendario-shell::before {
   top: 0;
-  background:
-    radial-gradient(circle at 20px 48px, transparent 34px, rgba(138, 238, 195, 0.28) 35px, rgba(138, 238, 195, 0.28) 40px, transparent 41px)
-      0 0 / 120px 90px repeat-x;
+  background: radial-gradient(
+      circle at 20px 48px,
+      transparent 34px,
+      rgba(138, 238, 195, 0.28) 35px,
+      rgba(138, 238, 195, 0.28) 40px,
+      transparent 41px
+    )
+    0 0 / 120px 90px repeat-x;
 }
 
 .calendario-shell::after {
   bottom: -8px;
   transform: rotate(180deg);
-  background:
-    radial-gradient(circle at 20px 48px, transparent 34px, rgba(7, 117, 62, 0.1) 35px, rgba(7, 117, 62, 0.1) 40px, transparent 41px)
-      0 0 / 120px 90px repeat-x;
+  background: radial-gradient(
+      circle at 20px 48px,
+      transparent 34px,
+      rgba(7, 117, 62, 0.1) 35px,
+      rgba(7, 117, 62, 0.1) 40px,
+      transparent 41px
+    )
+    0 0 / 120px 90px repeat-x;
 }
 </style>
