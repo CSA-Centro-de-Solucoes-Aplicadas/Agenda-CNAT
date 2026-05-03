@@ -1,5 +1,4 @@
 import type { CollectionConfig } from 'payload'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
 
 export const Eventos: CollectionConfig = {
   slug: 'eventos',
@@ -12,10 +11,10 @@ export const Eventos: CollectionConfig = {
   },
   timestamps: true,
   access: {
-    read: () => true, // leitura pública
-    create: ({ req }) => !!req.user, // qualquer usuário autenticado
-    update: ({ req }) => !!req.user,
-    delete: ({ req }) => !!req.user,
+    read: () => true,
+    create: () => true,
+    update: () => true,
+    delete: () => true,
   },
   fields: [
     {

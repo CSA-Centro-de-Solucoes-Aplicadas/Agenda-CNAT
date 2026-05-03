@@ -106,7 +106,11 @@ function goTo(index: number) {
 
 <template>
   <div class="carousel-shell" :class="{ 'is-coverflow': isHighlight }">
-    <div class="carousel-stage">
+    <div v-if="!props.eventos.length" class="carousel-empty">
+      <strong>não há eventos cadastrados</strong>
+    </div>
+
+    <div v-else class="carousel-stage">
       <button
         v-if="totalPages > 1"
         type="button"
@@ -164,6 +168,25 @@ function goTo(index: number) {
   display: grid;
   gap: 16px;
   margin-top: 100px;
+}
+
+.carousel-empty {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgba(7, 117, 62, 0.28);
+  border-radius: 28px;
+  background:
+    linear-gradient(135deg, rgba(138, 238, 195, 0.24), rgba(255, 255, 255, 0.95)),
+    #ffffff;
+  color: #0b513f;
+  text-align: center;
+  box-shadow: 0 18px 35px rgba(2, 64, 46, 0.08);
+}
+
+.carousel-empty strong {
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  text-transform: lowercase;
 }
 
 .carousel-stage {

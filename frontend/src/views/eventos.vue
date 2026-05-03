@@ -28,21 +28,26 @@ const filteredEvents = computed(() =>
   }),
 )
 
+onMounted(loadPage)
+
 async function loadPage() {
   loading.value = true
+  feedback.value = ''
 
   try {
     const [eventData, categoryData] = await Promise.all([listEvents(), listCategories()])
     events.value = eventData
     categorySuggestions.value = categoryData.map((category) => category.nome)
+
+    if (selectedEvent.value && !eventData.some((event) => event.id === selectedEvent.value?.id)) {
+      selectedEvent.value = null
+    }
   } catch {
     feedback.value = 'Não foi possível carregar a lista de eventos.'
   } finally {
     loading.value = false
   }
 }
-
-onMounted(loadPage)
 
 async function handleSave(payload: EventPayload) {
   if (!selectedEvent.value) return
@@ -54,6 +59,7 @@ async function handleSave(payload: EventPayload) {
     const updated = await updateEvent(selectedEvent.value.id, payload)
     events.value = events.value.map((event) => (event.id === updated.id ? updated : event))
     selectedEvent.value = updated
+    categorySuggestions.value = [...new Set(events.value.flatMap((event) => event.categorias))].sort()
     feedback.value = 'Evento atualizado com sucesso.'
   } catch {
     feedback.value = 'Não foi possível atualizar o evento.'
@@ -69,6 +75,7 @@ async function handleDelete(eventId: string) {
   try {
     await deleteEvent(eventId)
     events.value = events.value.filter((event) => event.id !== eventId)
+    categorySuggestions.value = [...new Set(events.value.flatMap((event) => event.categorias))].sort()
     if (selectedEvent.value?.id === eventId) selectedEvent.value = null
     feedback.value = 'Evento removido com sucesso.'
   } catch {
@@ -92,31 +99,39 @@ async function handleDelete(eventId: string) {
         <input v-model="query" type="search" placeholder="Buscar por título, local ou categoria" />
       </section>
 
-      <p v-if="feedback" class="feedback">{{ feedback }}</p>
+      <div v-if="feedback" class="feedback">
+        <span>{{ feedback }}</span>
+        <button v-if="!loading && !events.length" type="button" @click="loadPage">Tentar novamente</button>
+      </div>
 
       <div class="manager-layout">
         <section class="event-list">
-          <div v-if="loading" class="list-card">Carregando eventos...</div>
-          <article
-            v-for="event in filteredEvents"
-            :key="event.id"
-            class="list-card"
-            :class="{ active: selectedEvent?.id === event.id }"
-            @click="selectedEvent = event"
-          >
-            <div class="list-card__top">
-              <span>{{ event.categorias[0] || 'Evento' }}</span>
-              <small>{{ formatDateRange(event.dataEventoInicio, event.dataEventoFim) }}</small>
-            </div>
-            <strong>{{ event.titulo }}</strong>
-            <p>{{ event.local }}</p>
-            <div class="list-card__actions">
-              <span>Editar</span>
-              <button type="button" class="delete-button" @click.stop="handleDelete(event.id)">
-                Excluir
-              </button>
-            </div>
-          </article>
+          <div v-if="loading" class="list-card list-card--status">Carregando eventos...</div>
+          <div v-else-if="!filteredEvents.length" class="list-card list-card--status">
+            não há eventos cadastrados
+          </div>
+          <template v-else>
+            <article
+              v-for="event in filteredEvents"
+              :key="event.id"
+              class="list-card"
+              :class="{ active: selectedEvent?.id === event.id }"
+              @click="selectedEvent = event"
+            >
+              <div class="list-card__top">
+                <span>{{ event.categorias[0] || 'Evento' }}</span>
+                <small>{{ formatDateRange(event.dataEventoInicio, event.dataEventoFim) }}</small>
+              </div>
+              <strong>{{ event.titulo }}</strong>
+              <p>{{ event.local }}</p>
+              <div class="list-card__actions">
+                <span>Editar</span>
+                <button type="button" class="delete-button" @click.stop="handleDelete(event.id)">
+                  Excluir
+                </button>
+              </div>
+            </article>
+          </template>
         </section>
 
         <section class="editor-panel">
@@ -202,6 +217,22 @@ async function handleDelete(eventId: string) {
   border-radius: 20px;
   padding: 16px 18px;
   box-shadow: 0 18px 35px rgba(2, 64, 46, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.feedback button {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: #07753e;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .manager-layout {
@@ -233,6 +264,18 @@ async function handleDelete(eventId: string) {
   display: grid;
   gap: 10px;
   cursor: pointer;
+}
+
+.list-card--status {
+  min-height: 160px;
+  place-items: center;
+  border-style: dashed;
+  border-color: rgba(7, 117, 62, 0.28);
+  color: #0b513f;
+  font-size: 1.1rem;
+  font-weight: 800;
+  text-align: center;
+  cursor: default;
 }
 
 .list-card.active {

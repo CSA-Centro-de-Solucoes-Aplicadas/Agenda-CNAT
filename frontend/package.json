@@ -8,7 +8,6 @@
   },
   "scripts": {
     "dev": "vite",
-    "dev:mock": "cross-env VITE_USE_MOCK=true vite",
     "build": "vite build",
     "preview": "vite preview",
     "build-only": "vite build",

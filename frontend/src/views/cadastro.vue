@@ -10,15 +10,18 @@ import type { EventPayload } from '@/types/event'
 const busy = ref(false)
 const message = ref('')
 const categorySuggestions = ref<string[]>([])
+const formKey = ref(0)
 
-onMounted(async () => {
+onMounted(loadCategories)
+
+async function loadCategories() {
   try {
     const categories = await listCategories()
     categorySuggestions.value = categories.map((category) => category.nome)
   } catch {
     categorySuggestions.value = []
   }
-})
+}
 
 async function handleSubmit(payload: EventPayload) {
   busy.value = true
@@ -27,11 +30,37 @@ async function handleSubmit(payload: EventPayload) {
   try {
     await createEvent(payload)
     message.value = 'Evento cadastrado com sucesso.'
-  } catch {
-    message.value = 'Não foi possível cadastrar o evento.'
+    formKey.value += 1
+    await loadCategories()
+  } catch (error) {
+    message.value = getErrorMessage(error)
   } finally {
     busy.value = false
   }
+}
+
+function getErrorMessage(error: unknown) {
+  const maybeAxiosError = error as {
+    response?: {
+      status?: number
+      data?: {
+        message?: string
+        errors?: Array<{ message?: string }>
+      }
+    }
+    message?: string
+  }
+
+  const apiMessage =
+    maybeAxiosError.response?.data?.message ||
+    maybeAxiosError.response?.data?.errors?.map((item) => item.message).filter(Boolean).join(' ')
+
+  if (apiMessage) return `Não foi possível cadastrar o evento: ${apiMessage}`
+  if (maybeAxiosError.response?.status) {
+    return `Não foi possível cadastrar o evento. Erro ${maybeAxiosError.response.status} no backend.`
+  }
+
+  return 'Não foi possível cadastrar o evento. Verifique se o backend está rodando.'
 }
 </script>
 
@@ -49,6 +78,7 @@ async function handleSubmit(payload: EventPayload) {
         <p v-if="message" class="feedback">{{ message }}</p>
 
         <EventForm
+          :key="formKey"
           :busy="busy"
           :category-suggestions="categorySuggestions"
           submit-label="Cadastrar evento"

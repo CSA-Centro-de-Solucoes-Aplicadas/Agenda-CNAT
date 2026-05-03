@@ -1,47 +1,41 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { fetchEventos, type PayloadEvento } from '@/services/api'
+import { computed, onMounted, ref } from 'vue'
 
-interface Evento {
-  id: number
+import type { EventRecord } from '@/types/event'
+
+interface EventoCalendario {
+  id: string
   nome: string
   dataInicio: string
   dataFim: string
 }
 
-const eventos = ref<Evento[]>([])
-const loading = ref(true)
-
-// Converte evento da API para formato local
-function apiToLocal(ev: PayloadEvento): Evento {
-  const fmtDate = (iso?: string | null): string => {
-    if (!iso) return ''
-    const d = new Date(iso)
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-  }
-  return {
-    id: ev.id,
-    nome: ev.titulo,
-    dataInicio: fmtDate(ev.dataEventoInicio),
-    dataFim: fmtDate(ev.dataEventoFinal || ev.dataEventoInicio),
-  }
-}
-
-onMounted(async () => {
-  try {
-    const res = await fetchEventos({ limit: 200, where: { visivel: { equals: true } } })
-    eventos.value = res.docs.map(apiToLocal)
-  } catch (err) {
-    console.error('Erro ao carregar eventos do calendário:', err)
-  } finally {
-    loading.value = false
-  }
-})
+const props = defineProps<{
+  eventos: EventRecord[]
+}>()
 
 const hoje = new Date()
 const dataBase = ref(new Date(hoje.getFullYear(), hoje.getMonth()))
-
 const isMobile = ref(false)
+const legendaExpandida = ref<Record<number, boolean>>({})
+const PALETA_CORES = ['#57c083', '#5c95bb', '#e66070', '#f2a65a', '#9b6bcc']
+
+const eventos = computed(() => props.eventos.map(eventToCalendar))
+
+function eventToCalendar(event: EventRecord): EventoCalendario {
+  return {
+    id: event.id,
+    nome: event.titulo,
+    dataInicio: formatIsoDate(event.dataEventoInicio),
+    dataFim: formatIsoDate(event.dataEventoFim || event.dataEventoInicio),
+  }
+}
+
+function formatIsoDate(iso?: string | null): string {
+  if (!iso) return ''
+  const date = new Date(iso)
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
 
 function verificarTela() {
   isMobile.value = window.innerWidth <= 480
@@ -54,30 +48,19 @@ onMounted(() => {
 
 function proximo() {
   const passo = isMobile.value ? 1 : 2
-  dataBase.value = new Date(
-    dataBase.value.getFullYear(),
-    dataBase.value.getMonth() + passo
-  )
+  dataBase.value = new Date(dataBase.value.getFullYear(), dataBase.value.getMonth() + passo)
 }
 
 function anterior() {
   const passo = isMobile.value ? 1 : 2
-  dataBase.value = new Date(
-    dataBase.value.getFullYear(),
-    dataBase.value.getMonth() - passo
-  )
+  dataBase.value = new Date(dataBase.value.getFullYear(), dataBase.value.getMonth() - passo)
 }
 
-
-const legendaExpandida = ref<Record<number, boolean>>({})
 function eventosVisiveis(ano: number, mes: number) {
   const lista = eventosDoMes(ano, mes)
   const chave = ano * 100 + mes
 
-  if (legendaExpandida.value[chave]) {
-    return lista
-  }
-
+  if (legendaExpandida.value[chave]) return lista
   return lista.slice(0, 2)
 }
 
@@ -85,39 +68,35 @@ function toggleLegenda(ano: number, mes: number) {
   const chave = ano * 100 + mes
   legendaExpandida.value[chave] = !legendaExpandida.value[chave]
 }
-function corDoEvento(ev: Evento) {
-  return PALETA_CORES[ev.id % PALETA_CORES.length]
+
+function corDoEvento(event: EventoCalendario) {
+  return PALETA_CORES[indiceDoEvento(event.id) % PALETA_CORES.length]
 }
 
-function eventosDoDia(data: Date | null): Evento[] {
+function indiceDoEvento(id: string) {
+  return Array.from(id).reduce((total, char) => total + char.charCodeAt(0), 0)
+}
+
+function eventosDoDia(data: Date | null): EventoCalendario[] {
   if (!data) return []
 
-  return eventos.value.filter((ev) => {
-    const inicio = criarDataLocal(ev.dataInicio)
-    const fim = criarDataLocal(ev.dataFim)
-
+  return eventos.value.filter((event) => {
+    const inicio = criarDataLocal(event.dataInicio)
+    const fim = criarDataLocal(event.dataFim)
     return data >= inicio && data <= fim
   })
 }
-function gradientePizza(eventosNoDia: Evento[]) {
+
+function gradientePizza(eventosNoDia: EventoCalendario[]) {
   if (eventosNoDia.length === 0) return '#efeded'
 
-  const cores = eventosNoDia
-    .slice(0, 5) 
-    .map(corDoEvento)
-
+  const cores = eventosNoDia.slice(0, 5).map(corDoEvento)
   const step = 360 / cores.length
 
   return `conic-gradient(${cores
-    .map((cor, i) => {
-      const start = i * step
-      const end = (i + 1) * step
-      return `${cor} ${start}deg ${end}deg`
-    })
+    .map((cor, index) => `${cor} ${index * step}deg ${(index + 1) * step}deg`)
     .join(', ')})`
 }
-
-const PALETA_CORES = ['#57c083', '#5c95bb', '#e66070', '#f2a65a', '#9b6bcc']
 
 function criarDataLocal(data: string) {
   const [ano = 0, mes = 1, dia = 1] = data.split('-').map(Number)
@@ -126,29 +105,22 @@ function criarDataLocal(data: string) {
 
 function gerarDiasDoMes(ano: number, mes: number) {
   const dias: (Date | null)[] = []
-
   const primeiroDiaSemana = new Date(ano, mes, 1).getDay()
   const totalDias = new Date(ano, mes + 1, 0).getDate()
 
-  for (let i = 0; i < primeiroDiaSemana; i++) {
-    dias.push(null)
-  }
-
-  for (let i = 1; i <= totalDias; i++) {
-    dias.push(new Date(ano, mes, i))
-  }
+  for (let index = 0; index < primeiroDiaSemana; index++) dias.push(null)
+  for (let dia = 1; dia <= totalDias; dia++) dias.push(new Date(ano, mes, dia))
 
   return dias
 }
 
-
 function eventosDoMes(ano: number, mes: number) {
-  return eventos.value.filter((ev) => {
-    const ini = criarDataLocal(ev.dataInicio)
-    const fim = criarDataLocal(ev.dataFim)
+  return eventos.value.filter((event) => {
+    const inicio = criarDataLocal(event.dataInicio)
+    const fim = criarDataLocal(event.dataFim)
 
     return (
-      (ini.getFullYear() === ano && ini.getMonth() === mes) ||
+      (inicio.getFullYear() === ano && inicio.getMonth() === mes) ||
       (fim.getFullYear() === ano && fim.getMonth() === mes)
     )
   })
@@ -157,74 +129,59 @@ function eventosDoMes(ano: number, mes: number) {
 const meses = computed(() => {
   const formatarMesAno = (data: Date) => {
     const mes = data.toLocaleDateString('pt-BR', { month: 'long' })
-    const ano = data.getFullYear()
-    return `${mes}, ${ano}`
+    return `${mes}, ${data.getFullYear()}`
   }
 
-  const m1 = dataBase.value
-
+  const mesAtual = dataBase.value
   const lista = [
     {
-      ano: m1.getFullYear(),
-      mes: m1.getMonth(),
-      nome: formatarMesAno(m1),
-      dias: gerarDiasDoMes(m1.getFullYear(), m1.getMonth()),
+      ano: mesAtual.getFullYear(),
+      mes: mesAtual.getMonth(),
+      nome: formatarMesAno(mesAtual),
+      dias: gerarDiasDoMes(mesAtual.getFullYear(), mesAtual.getMonth()),
     },
   ]
 
-  // Só adiciona o segundo mês se NÃO for mobile
   if (!isMobile.value) {
-    const m2 = new Date(m1.getFullYear(), m1.getMonth() + 1)
-
+    const proximoMes = new Date(mesAtual.getFullYear(), mesAtual.getMonth() + 1)
     lista.push({
-      ano: m2.getFullYear(),
-      mes: m2.getMonth(),
-      nome: formatarMesAno(m2),
-      dias: gerarDiasDoMes(m2.getFullYear(), m2.getMonth()),
+      ano: proximoMes.getFullYear(),
+      mes: proximoMes.getMonth(),
+      nome: formatarMesAno(proximoMes),
+      dias: gerarDiasDoMes(proximoMes.getFullYear(), proximoMes.getMonth()),
     })
   }
 
   return lista
 })
 
-
 function formatarData(data: string) {
-  const [, m = '--', d = '--'] = data.split('-')
-  return `${d}/${m}`
+  const [, mes = '--', dia = '--'] = data.split('-')
+  return `${dia}/${mes}`
 }
 </script>
 
 <template>
   <div class="calendario">
-    <section class="mes" v-for="(mes, index) in meses" :key="index">
+    <section v-for="(mes, index) in meses" :key="`${mes.ano}-${mes.mes}`" class="mes">
       <div class="cabecalho">
-       
-        <button
-          v-if="index === 0"
-          @click="anterior"
-        >
+        <button v-if="index === 0" type="button" @click="anterior">
           ‹
         </button>
 
         <h3>{{ mes.nome }}</h3>
 
-        
-        <button
-          v-if="!isMobile && index === 1 || isMobile"
-          @click="proximo"
-        >
+        <button v-if="(!isMobile && index === 1) || isMobile" type="button" @click="proximo">
           ›
         </button>
       </div>
 
-
       <div class="dias-semana">
-        <span>D</span><span>S</span><span>T</span> <span>Q</span><span>Q</span><span>S</span
-        ><span>S</span>
+        <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
       </div>
 
       <div class="dias">
-        <span v-for="(dia, i) in mes.dias" :key="i" class="dia">
+        <span v-for="(dia, diaIndex) in mes.dias" :key="diaIndex" class="dia">
           <span
             v-if="dia"
             class="dia-bg"
@@ -237,19 +194,20 @@ function formatarData(data: string) {
 
       <div class="legenda">
         <p
-          v-for="ev in eventosVisiveis(mes.ano, mes.mes)"
-          :key="ev.id"
-          :style="{ color: corDoEvento(ev) }"
+          v-for="event in eventosVisiveis(mes.ano, mes.mes)"
+          :key="event.id"
+          :style="{ color: corDoEvento(event) }"
         >
-          <span class="data-inicio">{{ formatarData(ev.dataInicio) }}</span>
+          <span class="data-inicio">{{ formatarData(event.dataInicio) }}</span>
           <span class="ate"> até </span>
-          <span class="data-fim">{{ formatarData(ev.dataFim) }}</span>
-          <span class="traco"> – </span>
-          <span class="nome-evento">{{ ev.nome }}</span>
+          <span class="data-fim">{{ formatarData(event.dataFim) }}</span>
+          <span class="traco"> - </span>
+          <span class="nome-evento">{{ event.nome }}</span>
         </p>
 
         <button
           v-if="eventosDoMes(mes.ano, mes.mes).length > 2"
+          type="button"
           class="ver-mais"
           @click="toggleLegenda(mes.ano, mes.mes)"
         >
@@ -269,7 +227,6 @@ function formatarData(data: string) {
   border-radius: 18px;
   max-width: 1100px;
   margin: 34px auto;
-
   flex-wrap: nowrap;
   justify-content: space-between;
 }
@@ -301,7 +258,6 @@ button {
   border-radius: 50%;
   width: 40px;
   height: 40px;
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -347,6 +303,7 @@ button {
   z-index: 2;
   color: #ffffff;
 }
+
 .legenda {
   margin-top: 10px;
   font-size: 15px;
@@ -355,17 +312,11 @@ button {
 }
 
 .ate,
-.traco {
-  color: #007c91;
-}
-
+.traco,
 .nome-evento {
   color: #007c91;
 }
 
-.ver-mais {
-  font-size: 7px;
-}
 .legenda p {
   margin-bottom: 4px;
 }
@@ -379,21 +330,22 @@ button {
   color: #3498db;
   cursor: pointer;
   font-weight: 600;
+  width: auto;
+  height: auto;
+  border-radius: 0;
 }
 
 @media (max-width: 680px) {
   .calendario {
     padding: 50px;
     gap: 16px;
-
     margin: 16px 12px;
     max-width: calc(100% - 24px);
   }
 
-.mes {
-  width: 100%;
-}
-
+  .mes {
+    width: 100%;
+  }
 
   h3 {
     font-size: 15px;
@@ -422,6 +374,7 @@ button {
   .legenda {
     font-size: 14px;
   }
+
   .ver-mais {
     font-size: 10px;
   }

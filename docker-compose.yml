@@ -16,11 +16,9 @@ services:
     restart: unless-stopped
     ports:
       - '3000:3000'
-    env_file:
-      - .env
     environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - PAYLOAD_SECRET=${PAYLOAD_SECRET}
+      - DATABASE_URL=${DATABASE_URL:-postgres://agenda_user:k9Xm2PqL5vJw8Zn4R7bT3yH6cF1gS0dM@postgres:5432/agenda_db}
+      - PAYLOAD_SECRET=${PAYLOAD_SECRET:-agenda-cnat-local-dev-secret}
     depends_on:
       - postgres
     networks:
@@ -35,11 +33,9 @@ services:
     restart: unless-stopped
     ports:
       - '8080:80'
-    env_file:
-      - .env
     environment:
-      - VITE_PAYLOAD_URL=${VITE_PAYLOAD_URL}
-      - VITE_PAYLOAD_API_PATH=${VITE_PAYLOAD_API_PATH}
+      - VITE_PAYLOAD_URL=${VITE_PAYLOAD_URL:-http://localhost:3000}
+      - VITE_PAYLOAD_API_PATH=${VITE_PAYLOAD_API_PATH:-/api}
     depends_on:
       - payload
     networks:
