@@ -93,7 +93,11 @@ function closeModal() {
 
       <section id="adicionar-evento" class="adicionar-evento">
         <div class="adicionarEvento-container">
-          <img :src="vetorImg" alt="Ilustração da seção de solicitação de evento" class="adicionarEvento-vetor" />
+          <img
+            :src="vetorImg"
+            alt="Ilustração da seção de solicitação de evento"
+            class="adicionarEvento-vetor"
+          />
 
           <div class="adicionarEvento-texto">
             <span class="eyebrow">Solicitações</span>
@@ -133,7 +137,11 @@ function closeModal() {
 
     <Teleport to="body">
       <Transition name="fade">
-        <Modal v-if="showModal && selectedEvent" :eventoSelecionado="selectedEvent" @close="closeModal" />
+        <Modal
+          v-if="showModal && selectedEvent"
+          :eventoSelecionado="selectedEvent"
+          @close="closeModal"
+        />
       </Transition>
     </Teleport>
   </div>

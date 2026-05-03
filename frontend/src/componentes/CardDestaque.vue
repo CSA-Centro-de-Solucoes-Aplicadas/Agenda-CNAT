@@ -20,18 +20,38 @@ const props = defineProps<{
 
     <div class="highlight-card__content">
       <h3 class="title">{{ props.evento.titulo }}</h3>
-      
+
       <div class="info-list">
         <div class="info-item">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
             <circle cx="12" cy="10" r="3"></circle>
           </svg>
           <span>{{ props.evento.local }}</span>
         </div>
-        
+
         <div class="info-item">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
             <line x1="16" y1="2" x2="16" y2="6"></line>
             <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -48,14 +68,14 @@ const props = defineProps<{
 .highlight-card {
   position: relative;
   aspect-ratio: 16 / 10;
-  min-height: 280px; 
-  border-radius: 24px; /* Bordas mais arredondadas */
+  min-height: 280px;
+  border-radius: 24px;
   overflow: hidden;
   display: flex;
   align-items: flex-end;
   background-color: #1a1a1a;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  transform: translateZ(0); 
+  transform: translateZ(0);
 }
 
 .poster-layer,
@@ -77,14 +97,19 @@ const props = defineProps<{
 .default-bg {
   background:
     linear-gradient(180deg, rgba(16, 42, 34, 0.12), rgba(16, 42, 34, 0.32)),
-    url('@/assets/images/illustrations/fundodestaque.png') center / cover no-repeat;
+    url('@/assets/evento.jpg') center / cover no-repeat;
 }
 
 .highlight-card::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.2) 60%, transparent 100%);
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.95) 0%,
+    rgba(0, 0, 0, 0.2) 60%,
+    transparent 100%
+  );
   z-index: 1;
   pointer-events: none;
 }
@@ -104,7 +129,12 @@ const props = defineProps<{
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.12) 38%, rgba(0, 0, 0, 0.5) 100%);
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.12) 38%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
 }
 
 .title {
@@ -137,26 +167,25 @@ const props = defineProps<{
   flex-shrink: 0;
 }
 
-
 @media (max-width: 640px) {
   .highlight-card {
-    aspect-ratio: 4 / 5; 
-    min-height: 380px;  
-    border-radius: 24px; /* Mantém bem arredondado no mobile também */
+    aspect-ratio: 4 / 5;
+    min-height: 380px;
+    border-radius: 24px;
   }
-  
+
   .highlight-card__content {
     padding: 24px;
-    gap: 16px; 
+    gap: 16px;
   }
-  
+
   .title {
-    font-size: 1.5rem; 
-    -webkit-line-clamp: 3; 
+    font-size: 1.5rem;
+    -webkit-line-clamp: 3;
   }
 
   .info-item {
-    font-size: 1rem; 
+    font-size: 1rem;
   }
 }
 </style>
