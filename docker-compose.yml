@@ -6,6 +6,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-agenda_db}
       POSTGRES_USER: ${POSTGRES_USER:-agenda_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-k9Xm2PqL5vJw8Zn4R7bT3yH6cF1gS0dM}
+    ports:
+      - '5432:5432'
     volumes:
       - db-data:/var/lib/postgresql/data
     networks:

@@ -71,8 +71,10 @@ Configuração da interface do usuário.
 **ATENÇÃO**: As variáveis abaixo devem ser inseridas **ANTES** de executar o build (Deploy), pois são incorporadas estaticamente ao código.
 
 ```env
-# URL da API de Produção (Sem a barra no final)
-VITE_API_URL=https://api.agenda.seudominio.com.br
+# URL base do Payload CMS
+VITE_PAYLOAD_URL=https://api.agenda.seudominio.com.br
+# Caminho da API
+VITE_PAYLOAD_API_PATH=/api
 ```
 
 ## 5. Domínios e SSL
