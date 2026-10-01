@@ -129,7 +129,7 @@ function buildDjangoEventFormData(payload: EventPayload) {
 async function uploadMedia(file: File) {
   const formData = new FormData()
   formData.append('file', file)
-  formData.append('alt', file.name)
+  formData.append('_payload', JSON.stringify({ alt: file.name }))
 
   const { data } = await api.post<{ doc?: PayloadMedia } | PayloadMedia>('/media', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
@@ -213,13 +213,7 @@ export async function deleteEvent(id: string) {
 }
 
 export async function listCategories(): Promise<CategoryRecord[]> {
-  try {
-    const { data } = await api.get<CategoryRecord[]>('/categories/')
-    return data
-  } catch (error: any) {
-    if (error?.response?.status !== 404) throw error
-    const events = await listEvents()
-    const names = [...new Set(events.flatMap((event) => event.categorias))].sort()
-    return names.map((nome) => ({ id: nome, nome, descricao: null }))
-  }
+  const events = await listEvents()
+  const names = [...new Set(events.flatMap((event) => event.categorias))].sort()
+  return names.map((nome) => ({ id: nome, nome, descricao: null }))
 }

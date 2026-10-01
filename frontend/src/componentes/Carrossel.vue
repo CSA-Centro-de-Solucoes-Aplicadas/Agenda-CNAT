@@ -112,7 +112,7 @@ function goTo(index: number) {
 
     <div v-else class="carousel-stage">
       <button
-        v-if="totalPages > 1"
+        v-if="totalPages > 0"
         type="button"
         class="nav-button nav-button--prev"
         @click="previous"
