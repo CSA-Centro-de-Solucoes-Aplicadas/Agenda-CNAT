@@ -69,6 +69,7 @@ function syncForm(event: EventRecord | null) {
   form.dataInscricaoFim = toDateInputValue(event?.dataInscricaoFim) ?? ''
   form.categorias = [...(event?.categorias ?? [])]
   form.organizadores = event?.organizadores?.length ? [...event.organizadores] : ['']
+  console.log(event?.imagem)
   previewUrl.value = event?.imagem ?? null
   imageFile.value = null
   errors.value = []
@@ -204,12 +205,12 @@ function handleSubmit() {
       <div class="form-grid">
         <label class="field field--wide">
           <span>Nome do evento</span>
-          <input v-model="form.titulo" type="text" placeholder="Semana de Tecnologia do IFRN" />
+          <input v-model="form.titulo" type="text" placeholder="Semana de Tecnologia do IFRN" maxlength="75"/>
         </label>
 
         <label class="field">
           <span>Local</span>
-          <input v-model="form.local" type="text" placeholder="Campus Natal-Central" />
+          <input v-model="form.local" type="text" placeholder="Campus Natal-Central" maxlength="50" />
         </label>
 
         <label class="field">
@@ -223,6 +224,7 @@ function handleSubmit() {
             v-model="form.descricao"
             rows="5"
             placeholder="Descreva o objetivo do evento, público e atividades."
+            maxlength="750"
           />
         </label>
 
@@ -284,6 +286,7 @@ function handleSubmit() {
                 type="text"
                 placeholder="Tecnologia"
                 @keydown.enter.prevent="addCategory(categoryInput)"
+                maxlength="20"
               />
               <button type="button" class="inline-button" @click="addCategory(categoryInput)">
                 Adicionar
